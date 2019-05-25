@@ -12,6 +12,7 @@ public enum Symbol {
     COMMA("comma", ","),
     STRING("string", "[a-z][A-Z]+"),
     AT("at", "@"),
+    NEWLINE("the line break characters", "\r\n"),
     SPACE("space", "[ \\t]");
 
     private final String description;

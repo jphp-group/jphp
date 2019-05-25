@@ -41,7 +41,7 @@ var_dump($date1->format('Y-m-d') == $date2->format('Y-m-d'));
 ?>
 --EXPECTF--
 Tue, 17 May 2011 22:14:12 +0000
-Tue, %d %s %d 00:00:00 +0000
+Tue, %02d %s %d 00:00:00 +0000
 bool(true)
 Fri, 20 May 2011 00:00:00 +0000
 Fri, 20 May 2011 00:00:00 +0000

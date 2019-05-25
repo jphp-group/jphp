@@ -46,11 +46,11 @@ string(6) "Y-m-d+"
 string(19) "2001-11-29 13:20:01"
 object(DateTime)#%d (3) {
   ["date"]=>
-  string(26) "2001-11-29 %d:%d:%d.%d"
+  string(26) "2001-11-29 %02d:%02d:%02d.%06d"
   ["timezone_type"]=>
   int(3)
   ["timezone"]=>
-  string(%d) "%s"
+  string(3) "UTC"
 }
 array(4) {
   ["warning_count"]=>
@@ -72,11 +72,11 @@ string(7) "Y-m-d +"
 string(19) "2001-11-29 13:20:01"
 object(DateTime)#%d (3) {
   ["date"]=>
-  string(26) "2001-11-29 %d:%d:%d.%d"
+  string(26) "2001-11-29 %02d:%02d:%02d.%06d"
   ["timezone_type"]=>
   int(3)
   ["timezone"]=>
-  string(%d) "%s"
+  string(3) "UTC"
 }
 array(4) {
   ["warning_count"]=>
@@ -98,11 +98,11 @@ string(6) "Y-m-d+"
 string(10) "2001-11-29"
 object(DateTime)#%d (3) {
   ["date"]=>
-  string(26) "2001-11-29 %d:%d:%d.%d"
+  string(26) "2001-11-29 %02d:%02d:%02d.%06d"
   ["timezone_type"]=>
   int(3)
   ["timezone"]=>
-  string(%d) "%s"
+  string(3) "UTC"
 }
 array(4) {
   ["warning_count"]=>
@@ -141,11 +141,11 @@ string(7) "Y-m-d +"
 string(11) "2001-11-29 "
 object(DateTime)#%d (3) {
   ["date"]=>
-  string(26) "2001-11-29 %d:%d:%d.%d"
+  string(26) "2001-11-29 %02d:%02d:%02d.%06d"
   ["timezone_type"]=>
   int(3)
   ["timezone"]=>
-  string(%d) "%s"
+  string(3) "UTC"
 }
 array(4) {
   ["warning_count"]=>

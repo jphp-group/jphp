@@ -3,12 +3,16 @@ package org.develnext.jphp.zend.ext.standard.date;
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
+import static java.time.temporal.ChronoField.MICRO_OF_SECOND;
+import static java.time.temporal.ChronoField.MILLI_OF_SECOND;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 import static java.time.temporal.ChronoField.YEAR;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.MICROS;
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static java.time.temporal.ChronoUnit.MONTHS;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -20,9 +24,11 @@ import static java.time.temporal.TemporalAdjusters.previousOrSame;
 
 import java.time.DateTimeException;
 import java.time.DayOfWeek;
+import java.time.Year;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
@@ -43,9 +49,17 @@ class Adjusters {
             year = 1970 + year;
         }
 
-        long y = year;
+        final long y = year;
 
         return temporal -> temporal.with(YEAR, y);
+    }
+
+    public static TemporalAdjuster nextOrSameDayOfWeek(int dow) {
+        return TemporalAdjusters.nextOrSame(DayOfWeek.of(dow));
+    }
+
+    public static TemporalAdjuster nextDayOfWeek(int dow) {
+        return TemporalAdjusters.nextOrSame(DayOfWeek.of(dow));
     }
 
     public static TemporalAdjuster nthDayOfWeek(String dow, String ordinal) {
@@ -122,11 +136,13 @@ class Adjusters {
         return temporal -> temporal.with(ChronoField.MONTH_OF_YEAR, monthNameToNumber(month));
     }
 
-    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(DateTimeParserContext ctx, String unit, String ordinal) {
+    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(DateTimeParserContext ctx, String unit,
+                                                                     String ordinal) {
         return relativeUnit(ctx, unit, ordinalToNumber(ordinal));
     }
 
-    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(DateTimeParserContext ctx, String unit, final long value) {
+    public static Pair<TemporalAdjuster, TemporalField> relativeUnit(DateTimeParserContext ctx, String unit,
+                                                                     final long value) {
         ChronoUnit chronoUnit;
         TemporalField field;
 
@@ -135,7 +151,9 @@ class Adjusters {
             case "years":
                 return Pair.of(temporal -> {
                     try {
-                        return temporal.plus(value, YEARS);
+                        Temporal ret = temporal.plus(value, YEARS);
+                        ctx.addRelativeContributor(unit, value);
+                        return ret;
                     } catch (DateTimeException e) {
                         ValueRange range = YEAR.range();
                         long validYear = value < range.getMinimum() ? range.getMinimum() : range.getMaximum();
@@ -157,6 +175,7 @@ class Adjusters {
                 chronoUnit = HOURS;
                 field = HOUR_OF_DAY;
                 return Pair.of(temporal -> {
+                    ctx.addRelativeContributor("hour", value);
                     if (!ctx.isModifiedTimezone() && temporal instanceof ZonedDateTime) {
                         ZonedDateTime dateTime = (ZonedDateTime) temporal;
 
@@ -179,6 +198,24 @@ class Adjusters {
                 chronoUnit = SECONDS;
                 field = SECOND_OF_MINUTE;
                 break;
+            case "millisecond":
+            case "milliseconds":
+            case "msecs":
+            case "msec":
+            case "ms":
+                chronoUnit = MILLIS;
+                field = MILLI_OF_SECOND;
+                break;
+            case "microsecond":
+            case "microseconds":
+            case "usec":
+            case "usecs":
+            case "µs":
+            case "µsec":
+            case "µsecs":
+                chronoUnit = MICROS;
+                field = MICRO_OF_SECOND;
+                break;
             case "week":
             case "weeks":
                 chronoUnit = WEEKS;
@@ -188,7 +225,11 @@ class Adjusters {
             case "forthnight":
             case "fortnights":
             case "forthnights":
-                return Pair.of(temporal -> temporal.plus(value * 14L, DAYS), DAY_OF_MONTH);
+                return Pair.of(temporal -> {
+                    long amountToAdd = value * 14L;
+                    ctx.addRelativeContributor("day", amountToAdd);
+                    return temporal.plus(amountToAdd, DAYS);
+                }, DAY_OF_MONTH);
             case "weekday":
             case "weekdays":
                 return Pair.of(plusBusinessDays(value), DAY_OF_MONTH);
@@ -196,20 +237,36 @@ class Adjusters {
                 throw new IllegalArgumentException("Unknown unit: " + unit);
         }
 
-        return Pair.of(temporal -> temporal.plus(value, chronoUnit), field);
+        return Pair.of(temporal -> {
+            String chronoUnitAsString = chronoUnit.toString();
+            String u = chronoUnitAsString.toLowerCase().substring(0, chronoUnitAsString.length() - 1);
+
+            ctx.addRelativeContributor(u, value);
+            return temporal.plus(value, chronoUnit);
+        }, field);
     }
 
-    public static TemporalAdjuster plusBusinessDays(long days) {
-        return temporal -> temporal.plus(getAllDays(temporal.get(DAY_OF_WEEK), days) * Long.signum(days), DAYS);
+    private static TemporalAdjuster plusBusinessDays(long days) {
+        return temporal -> {
+
+            temporal = temporal.plus(getAllDays(temporal.get(DAY_OF_WEEK), days) * Long.signum(days), DAYS);
+            DayOfWeek dayOfWeek = DayOfWeek.of(temporal.get(DAY_OF_WEEK));
+
+            if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+                temporal = temporal.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+            }
+
+            return temporal;
+        };
     }
 
-    public static TemporalAdjuster meridian(boolean am) {
+    static TemporalAdjuster meridian(boolean am) {
         return temporal -> am ?
                 temporal.with(HOUR_OF_DAY, temporal.get(HOUR_OF_DAY) % 12) :
                 temporal.with(HOUR_OF_DAY, temporal.get(HOUR_OF_DAY) + 12);
     }
 
-    public static TemporalAdjuster compose(TemporalAdjuster first, TemporalAdjuster second) {
+    static TemporalAdjuster compose(TemporalAdjuster first, TemporalAdjuster second) {
         return temporal -> temporal.with(first).with(second);
     }
 
@@ -235,8 +292,12 @@ class Adjusters {
         return result;
     }
 
-    public static DayOfWeek dayOfWeek(String dow) {
+    static DayOfWeek dayOfWeek(String dow) {
         return DayOfWeek.of(weekDayValue(dow));
+    }
+
+    static int lastDayOfMonth(ZonedDateTime dateTime) {
+        return dateTime.getMonth().length(Year.isLeap(dateTime.getYear()));
     }
 
     private static int weekDayValue(String weekDay) {

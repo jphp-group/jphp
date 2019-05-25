@@ -12,6 +12,5 @@ var_dump($interval->abcde);
 --EXPECTF--
 bool(false)
 bool(false)
-
-Notice: Undefined property: DateInterval::$abcde in %s on line %d
+Notice: Undefined property: DateInterval::$abcde in %s on line %d at pos %d
 NULL

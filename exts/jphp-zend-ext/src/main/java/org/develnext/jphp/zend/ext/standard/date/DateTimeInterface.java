@@ -5,6 +5,8 @@ import org.develnext.jphp.zend.ext.standard.DateConstants;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Arg;
+import php.runtime.annotation.Reflection.Final;
+import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Optional;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
@@ -12,7 +14,9 @@ import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.IObject;
 
-@Reflection.Name("DateTimeInterface")
+@Name("DateTimeInterface")
+@Final
+@SuppressWarnings("unused")
 public interface DateTimeInterface extends IObject {
     Memory ATOM = DateConstants.DATE_ATOM;
     Memory COOKIE = DateConstants.DATE_COOKIE;
@@ -24,6 +28,7 @@ public interface DateTimeInterface extends IObject {
     Memory RFC2822 = DateConstants.DATE_RFC2822;
     Memory RFC3339 = DateConstants.DATE_RFC3339;
     Memory RFC3339_EXTENDED = DateConstants.DATE_RFC3339_EXTENDED;
+    Memory RFC7231 = DateConstants.DATE_RFC7231;
     Memory RSS = DateConstants.DATE_RSS;
     Memory W3C = DateConstants.DATE_W3C;
 
@@ -31,7 +36,7 @@ public interface DateTimeInterface extends IObject {
             @Arg(value = "datetime2", type = HintType.OBJECT, typeClass = "DateTimeInterface"),
             @Arg(value = "absolute", type = HintType.BOOLEAN, optional = @Optional("FALSE"))
     }, result = @Arg(type = HintType.OBJECT, typeClass = "DateInterval"))
-    Memory diff(Environment env, TraceInfo traceInfo, Memory... args);
+    Memory diff(Environment env, TraceInfo traceInfo, Memory dateTimeInterface);
 
     @Signature(value = {@Arg(value = "format", type = HintType.STRING)}, result = @Arg(type = HintType.STRING))
     Memory format(Environment env, TraceInfo traceInfo, String format);

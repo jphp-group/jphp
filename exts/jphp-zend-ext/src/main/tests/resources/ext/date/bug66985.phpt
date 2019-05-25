@@ -3,7 +3,7 @@ Bug #66985 (Some timezones are no longer valid in PHP 5.5.10)
 --FILE--
 <?php
 $zones = array(
-	"CST6CDT", "Cuba", "Egypt", "Eire", "EST5EDT", "Factory", "GB-Eire",
+	"CST6CDT", "Cuba", "Egypt", "Eire", "EST5EDT", "GB-Eire",
 	"GMT0", "Greenwich", "Hongkong", "Iceland", "Iran", "Israel", "Jamaica",
 	"Japan", "Kwajalein", "Libya", "MST7MDT", "Navajo", "NZ-CHAT", "Poland",
 	"Portugal", "PST8PDT", "Singapore", "Turkey", "Universal", "W-SU",
@@ -42,11 +42,6 @@ DateTimeZone Object
 (
     [timezone_type] => 3
     [timezone] => EST5EDT
-)
-DateTimeZone Object
-(
-    [timezone_type] => 3
-    [timezone] => Factory
 )
 DateTimeZone Object
 (

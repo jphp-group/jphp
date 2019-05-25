@@ -3,22 +3,23 @@ Bug #52290 (setDate, setISODate, setTime works wrong when DateTime created from 
 --FILE--
 <?php
 $tz = 'UTC';
+$format = 'o-\WW-N | Y-m-d | H:i:s | U';
 date_default_timezone_set($tz);
 
 $ts = strtotime('2006-01-01');
 $dt = new DateTime('@'.$ts);
 $dt->setTimezone(new DateTimeZone($tz));
 
-var_dump($dt->format('o-\WW-N | Y-m-d | H:i:s | U'));
+var_dump($dt->format($format));
 
 $dt->setISODate(2005, 52, 1);
-var_dump($dt->format('o-\WW-N | Y-m-d | H:i:s | U'));
+var_dump($dt->format($format));
 
 $dt->setDate(2007, 10, 10);
-var_dump($dt->format('o-\WW-N | Y-m-d | H:i:s | U'));
+var_dump($dt->format($format));
 
 $dt->setTime(20, 30, 40);
-var_dump($dt->format('o-\WW-N | Y-m-d | H:i:s | U'));
+var_dump($dt->format($format));
 ?>
 --EXPECT--
 string(47) "2005-W52-7 | 2006-01-01 | 00:00:00 | 1136073600"

@@ -15,13 +15,13 @@ array(12) {
   ["day"]=>
   bool(false)
   ["hour"]=>
-  int(0)
+  bool(false)
   ["minute"]=>
-  int(0)
+  bool(false)
   ["second"]=>
-  int(0)
+  bool(false)
   ["fraction"]=>
-  float(0)
+  bool(false)
   ["warning_count"]=>
   int(0)
   ["warnings"]=>

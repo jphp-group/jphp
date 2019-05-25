@@ -4,19 +4,16 @@ import static java.time.temporal.TemporalAdjusters.dayOfWeekInMonth;
 import static org.develnext.jphp.zend.ext.standard.date.Adjusters.nextOrSameDayOfWeek;
 import static org.develnext.jphp.zend.ext.standard.date.Adjusters.relativeDayOfWeek;
 import static org.develnext.jphp.zend.ext.standard.date.Adjusters.relativeUnit;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.charAppender;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.charBufferAppender;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.charLowerAppender;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.cursorIncrementer;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayAdjuster;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayOfWeekAdjuster;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.dayOfYearAdjuster;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.empty;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.isoWeekAdjuster;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.minuteAdjuster;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.monthAdjuster;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.secondAdjuster;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.yearAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.charAppender;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.charBufferAppender;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.charLowerAppender;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.cursorIncrementer;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.dayAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.empty;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.isoWeekAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.monthAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.simpleYearAdjuster;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeParserContext.Consumers.yearAdjuster;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_DD;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_NAME;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.DAY_OF_YEAR;
@@ -28,15 +25,15 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HOUR_1
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.HOUR_24;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_II;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MINUTE_ii;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_FULL;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_M;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_MM;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_ROMAN;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.MONTH_mm;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.ORDINAL;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.RELTEXT;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND_SS;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.SECOND_ss;
-import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.TWO_DIGIT_SECOND;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.UNIT;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK;
 import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.WEEK_WEEK_DAY;
@@ -55,15 +52,19 @@ import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.time.temporal.TemporalField;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -73,17 +74,17 @@ import java.util.regex.Pattern;
 import php.runtime.common.Pair;
 
 public class DateTimeParser {
-    static final SymbolNode AT_NODE = SymbolNode.of(Symbol.AT);
-    static final SymbolNode DOT_NODE = SymbolNode.of(Symbol.DOT);
-    static final SymbolNode SPACE_NODE = SymbolNode.of(Symbol.SPACE);
-    static final SymbolNode COLON_NODE = SymbolNode.of(Symbol.COLON);
-    static final SymbolNode MINUS_NODE = SymbolNode.of(Symbol.MINUS);
-    static final SymbolNode PLUS_NODE = SymbolNode.of(Symbol.PLUS);
-    static final SymbolNode DIGITS_NODE = SymbolNode.of(Symbol.DIGITS);
-    static final Node COMMA_NODE = SymbolNode.of(Symbol.COMMA);
-    static final CharacterNode SLASH_NODE = CharacterNode.of('/');
-    static final CharacterNode UNDERSCORE_NODE = CharacterNode.of('_');
-    static final CharacterNode TAB_NODE = CharacterNode.of('\t', Symbol.SPACE);
+    private static final SymbolNode AT_NODE = SymbolNode.of(Symbol.AT);
+    private static final SymbolNode DOT_NODE = SymbolNode.of(Symbol.DOT);
+    private static final SymbolNode SPACE_NODE = SymbolNode.of(Symbol.SPACE);
+    private static final SymbolNode COLON_NODE = SymbolNode.of(Symbol.COLON);
+    private static final SymbolNode MINUS_NODE = SymbolNode.of(Symbol.MINUS);
+    private static final SymbolNode PLUS_NODE = SymbolNode.of(Symbol.PLUS);
+    private static final SymbolNode DIGITS_NODE = SymbolNode.of(Symbol.DIGITS);
+    private static final Node COMMA_NODE = SymbolNode.of(Symbol.COMMA);
+    private static final CharacterNode SLASH_NODE = CharacterNode.of('/');
+    private static final CharacterNode UNDERSCORE_NODE = CharacterNode.of('_');
+    private static final CharacterNode TAB_NODE = CharacterNode.of('\t', Symbol.SPACE);
     private static final CharacterNode T_CI = CharacterNode.ofCaseInsensitive('t');
     private static final CharacterNode ISO_WEEK = CharacterNode.of('W');
     private final static EnumMap<Symbol, List<GroupNode>> parseTree = new EnumMap<>(Symbol.class);
@@ -100,7 +101,7 @@ public class DateTimeParser {
     private static final Node MONTH_mm_NODE = PatternNode.ofDigits(MONTH_mm, monthAdjuster());
     private static final Node MONTH_M_NODE = PatternNode.of(MONTH_M, Symbol.STRING, monthStringAdjuster());
     private static final Node MONTH_m_NODE = MONTH_M_NODE.or(PatternNode.of(MONTH_ROMAN, Symbol.STRING))
-            .or(PatternNode.of(MONTH, Symbol.STRING))
+            .or(PatternNode.of(MONTH_FULL, Symbol.STRING))
             .with(monthStringAdjuster().andThen(cursorIncrementer()));
     private static final Node YEAR_y_NODE = PatternNode.ofDigits(YEAR_y, yearAdjuster());
     private static final Node YEAR_yy_NODE = PatternNode.ofDigits(YEAR_yy, yearAdjuster());
@@ -116,9 +117,20 @@ public class DateTimeParser {
 
     private static final Pattern POSTGRESQL_DOY = Pattern.compile("[0-9]{4}(00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6])");
     private static final Pattern MYSQL_TIMESTAMP = Pattern.compile("[0-9]{4}(0[0-9]|1[0-2])(0[0-9]|[1-2][0-9]|3[01])([01][0-9]|2[0-4])([0-5][0-9]){2}");
-    private static final PatternNode DOY_NODE = PatternNode.ofDigits(DAY_OF_YEAR, dayOfYearAdjuster());
+    private static final PatternNode DOY_NODE = PatternNode.ofDigits(DAY_OF_YEAR, ctx -> ctx.setDayOfYear(ctx.readIntAtCursor()));
+    private static final PatternNode WDDX_hh = PatternNode.ofDigits(TimezoneCorrectionNode.TZ_HOUR_PART, ctx -> ctx.setHour(ctx.readIntAtCursor()));
     private static final Node TZ = new TimezoneNode();
-    private static final GroupNode WDDX = GroupNode.of("WDDX", YEAR_4_DIGIT, MINUS_NODE, MONTH_mm_NODE, MINUS_NODE, DAY_dd_NODE, CharacterNode.of('T'), HOUR_12_NODE, COLON_NODE, PatternNode.ofDigits(MINUTE_ii, minuteAdjuster()), COLON_NODE, PatternNode.ofDigits(SECOND_ss, secondAdjuster()));
+    private static final PatternNode MINUTE_ii_NODE = PatternNode.ofDigits(MINUTE_ii, ctx -> ctx.setMinute(ctx.readIntAtCursor()));
+    private static final GroupNode WDDX = GroupNode.builder()
+            .name("WDDX")
+            .nodes(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_mm_NODE).then(MINUS_NODE).then(DAY_dd_NODE).then(CharacterNode.of('T'))
+                            .then(WDDX_hh)
+                            .then(COLON_NODE)
+                            .then(MINUTE_ii_NODE)
+                            .then(COLON_NODE),
+                    PatternNode.ofDigits(SECOND_ss, ctx -> ctx.setSecond(ctx.readIntAtCursor())).followedByOptional(TZ_CORRECTION)
+            )
+            .build();
     private static final GroupNode MYSQL = GroupNode
             .builder()
             .name("MYSQL")
@@ -140,8 +152,6 @@ public class DateTimeParser {
     private static final GroupNode ISOYearWeek = GroupNode.of("ISO year with ISO week",
             YEAR_4_DIGIT.then(ISO_WEEK).then(PatternNode.ofDigits(WEEK, isoWeekAdjuster()))
     );
-    private static final Pattern DAY_OF_WEEK = Pattern.compile("[0-7]");
-    private static final PatternNode DAY_OF_WEEK_NODE = PatternNode.ofDigits(DAY_OF_WEEK, dayOfWeekAdjuster());
     private static final GroupNode ISOYearWeekAndDay = GroupNode.of(
             "ISO year with ISO week and day",
             YEAR_4_DIGIT.then(ISO_WEEK).then(
@@ -164,8 +174,7 @@ public class DateTimeParser {
     private static final MeridianNode MERIDIAN_NODE = MeridianNode.of();
     private static final GroupNode HOUR_WITH_MERIDIAN = GroupNode.of(
             "Hour only, with meridian",
-            HOUR_12_NODE.followedByOptional(SPACE_NODE),
-            MERIDIAN_NODE
+            HOUR_12_NODE.followedByOptional(SPACE_NODE), MERIDIAN_NODE
     );
     private static final OrNode DOT_OR_COLON = OrNode.of(DOT_NODE, COLON_NODE);
     private static final GroupNode HOUR_MINUTE_WITH_MERIDIAN = GroupNode.of(
@@ -175,6 +184,14 @@ public class DateTimeParser {
             MINUTE_2_DIGIT.followedByOptional(SPACE_NODE),
             MERIDIAN_NODE
     );
+    private static final GroupNode HOUR_MINUTE_NO_MERIDIAN = GroupNode.builder()
+            .name("Hour and minutes")
+            .afterApply(ctx -> {
+                if (ctx.isNotModified(ChronoField.SECOND_OF_MINUTE))
+                    ctx.setSecond(0);
+            })
+            .nodes(HOUR_12_NODE, DOT_OR_COLON, MINUTE_ii_NODE)
+            .build();
     private static final GroupNode HOUR_MINUTE_SECOND_WITH_MERIDIAN = GroupNode.of(
             "Hour, minutes and seconds, with meridian",
             HOUR_12_NODE, DOT_OR_COLON, MINUTE_2_DIGIT, DOT_OR_COLON, SECOND_2_DIGIT.followedByOptional(SPACE_NODE), MERIDIAN_NODE
@@ -237,18 +254,25 @@ public class DateTimeParser {
             "American month, day and optional year (mm '/' dd ('/'y)?)",
             MONTH_mm_NODE.then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE).followedByOptional(SLASH_NODE.then(YEAR_y_NODE))
     );
-    private static final GroupNode YY_mm_dd_NODE = GroupNode.of(
-            "Four digit year, month and day with slashes (YY '/' mm '/' dd)",
-            YEAR_4_DIGIT.then(SLASH_NODE).then(MONTH_mm_NODE).then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE)
-    );
-    private static final GroupNode GNU_DATE = GroupNode.of(
-            "Four digit year and month (YY '-' mm)",
-            YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_mm_NODE)
-    );
-    private static final GroupNode y_mm_dd_NODE = GroupNode.of(
-            "Year, month and day with dashes (y '-' mm '-' dd)",
-            YEAR_y_NODE.then(MINUS_NODE).then(MONTH_mm_NODE).then(MINUS_NODE).then(DAY_dd_NODE)
-    );
+    private static final GroupNode YY_mm_dd_NODE = GroupNode.builder()
+            .name("Four digit year, month and day with slashes (YY '/' mm '/' dd)")
+            .resetTimeIfNotModified()
+            .nodes(YEAR_4_DIGIT.then(SLASH_NODE).then(MONTH_mm_NODE).then(SLASH_NODE).then(DAY_dd_OPT_SUFFIX_NODE))
+            .build();
+    private static final GroupNode GNU_DATE = GroupNode.builder()
+            .name("Four digit year and month (YY '-' mm)")
+            .afterApply(ctx -> {
+                if (!ctx.isTimeModified() && ctx.isNotModified(ChronoField.DAY_OF_MONTH)) {
+                    ctx.setDayOfMonth(1).atStartOfDay();
+                }
+            })
+            .nodes(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_mm_NODE))
+            .build();
+    private static final GroupNode y_mm_dd_NODE = GroupNode.builder()
+            .resetTimeIfNotModified()
+            .name("Year, month and day with dashes (y '-' mm '-' dd)")
+            .nodes(YEAR_y_NODE.then(MINUS_NODE).then(MONTH_mm_NODE).then(MINUS_NODE).then(DAY_dd_NODE))
+            .build();
     private static final GroupNode dd_mm_YY_NODE = GroupNode.builder().relative(false)
             .name("Day, month and four digit year, with dots, tabs or dashes (dd [.\\t-] mm [.-] YY)")
             .afterApplyResetTime()
@@ -263,7 +287,7 @@ public class DateTimeParser {
     private static final GroupNode dd_m_y_NODE = GroupNode.builder().relative(false)
             .name("Day, textual month and year (dd ([ \\t.-])* m ([ \\t.-])* y)")
             .afterApplyResetTime()
-            .nodes(DAY_dd_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_y_NODE))
+            .nodes(DAY_dd_OPT_SUFFIX_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(YEAR_y_NODE))
             .build();
     private static final GroupNode m_YY_NODE = GroupNode.of(
             "Textual month and four digit year (Day reset to 1) (m ([ \\t.-])* YY)",
@@ -296,19 +320,18 @@ public class DateTimeParser {
                 }
             })
             .name("Textual month, day and year (m ([ .\\t-])* dd [,.stndrh\\t ]+ y)")
-            .nodes(MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(DAY_dd_OPT_SUFFIX_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE))).then(YEAR_y_NODE))
+            .nodes(MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(DAY_dd_OPT_SUFFIX_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE)))
+                    .then(YEAR_y_NODE).thenNot(COLON_NODE))
             .build();
-    private static final GroupNode m_dd_NODE = GroupNode.of(
-            "Textual month and day (m ([ .\\t-])* dd [,.stndrh\\t ]*)",
-            DateTimeParserContext::atStartOfDay,
-            MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS))
-                    .then(DAY_dd_OPT_SUFFIX_NODE)
-                    .then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE)))
-    );
+    private static final GroupNode m_dd_NODE = GroupNode.builder()
+            .name("Textual month and day (m ([ .\\t-])* dd [,.stndrh\\t ]*)")
+            .resetTimeIfNotModified()
+            .nodes(MONTH_m_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(DAY_dd_OPT_SUFFIX_NODE).then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS.or(COMMA_NODE))))
+            .build();
     private static final GroupNode dd_m_NODE = GroupNode.of(
             "Day and textual month (d ([ .\\t-])* m)",
             DateTimeParserContext::atStartOfDay,
-            DAY_dd_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE)
+            DAY_dd_OPT_SUFFIX_NODE.then(ZeroOrMore.of(SPACE_OR_DOT_OR_MINUS)).then(MONTH_m_NODE)
     );
     private static final GroupNode M_DD_y_NODE = GroupNode.of(
             "Month abbreviation, day and year (M '-' DD '-' y)",
@@ -345,7 +368,12 @@ public class DateTimeParser {
     private static final GroupNode ISO8601_YY_MM_DD = GroupNode.builder()
             .resetTimeIfNotModified()
             .name("Four digit year with optional sign, month and day ([+-]? YY '-' MM '-' DD)")
-            .nodes(PLUS_NODE.or(MINUS_NODE).optionalFollowedBy(YEAR_4_DIGIT.then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT)))
+            .nodes(PLUS_NODE.or(MINUS_NODE)
+                    .optionalFollowedBy(YEAR_4_DIGIT.withConsumer(simpleYearAdjuster().andThen(ctx -> {
+                        if (ctx.tokenAt(ctx.cursor().value() - 1).symbol() == Symbol.MINUS) {
+                            ctx.setYear(-ctx.dateTime().getYear());
+                        }
+                    })).then(MINUS_NODE).then(MONTH_2_DIGIT).then(MINUS_NODE).then(DAY_2_DIGIT)))
             .build();
 
     private static final GroupNode JUST_YEAR = GroupNode.of("Year (and just the year) (YY)", YEAR_4_DIGIT);
@@ -371,17 +399,28 @@ public class DateTimeParser {
             .afterApply(ctx -> ctx.plusHours(-1).setMinute(45).setSecond(0))
             .nodes(StringNode.ofCaseInsensitive("front").then(SPACE_NODE).then(STRING_OF_NODE).then(SPACE_NODE).then(HOUR_WITH_MERIDIAN.or(HOUR_24_NODE).or(HOUR_12_NODE)))
             .build();
-    private static final GroupNode FIRST_DAY_OF = GroupNode.builder().relative(true)
+    private static final GroupNode FIRST_DAY_OF = GroupNode.builder()
+            .relative(true)
+            .name("First day of")
             .afterApply(ctx -> {
-                if (!ctx.hasModifications()) ctx.setDayOfMonth(1);
+                ctx.setDayOfMonth(1);
+                if (ctx.isRelativeContributorPresent("month")) {
+                    ctx.addRelativeContributor("first_day_of_month", 1);
+                }
             })
+            .priorityLow()
             .nodes(StringNode.ofCaseInsensitive("first").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
     private static final GroupNode LAST_DAY_OF = GroupNode.builder()
             .relative(true)
             .name("Sets the day to the last day of the current month. This phrase is best used together with a month name following it.")
             .priorityNormal()
-            .afterApply(ctx -> ctx.withAdjuster(TemporalAdjusters.lastDayOfMonth(), ChronoField.DAY_OF_MONTH))
+            .afterApply(ctx -> {
+                ctx.withAdjuster(TemporalAdjusters.lastDayOfMonth(), ChronoField.DAY_OF_MONTH);
+                if (ctx.isRelativeContributorPresent("month")) {
+                    ctx.addRelativeContributor("last_day_of_month", 1);
+                }
+            })
             .nodes(StringNode.ofCaseInsensitive("last").then(SPACE_NODE).then(StringNode.ofCaseInsensitive("day")).then(SPACE_NODE).then(STRING_OF_NODE))
             .build();
     private static final PatternNode ORDINAL_NODE = PatternNode.of(ORDINAL, Symbol.STRING);
@@ -427,17 +466,31 @@ public class DateTimeParser {
             })
             .nodes(ORDINAL_NODE.then(SPACE_NODE).then(UNIT_NODE.or(DAY_NAME_NODE.withConsumer(relWeekDayConsumer()))))
             .build();
+    private static final RelativeTimeNumber RELATIVE_TIME_NUMBER = new RelativeTimeNumber();
+
     private static final GroupNode REL_TIME = GroupNode.builder()
             .relative(true)
             .priorityLow()
             .name("Handles relative time items where the value is a number. (\"+5 weeks\", \"12 day\", \"-7 weekdays\")")
-            .nodes(new RelativeTimeNumber())
+            .nodes(RELATIVE_TIME_NUMBER)
             .build();
+
+    private static final GroupNode REL_TIME_SPECIAL = GroupNode.builder()
+            .relative(true)
+            .priorityLow()
+            .name("number is an integer number; if a decimal number is given, the dot (or comma) is likely interpreted as delimiter. For instance, '+1.5 hours' is parsed like '+1 5 hours', not as '+1 hour +30 minutes'.")
+            .nodes(TIMEZONE_INFORMATION.then(DOT_NODE).then(RELATIVE_TIME_NUMBER))
+            .build();
+
+    /**
+     * The token symbols that occurs between groups should be skipped away.
+     */
+    private static final Set<Symbol> SKIP_SYMBOLS = EnumSet.of(Symbol.SPACE, Symbol.COMMA, Symbol.NEWLINE);
 
     static {
         parseTree.put(Symbol.AT, Collections.singletonList(UNIX_TIMESTAMP));
-        parseTree.put(Symbol.PLUS, Arrays.asList(ISO8601_YY_MM_DD, REL_TIME, TIMEZONE_INFORMATION));
-        parseTree.put(Symbol.MINUS, Arrays.asList(ISO8601_YY_MM_DD, REL_TIME, TIMEZONE_INFORMATION));
+        parseTree.put(Symbol.PLUS, Arrays.asList(ISO8601_YY_MM_DD, REL_TIME, REL_TIME_SPECIAL, TIMEZONE_INFORMATION));
+        parseTree.put(Symbol.MINUS, Arrays.asList(ISO8601_YY_MM_DD, REL_TIME, REL_TIME_SPECIAL, TIMEZONE_INFORMATION));
         parseTree.put(Symbol.STRING, Arrays.asList(
                 HOUR_MINUTE_SECOND_FRACTION,
                 HOUR_MINUTE_SECOND_TZ,
@@ -491,12 +544,16 @@ public class DateTimeParser {
                 HOUR_MINUTE_SECOND_WITH_MERIDIAN,
                 MSSQL_TIME,
                 HOUR_MINUTE_WITH_MERIDIAN,
+
                 HOUR_WITH_MERIDIAN,
 
                 // 24 Hour Formats
                 HOUR_MINUTE_SECOND,
                 HOUR_MINUTE_SECOND_TZ,
                 HOUR_MINUTE,
+
+                // 12 Hour formats
+                HOUR_MINUTE_NO_MERIDIAN,
 
                 NUMBER_N_TH_WEEKDAY,
                 // timezone
@@ -516,6 +573,11 @@ public class DateTimeParser {
      */
     private final Queue<CursorAwareNode> relatives;
     /**
+     * Already matched non relative nodes.
+     */
+    private final Queue<GroupNode> matched;
+
+    /**
      * The base time for relative statements.
      */
     private final ZonedDateTime baseDateTime;
@@ -531,6 +593,7 @@ public class DateTimeParser {
     DateTimeParser(String dateTime, ZonedDateTime baseDateTime) {
         this.tokenizer = new DateTimeTokenizer(dateTime);
         this.relatives = new PriorityQueue<>(Comparator.reverseOrder()); // process bigger priorities first
+        this.matched = new ArrayDeque<>();
         this.baseDateTime = baseDateTime;
     }
 
@@ -617,8 +680,12 @@ public class DateTimeParser {
         return ctx -> ctx.withAdjuster(Adjusters.month(ctx.readStringAtCursor()), ChronoField.MONTH_OF_YEAR);
     }
 
-    public ZonedDateTime parse() {
-        List<Token> tokens = getTokens();
+    public ZonedDateTime parse() throws DateTimeParserException {
+        return parseResult().dateTime();
+    }
+
+    public DateTimeParseResult parseResult() throws DateTimeParserException {
+        List<Token> tokens = tokenize();
         DateTimeParserContext ctx = new DateTimeParserContext(tokens, new Cursor(), tokenizer, baseDateTime);
 
         parseNormal(ctx);
@@ -627,21 +694,22 @@ public class DateTimeParser {
         int snapshot = ctx.cursor().value();
 
         // the normal process is over its time to apply all relative nodes
-        while (relatives.peek() != null) {
-            CursorAwareNode relativeNode = relatives.poll();
-            relativeNode.apply(ctx);
-        }
+        relatives.forEach(relNode -> relNode.apply(ctx));
 
         if (!ctx.hasModifications()) {
-            throw new DateTimeException("DateTimeParserContext should have modifications!");
+            throw dateTimeParserException(snapshot);
         }
 
         // restoring cursor
         if (ctx.withCursorValue(snapshot).hasMoreTokens()) {
-            throw new DateTimeException("Unparsed tokens are present!");
+            throw dateTimeParserException(snapshot);
         }
 
-        return ctx.dateTime();
+        return ctx.result();
+    }
+
+    private DateTimeParserException dateTimeParserException(int snapshot) {
+        return new DateTimeParserException(tokenizer.original(), snapshot);
     }
 
     private void parseNormal(DateTimeParserContext ctx) {
@@ -649,7 +717,7 @@ public class DateTimeParser {
         boolean matches = true;
 
         while (ctx.hasMoreTokens() && matches) {
-            if (ctx.isSymbolAtCursor(Symbol.SPACE) || ctx.isSymbolAtCursor(Symbol.COMMA)) {
+            if (SKIP_SYMBOLS.contains(ctx.symbolAtCursor())) {
                 ctx.cursor().inc();
                 lastMatchIdx++;
                 continue;
@@ -662,15 +730,16 @@ public class DateTimeParser {
                 throw new DateTimeException("Cannot find parser tree for symbol: " + symbol);
             }
 
-            for (GroupNode nodes : groupNodes) {
-                matches = nodes.matches(ctx);
+            for (GroupNode group : groupNodes) {
+                matches = group.matches(ctx);
                 if (matches) {
                     // we should delay processing the relative groups
-                    if (nodes.isRelative()) {
-                        relatives.offer(new CursorAwareNode(lastMatchIdx, nodes));
+                    if (group.isRelative()) {
+                        relatives.offer(new CursorAwareNode(lastMatchIdx, group));
                     } else {
+                        matched.offer(group);
                         ctx.cursor().setValue(lastMatchIdx);
-                        nodes.apply(ctx);
+                        group.apply(ctx);
                     }
 
                     lastMatchIdx = ctx.cursor().value();
@@ -680,7 +749,7 @@ public class DateTimeParser {
         }
     }
 
-    private List<Token> getTokens() {
+    private List<Token> tokenize() {
         List<Token> tokens = new ArrayList<>();
 
         Token t;
@@ -688,7 +757,7 @@ public class DateTimeParser {
         return tokens;
     }
 
-    static class ZeroOrMore extends Node {
+    private static class ZeroOrMore extends Node {
         private final Node node;
 
         private ZeroOrMore(Node node) {
@@ -701,6 +770,7 @@ public class DateTimeParser {
 
         @Override
         boolean matches(DateTimeParserContext ctx) {
+            //noinspection StatementWithEmptyBody
             while (node.matches(ctx)) { /*empty*/ }
 
             return true;
@@ -708,11 +778,17 @@ public class DateTimeParser {
 
         @Override
         void apply(DateTimeParserContext ctx) {
-            matches(ctx);
+            int snapshot = ctx.cursor().value();
+            while (node.matches(ctx)) {
+                if (snapshot != ctx.cursor().value()) {
+                    node.apply(ctx.withCursorValue(snapshot));
+                    snapshot = ctx.cursor().value();
+                }
+            }
         }
     }
 
-    static class UnixTimestamp extends SymbolNode {
+    private static class UnixTimestamp extends SymbolNode {
         private UnixTimestamp() {
             super(Symbol.DIGITS);
         }
@@ -743,7 +819,7 @@ public class DateTimeParser {
         }
     }
 
-    abstract static class VariableLengthSymbol extends SymbolNode {
+    private abstract static class VariableLengthSymbol extends SymbolNode {
         private final int min;
         private final int max;
 
@@ -753,11 +829,11 @@ public class DateTimeParser {
             this.max = max;
         }
 
-        public int min() {
+        int min() {
             return min;
         }
 
-        public int max() {
+        int max() {
             return max;
         }
 
@@ -768,20 +844,25 @@ public class DateTimeParser {
         }
     }
 
-    static class Year4 extends FixedLengthSymbol {
-        private Year4() {
+    private static class Year4 extends FixedLengthSymbol {
+        private final Consumer<DateTimeParserContext> applier;
+
+        private Year4(Consumer<DateTimeParserContext> applier) {
             super(Symbol.DIGITS, 4);
+            this.applier = applier;
         }
 
         static Year4 of() {
-            return new Year4();
+            return new Year4(simpleYearAdjuster());
+        }
+
+        public Year4 withConsumer(Consumer<DateTimeParserContext> consumer) {
+            return new Year4(consumer);
         }
 
         @Override
         void apply(DateTimeParserContext ctx) {
-            int year = ctx.readIntAtCursor();
-
-            ctx.setYear(year);
+            applier.accept(ctx);
             ctx.cursor().inc();
         }
     }
@@ -789,7 +870,7 @@ public class DateTimeParser {
     /**
      * Matches following pattern: YYYYMMDD
      */
-    static class YearMonthDay extends FixedLengthSymbol {
+    private static class YearMonthDay extends FixedLengthSymbol {
         private static final Pattern PATTERN = Pattern.compile("[0-9]{4}([0][0-9]|1[0-2])([01][0-9]|2[0-4])");
 
         private YearMonthDay() {
@@ -823,7 +904,7 @@ public class DateTimeParser {
     /**
      * Matches tokens with specified symbol.
      */
-    static class SymbolNode extends Node {
+    private static class SymbolNode extends Node {
         private final Symbol symbol;
 
         SymbolNode(Symbol symbol) {
@@ -834,7 +915,7 @@ public class DateTimeParser {
             return new SymbolNode(symbol);
         }
 
-        public Symbol symbol() {
+        Symbol symbol() {
             return symbol;
         }
 
@@ -862,16 +943,28 @@ public class DateTimeParser {
 
         @Override
         public String toString() {
-            return new StringJoiner(", ", SymbolNode.class.getSimpleName() + "[", "]")
-                    .add("symbol=" + symbol)
-                    .toString();
+            return symbol.toString();
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof SymbolNode)) return false;
+            SymbolNode that = (SymbolNode) o;
+            return symbol == that.symbol;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(symbol);
+        }
     }
 
-    static class TimezoneCorrectionNode extends Node {
+    private static class TimezoneCorrectionNode extends Node {
         private static final Pattern OFFSET_PREFIX = Pattern.compile("GMT|UTC|UT");
-        private static final Pattern hh = Pattern.compile("0?[0-9]|1[0-2]");
+        private static final Pattern TIMEZONE_COMMENT = Pattern.compile("\\(([a-zA-Z]{1,6})\\)");
+        private static final Pattern TZ_HOUR_PART = Pattern.compile("0?[0-9]|1[0-2]");
+        private static final Pattern TZ_MINUTE_PART = Pattern.compile("[0-9]|[0-5][0-9]");
         private static final Pattern hhMM = Pattern.compile("(0?[0-9]|1[0-2])[0-5][0-9]?");
         private static final Pattern CORRECTION = Pattern.compile("(0?[0-9]|1[0-2])(\\:)?([0-5][0-9])?");
         private static final Node SIGN = PLUS_NODE.or(MINUS_NODE);
@@ -886,12 +979,17 @@ public class DateTimeParser {
             StringBuilder sb = new StringBuilder();
             Consumer<DateTimeParserContext> signedHour = c -> appendSignedHour(sb, c);
 
-            PatternNode hh = PatternNode.ofDigits(TimezoneCorrectionNode.hh, signedHour);
+            PatternNode hh = PatternNode.ofDigits(TimezoneCorrectionNode.TZ_HOUR_PART, signedHour);
             PatternNode hhMM = PatternNode.ofDigits(TimezoneCorrectionNode.hhMM, signedHour);
-            PatternNode MM_NODE = PatternNode.ofDigits(MINUTE_II, c -> append(sb, c));
+            PatternNode MM_NODE = PatternNode.ofDigits(TZ_MINUTE_PART, c -> sb.append(String.format("%02d", c.readIntAtCursor())));
             PatternNode PREFIX_NODE = PatternNode.of(OFFSET_PREFIX, Symbol.STRING, c -> append(sb, c));
+            // TODO: check valid comment
+            PatternNode TZ_COMMENT = PatternNode.of(TIMEZONE_COMMENT, Symbol.STRING);
 
-            Node node = PREFIX_NODE.optionalFollowedBy(SIGN.then(hh.then(COLON_NODE).then(MM_NODE).or(hhMM.or(hh))));
+            Node node = PREFIX_NODE.optionalFollowedBy(
+                    SIGN.then(hh.then(COLON_NODE).then(MM_NODE).or(hhMM.or(hh)))
+                            .followedByOptional(SPACE_NODE.then(TZ_COMMENT))
+            );
 
             int snapshot = ctx.cursor().value();
 
@@ -948,12 +1046,15 @@ public class DateTimeParser {
         }
     }
 
-    static class TimezoneNode extends Node {
-        private static final Pattern TZ_PATTERN = Pattern.compile("\\(?[A-Za-z]{1,6}\\)?|[A-Z][a-z]+([_/][A-Z][a-z]+)+");
+    /**
+     * The full timezone node.
+     */
+    private static class TimezoneNode extends Node {
         private static final Pattern TZ_SHORT = Pattern.compile("[A-Za-z]{1,6}");
         private static final CharacterNode BRACKET_OPEN = CharacterNode.of('(');
         private static final CharacterNode BRACKET_CLOSE = CharacterNode.of(')');
-        private static final Pattern REGION = Pattern.compile("[A-Z][a-z]+");
+        private static final Pattern REGION = Pattern.compile("[A-Z][A-Za-z]+");
+        private static final Pattern REGION_CI = Pattern.compile("[A-Za-z]+");
 
         public static TimezoneNode of() {
             return new TimezoneNode();
@@ -961,9 +1062,7 @@ public class DateTimeParser {
 
         @Override
         boolean matches(DateTimeParserContext ctx) {
-            boolean matches = matchesInternal(ctx, null);
-
-            return matches;
+            return matchesInternal(ctx, null);
         }
 
         private boolean matchesInternal(DateTimeParserContext ctx, StringBuilder sb) {
@@ -972,10 +1071,16 @@ public class DateTimeParser {
             Consumer<DateTimeParserContext> appender = charBufferAppender(sb);
 
             PatternNode TZ_SHORT_NODE = PatternNode.of(TZ_SHORT, Symbol.STRING, appender);
-            Node underscoreOrSlash = UNDERSCORE_NODE.or(SLASH_NODE).with(charAppender(sb).andThen(cursorIncrementer()));
+            Node underscoreSlashOrMinus = UNDERSCORE_NODE.or(SLASH_NODE).or(MINUS_NODE)
+                    .with(charAppender(sb).andThen(cursorIncrementer()));
             Node shortTimezone = BRACKET_OPEN.then(TZ_SHORT_NODE).then(BRACKET_CLOSE).or(TZ_SHORT_NODE);
-            Node regionBaseTimezoneNode = PatternNode.of(REGION, Symbol.STRING, appender)
-                    .then(OneOrMore.of(underscoreOrSlash, PatternNode.of(REGION, Symbol.STRING, appender)));
+            PatternNode REGION_NODE = PatternNode.of(REGION, Symbol.STRING, appender);
+            Node regionBaseTimezoneNode = REGION_NODE
+                    .then(SLASH_NODE.with(appender))
+                    .then(REGION_NODE)
+                    .then(ZeroOrMore.of(
+                            underscoreSlashOrMinus.then(PatternNode.of(REGION_CI, Symbol.STRING, appender))
+                    ));
 
             OrNode tz = regionBaseTimezoneNode.or(shortTimezone);
             boolean matches = tz.matches(ctx);
@@ -996,60 +1101,58 @@ public class DateTimeParser {
                 ctx.setTimezone(tzBuff.toString());
             }
         }
+    }
 
-        static class OneOrMore extends GroupNode {
-            OneOrMore(String name, Node[] nodes) {
-                super(name, nodes, false, PRIORITY_LOW, empty());
-            }
+    private static class OneOrMore extends GroupNode {
+        OneOrMore(String name, Node[] nodes) {
+            super(name, nodes, false, PRIORITY_LOW, empty());
+        }
 
-            static OneOrMore of(Node... nodes) {
-                return new OneOrMore("", nodes);
-            }
+        static OneOrMore of(Node... nodes) {
+            return new OneOrMore("", nodes);
+        }
 
-            @Override
-            boolean matches(DateTimeParserContext ctx) {
-                return matchesInternal(ctx, null);
-            }
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            return matchesInternal(ctx, null);
+        }
 
-            private boolean matchesInternal(DateTimeParserContext ctx, StringBuilder buff) {
-                Node[] nodes = nodes();
-                int mark = ctx.cursor().value();
+        private boolean matchesInternal(DateTimeParserContext ctx, StringBuilder buff) {
+            Node[] nodes = nodes();
+            int mark = ctx.cursor().value();
 
-                int i = 0;
-                while (ctx.hasMoreTokens()) {
-                    Node node = nodes[i % nodes.length];
-                    boolean matches = node.matches(ctx);
+            int i = 0;
+            while (ctx.hasMoreTokens()) {
+                Node node = nodes[i % nodes.length];
+                boolean matches = node.matches(ctx);
 
-                    if (!matches) {
-                        ctx.cursor().setValue(mark);
-                        return isFullMatch(i);
-                    }
-                    i++;
+                if (!matches) {
+                    ctx.cursor().setValue(mark);
+                    return isFullMatch(i);
                 }
-
-                boolean fullMatch = isFullMatch(i);
-
-                return fullMatch;
+                i++;
             }
 
-            private boolean isFullMatch(int i) {
-                return i != 0 && (i % nodes().length) == 0;
-            }
+            return isFullMatch(i);
+        }
 
-            @Override
-            void apply(DateTimeParserContext ctx) {
-                Node[] nodes = nodes();
-                int i = 0;
-                while (ctx.hasMoreTokens()) {
-                    Node node = nodes[i % nodes.length];
-                    node.apply(ctx);
-                    i++;
-                }
+        private boolean isFullMatch(int i) {
+            return i != 0 && (i % nodes().length) == 0;
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+            Node[] nodes = nodes();
+            int i = 0;
+            while (ctx.hasMoreTokens()) {
+                Node node = nodes[i % nodes.length];
+                node.apply(ctx);
+                i++;
             }
         }
     }
 
-    static class StringNode extends FixedLengthSymbol {
+    private static class StringNode extends FixedLengthSymbol {
         private final String value;
         private final BiFunction<String, String, Boolean> matcher;
         private final Consumer<DateTimeParserContext> applier;
@@ -1106,7 +1209,7 @@ public class DateTimeParser {
         }
     }
 
-    static class Second2 extends FixedLengthSymbol {
+    private static class Second2 extends FixedLengthSymbol {
         private Second2() {
             super(Symbol.DIGITS, 2);
         }
@@ -1118,7 +1221,7 @@ public class DateTimeParser {
         @Override
         public boolean matchesInternal(DateTimeParserContext ctx) {
             CharBuffer input = ctx.tokenizer().readCharBuffer(ctx.tokens().get(ctx.cursor().value()));
-            return TWO_DIGIT_SECOND.matcher(input).matches();
+            return SECOND_SS.matcher(input).matches();
         }
 
         @Override
@@ -1130,7 +1233,7 @@ public class DateTimeParser {
         }
     }
 
-    public static class RelativeTimeNumber extends Node {
+    private static class RelativeTimeNumber extends Node {
         @Override
         boolean matches(DateTimeParserContext ctx) {
             return matchesInternal(ctx) != null;
@@ -1143,6 +1246,7 @@ public class DateTimeParser {
             if (ctx.isSymbolAtCursor(Symbol.PLUS) || ctx.isSymbolAtCursor(Symbol.MINUS)) {
                 sign = ctx.isSymbolAtCursor(Symbol.PLUS) ? 1 : -1;
                 ctx.cursor().inc();
+                ctx.skipWhitespaces();
             }
 
             if (!ctx.isSymbolAtCursor(Symbol.DIGITS)) {
@@ -1152,10 +1256,7 @@ public class DateTimeParser {
 
             long value = ctx.readLongAtCursorAndInc() * sign;
 
-            if (ctx.isSymbolAtCursor(Symbol.SPACE)) {
-                ctx.cursor().inc();
-            }
-
+            ctx.skipWhitespaces();
             if (!ctx.isSymbolAtCursor(Symbol.STRING)) {
                 ctx.withCursorValue(snapshot);
                 return null;
@@ -1195,7 +1296,7 @@ public class DateTimeParser {
         }
     }
 
-    static class PatternNode extends SymbolNode {
+    private static class PatternNode extends SymbolNode {
         private final Pattern pattern;
         private final Consumer<DateTimeParserContext> consumer;
 
@@ -1246,17 +1347,14 @@ public class DateTimeParser {
 
         @Override
         public String toString() {
-            return new StringJoiner(", ", PatternNode.class.getSimpleName() + "[", "]")
-                    .add("pattern=" + pattern.pattern())
-                    .toString();
+            return pattern.pattern();
         }
     }
 
-    static class OrNode extends Node {
+    private static class OrNode extends Node {
         private final Node l;
         private final Node r;
         private final Consumer<DateTimeParserContext> apply;
-        //private Node matched;
 
         private OrNode(Node l, Node r, Consumer<DateTimeParserContext> apply) {
             this.l = l;
@@ -1309,7 +1407,7 @@ public class DateTimeParser {
         }
     }
 
-    abstract static class Node {
+    private abstract static class Node {
         abstract boolean matches(DateTimeParserContext ctx);
 
         abstract void apply(DateTimeParserContext ctx);
@@ -1329,9 +1427,13 @@ public class DateTimeParser {
         AndNode then(Node node) {
             return AndNode.of(this, node);
         }
+
+        AndNode thenNot(Node node) {
+            return AndNode.of(this, NotNode.of(node));
+        }
     }
 
-    static class Month2 extends FixedLengthSymbol {
+    private static class Month2 extends FixedLengthSymbol {
         Month2() {
             super(Symbol.DIGITS, 2);
         }
@@ -1354,7 +1456,7 @@ public class DateTimeParser {
         }
     }
 
-    static class Minute2 extends FixedLengthSymbol {
+    private static class Minute2 extends FixedLengthSymbol {
         private Minute2() {
             super(Symbol.DIGITS, 2);
         }
@@ -1376,7 +1478,7 @@ public class DateTimeParser {
         }
     }
 
-    static class Microseconds extends SymbolNode {
+    private static class Microseconds extends SymbolNode {
         private Microseconds() {
             super(Symbol.DIGITS);
         }
@@ -1398,7 +1500,7 @@ public class DateTimeParser {
         }
     }
 
-    static class MeridianNode extends Node {
+    private static class MeridianNode extends Node {
         private static final OrNode A_OR_P = CharacterNode.ofCaseInsensitive('a').or(CharacterNode.ofCaseInsensitive('p'));
         private static final Pattern AM_PM = Pattern.compile("[ap]m", Pattern.CASE_INSENSITIVE);
 
@@ -1448,7 +1550,7 @@ public class DateTimeParser {
         }
     }
 
-    static class HourMinuteSecond extends VariableLengthSymbol {
+    private static class HourMinuteSecond extends VariableLengthSymbol {
         private static final Pattern PATTERN = Pattern.compile("((0?[1-9]|1[0-2])|([01][0-9]|2[0-4]))[0-5][0-9][0-5][0-9]");
 
         private HourMinuteSecond(int min, int max) {
@@ -1481,9 +1583,9 @@ public class DateTimeParser {
     }
 
     /**
-     * Matches the hour in 24 hour format: "04", "07", "19"
+     * Matches the hour in 24 hour format: "04", "07", "19" including "24"
      */
-    static class Hour24 extends FixedLengthSymbol {
+    private static class Hour24 extends FixedLengthSymbol {
         private Hour24() {
             super(Symbol.DIGITS, 2);
         }
@@ -1501,12 +1603,17 @@ public class DateTimeParser {
         @Override
         void apply(DateTimeParserContext ctx) {
             int hour = ctx.readIntAtCursor();
-            ctx.setHour(hour);
+
+            if (hour == 24) {
+                ctx.plusDays(1).setHour(0);
+            } else {
+                ctx.setHour(hour);
+            }
             ctx.cursor().inc();
         }
     }
 
-    static class Hour12 extends VariableLengthSymbol {
+    private static class Hour12 extends VariableLengthSymbol {
         private Hour12() {
             super(Symbol.DIGITS, 1, 2);
         }
@@ -1528,7 +1635,7 @@ public class DateTimeParser {
         }
     }
 
-    static class GroupNode extends Node implements Iterable<Node> {
+    private static class GroupNode extends Node implements Iterable<Node> {
         static final int PRIORITY_HIGH = 1000;
         static final int PRIORITY_NORMAL = PRIORITY_HIGH - 500;
         static final int PRIORITY_LOW = PRIORITY_NORMAL - 500;
@@ -1615,6 +1722,25 @@ public class DateTimeParser {
             return Arrays.asList(nodes).iterator();
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof GroupNode)) return false;
+            GroupNode nodes1 = (GroupNode) o;
+            return relative == nodes1.relative &&
+                    priority == nodes1.priority &&
+                    name.equals(nodes1.name) &&
+                    Arrays.equals(nodes, nodes1.nodes) &&
+                    afterApply.equals(nodes1.afterApply);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Objects.hash(name, relative, priority, afterApply);
+            result = 31 * result + Arrays.hashCode(nodes);
+            return result;
+        }
+
         Node[] nodes() {
             return nodes;
         }
@@ -1695,7 +1821,7 @@ public class DateTimeParser {
     /**
      * Matches tokens with specified length.
      */
-    abstract static class FixedLengthSymbol extends SymbolNode {
+    private abstract static class FixedLengthSymbol extends SymbolNode {
         private final int length;
 
         FixedLengthSymbol(Symbol symbol, int length) {
@@ -1707,9 +1833,14 @@ public class DateTimeParser {
         public boolean matchesInternal(DateTimeParserContext ctx) {
             return ctx.tokenAtCursor().length() == length;
         }
+
+        @Override
+        public String toString() {
+            return symbol() + "{" + length + "}";
+        }
     }
 
-    static class Day2 extends FixedLengthSymbol {
+    private static class Day2 extends FixedLengthSymbol {
         private Day2() {
             super(Symbol.DIGITS, 2);
         }
@@ -1730,7 +1861,7 @@ public class DateTimeParser {
         }
     }
 
-    static class AndNode extends Node {
+    private static class AndNode extends Node {
         private final Node l;
         private final Node r;
 
@@ -1768,7 +1899,7 @@ public class DateTimeParser {
         }
     }
 
-    static class CharacterNode extends SymbolNode {
+    private static class CharacterNode extends SymbolNode {
         private final char c;
         private final boolean caseSensitive;
         private final Consumer<DateTimeParserContext> apply;
@@ -1819,6 +1950,10 @@ public class DateTimeParser {
             ctx.cursor().inc();
         }
 
+        public CharacterNode with(Consumer<DateTimeParserContext> consumer) {
+            return new CharacterNode(symbol(), c, consumer, caseSensitive);
+        }
+
         @Override
         public String toString() {
             if (caseSensitive)
@@ -1826,9 +1961,46 @@ public class DateTimeParser {
 
             return "(" + Character.toLowerCase(c) + " OR " + Character.toUpperCase(c) + ")";
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof CharacterNode)) return false;
+            if (!super.equals(o)) return false;
+            CharacterNode that = (CharacterNode) o;
+            return c == that.c &&
+                    caseSensitive == that.caseSensitive &&
+                    apply.equals(that.apply);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(super.hashCode(), c, caseSensitive, apply);
+        }
     }
 
-    static class CursorAwareNode extends Node implements Comparable<CursorAwareNode> {
+    private static class NotNode extends Node {
+        private final Node node;
+
+        private NotNode(Node node) {
+            this.node = node;
+        }
+
+        static NotNode of(Node node) {
+            return new NotNode(node);
+        }
+
+        @Override
+        boolean matches(DateTimeParserContext ctx) {
+            return !node.matches(ctx);
+        }
+
+        @Override
+        void apply(DateTimeParserContext ctx) {
+        }
+    }
+
+    private static class CursorAwareNode extends Node implements Comparable<CursorAwareNode> {
         private final int cursor;
         private final GroupNode node;
 

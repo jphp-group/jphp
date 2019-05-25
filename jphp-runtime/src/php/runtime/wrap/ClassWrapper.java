@@ -2,6 +2,7 @@ package php.runtime.wrap;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.annotation.Reflection.Ignore;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.common.HintType;
 import php.runtime.env.CompileScope;
@@ -18,8 +19,10 @@ import php.runtime.reflection.support.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Reflection.Signature
@@ -55,22 +58,37 @@ public class ClassWrapper {
         classEntity.setInternalName(nativeClass.getName().replace('.', '/'));
     }
 
-    protected void onWrapConstants(ClassEntity classEntity) {
-        for(Field field : nativeClass.getDeclaredFields()){
-            int mod = field.getModifiers();
-            if (field.isAnnotationPresent(Reflection.Ignore.class))
-                continue;
+    private void onWrapConstants(ClassEntity classEntity) {
+        Class<?> cls = nativeClass;
 
-            if (Modifier.isFinal(mod) && Modifier.isStatic(mod) && !Modifier.isPrivate(mod)){
-                try {
-                    field.setAccessible(true);
-                    classEntity.addConstant(new ConstantEntity(
-                            field.getName(), MemoryUtils.valueOf(field.get(null)), true
-                    ));
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+        while (cls != null && cls != Object.class) {
+            List<Field> declaredFields = new ArrayList<>(Arrays.asList(cls.getDeclaredFields()));
+
+            Arrays.stream(cls.getInterfaces())
+                    .filter(clazz -> !clazz.isAnnotationPresent(Ignore.class))
+                    .map(Class::getDeclaredFields)
+                    .flatMap(Arrays::stream)
+                    .forEach(declaredFields::add);
+
+            for(Field field : declaredFields) {
+                if (field.isAnnotationPresent(Ignore.class)) {
+                    continue;
+                }
+
+                int mod = field.getModifiers();
+                if (Modifier.isFinal(mod) && Modifier.isStatic(mod) && !Modifier.isPrivate(mod)){
+                    try {
+                        field.setAccessible(true);
+                        classEntity.addConstant(new ConstantEntity(
+                                field.getName(), MemoryUtils.valueOf(field.get(null)), true
+                        ));
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
+
+            cls = cls.getSuperclass();
         }
     }
 
@@ -81,7 +99,7 @@ public class ClassWrapper {
         entity.setName(arg.value());
         entity.setStatic(false);
 
-        if (arg.optional().exists()){
+        if (arg.optional().exists()) {
             entity.setDefaultValue(MemoryUtils.valueOf(arg.optional().value(), arg.optional().type()));
         } else {
             entity.setDefaultValue(null);
@@ -379,7 +397,6 @@ public class ClassWrapper {
         return entity;
     }
 
-
     protected void onWrapCompileMethod(ClassEntity classEntity, Method method) {
         String name = method.getName();
 
@@ -558,7 +575,7 @@ public class ClassWrapper {
         }
 
         Class<?> extend = nativeClass.getSuperclass();
-        if (extend != null && !extend.isAnnotationPresent(Reflection.Ignore.class)){
+        if (extend != null && !extend.isAnnotationPresent(Ignore.class)){
             String name = ReflectionUtils.getClassName(extend);
 
             ClassEntity entity = scope.fetchUserClass(name);
@@ -575,7 +592,7 @@ public class ClassWrapper {
 
     protected void onWrapImplement(ClassEntity classEntity) {
         for (Class<?> interface_ : nativeClass.getInterfaces()){
-            if (interface_.isAnnotationPresent(Reflection.Ignore.class)) continue;
+            if (interface_.isAnnotationPresent(Ignore.class)) continue;
             if (interface_.getPackage().getName().startsWith("java.")) continue;
 
             String name = ReflectionUtils.getClassName(interface_);

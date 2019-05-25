@@ -10,9 +10,9 @@ var_dump($ts);
 $t->setTimestamp($ts);
 var_dump($t);
 ?>
---EXPECT--
+--EXPECTF--
 string(10) "1278455908"
-object(DateTime)#1 (3) {
+object(DateTime)#%d (3) {
   ["date"]=>
   string(26) "2010-07-06 18:38:28.000000"
   ["timezone_type"]=>

@@ -18,7 +18,7 @@ $dates = [
 
 foreach ( $dates as $date )
 {
-	$dt = new DateTimeImmutable( "$date 00:00 UTC" );
+	$dt = new DateTime( "$date 00:00 UTC" );
 
 	echo $dt->format( "D Y-m-d H:i" ), " → ";
 

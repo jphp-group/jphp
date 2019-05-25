@@ -18,19 +18,22 @@ class DateTimeTokenizer {
     static final Pattern HOUR_12 = HOUR_hh;
     static final Pattern HOUR_24 = HOUR_HH;
     static final Pattern MINUTE_II = Pattern.compile("[0-5][0-9]");
-    static final Pattern MINUTE_ii = Pattern.compile("0?[0-9]|[0-5][0-9]");
+    static final Pattern MINUTE_ii = Pattern.compile("[0-5][0-9]|0?[0-9]");
     static final Pattern SECOND_ss = MINUTE_ii;
-    static final Pattern TWO_DIGIT_SECOND = MINUTE_II;
+    static final Pattern SECOND_SS = MINUTE_II;
+    static final Pattern MERIDIAN = Pattern.compile("[ap]m", Pattern.CASE_INSENSITIVE);
     static final Pattern FRACTION = Pattern.compile("\\.[0-9]+");
+    static final Pattern MICROSECONDS = Pattern.compile("[0-9]+");
 
     // Month patterns
-    static final Pattern MONTH_mm = Pattern.compile("0?[0-9]|1[0-2]");
+    static final Pattern MONTH_mm = Pattern.compile("1[0-2]|0?[0-9]");
     static final Pattern MONTH_MM = Pattern.compile("0[0-9]|1[0-2]");
     static final Pattern MONTH_M = Pattern.compile("jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec", Pattern.CASE_INSENSITIVE);
-    static final Pattern MONTH = Pattern.compile("january|february|march|april|may|june|july|august|september|october|november|december", Pattern.CASE_INSENSITIVE);
+    static final Pattern MONTH_FULL = Pattern.compile("january|february|march|april|may|june|july|august|september|october|november|december", Pattern.CASE_INSENSITIVE);
     static final Pattern MONTH_ROMAN = Pattern.compile("I{1,3}|IV|VI{1,3}|IX|XI{0,2}");
+    static final Pattern MONTH = Pattern.compile("january|february|march|april|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|sept|oct|nov|dec", Pattern.CASE_INSENSITIVE);
 
-    static final Pattern DAY_dd = Pattern.compile("([0-2]?[0-9]|3[01])");
+    static final Pattern DAY_dd = Pattern.compile("3[01]|[0-2]?[0-9]");
     static final Pattern DAY_DD = Pattern.compile("0[0-9]|[1-2][0-9]|3[01]");
     static final Pattern DAY_OF_YEAR = Pattern.compile("00[1-9]|0[1-9][0-9]|[1-2][0-9][0-9]|3[0-5][0-9]|36[0-6]");
     static final Pattern WEEK = Pattern.compile("0[1-9]|[1-4][0-9]|5[0-3]");
@@ -40,13 +43,16 @@ class DateTimeTokenizer {
     static final Pattern DAY_NAME = Pattern.compile("sunday|monday|tuesday|wednesday|thursday|friday|saturday|sun|mon|tue|wed|thu|fri|sat", Pattern.CASE_INSENSITIVE);
     static final Pattern ORDINAL = Pattern.compile("first|second|third|fourth|fifth|sixth|seventh|eighth|ninth|tenth|eleventh|twelfth|next|last|previous|this", Pattern.CASE_INSENSITIVE);
     static final Pattern RELTEXT = Pattern.compile("next|last|previous|this", Pattern.CASE_INSENSITIVE);
-    static final Pattern UNIT = Pattern.compile("((sec|second|min|minute|hour|day|fortnight|forthnight|weekday|week|month|year)s?)", Pattern.CASE_INSENSITIVE);
+    static final Pattern UNIT = Pattern.compile("((ms|msec|millisecond|usec|microsecond|µs|µsec|sec|second|min|minute|hour|day|fortnight|forthnight|weekday|week|month|year)s?)", Pattern.CASE_INSENSITIVE);
 
     static final Pattern YEAR_y = Pattern.compile("[0-9]{1,4}");
+    static final Pattern YEAR_Y = Pattern.compile("[0-9]{4}");
     static final Pattern YEAR_yy = Pattern.compile("[0-9]{2}");
     static final Pattern YY_MM_DD = Pattern.compile("[0-9]{4}(0[0-9]|1[0-2])(0[0-9]|[1-2][0-9]|3[01])");
-
+    static final Pattern ORDINAL_SUFFIX = Pattern.compile("st|nd|rd|th", Pattern.CASE_INSENSITIVE);
     private static final int UNDEFINED_POSITION = -1;
+
+    private final String original;
     private final char[] chars;
     private final int length;
     private final EnumSet<BufferCharacteristics> characteristics;
@@ -56,10 +62,20 @@ class DateTimeTokenizer {
 
     public DateTimeTokenizer(String dateTime) {
         this.chars = dateTime.toCharArray();
+        this.original = dateTime;
         this.length = chars.length;
         this.tokenStart = UNDEFINED_POSITION;
         this.buff = new StringBuilder();
         this.characteristics = EnumSet.noneOf(BufferCharacteristics.class);
+    }
+
+    /**
+     * Gets the original string being parsed.
+     *
+     * @return The original string.
+     */
+    String original() {
+        return original;
     }
 
     Token next() {
@@ -77,21 +93,6 @@ class DateTimeTokenizer {
 
             s0:
             switch (c) {
-                case 't':
-                case 'T': {
-                    if (isUndefined())
-                        tokenStart = i;
-
-                    buff.append(c);
-                    characteristics.add(LETTERS);
-
-                    if (isNextDigit(i)) {
-                        next = Token.of(Symbol.STRING, i++, 1);
-                        resetBuffer();
-                        break loop;
-                    }
-                    break;
-                }
                 // DIGITS
                 case '0':
                 case '1':
@@ -106,7 +107,7 @@ class DateTimeTokenizer {
                     if (isUndefined())
                         tokenStart = i;
 
-                    if (Character.isLetter(lastChar())) {
+                    if (lastChar() != '\0' && !Character.isDigit(lastChar())) {
                         next = createAndReset(Symbol.STRING);
                         break loop;
                     }
@@ -201,6 +202,29 @@ class DateTimeTokenizer {
 
                     break loop;
                 }
+                case '\n': {
+                    if (isUndefined()) {
+                        next = Token.of(Symbol.NEWLINE, i++, 1);
+                    } else {
+                        next = createWithGuessedSymbol();
+                        resetBuffer();
+                    }
+                    break loop;
+                }
+                case '\r': {
+                    if (isUndefined()) {
+                        if (lookahead(i, 1) == '\n') {
+                            next = Token.of(Symbol.NEWLINE, i++, 2);
+                            i++;
+                        } else {
+                            next = Token.of(Symbol.NEWLINE, i++, 1);
+                        }
+                    } else {
+                        next = createWithGuessedSymbol();
+                        resetBuffer();
+                    }
+                    break loop;
+                }
                 case ' ':
                 case '\t': {
                     if (isUndefined()) {
@@ -219,6 +243,8 @@ class DateTimeTokenizer {
 
                     if (Character.isLetter(c)) {
                         characteristics.add(LETTERS);
+                    }else if (Character.isDefined(c)) {
+                        characteristics.add(PUNCTUATION);
                     }
 
                     break;
@@ -324,7 +350,7 @@ class DateTimeTokenizer {
 
         if (hasOnly(DIGITS, PUNCTUATION) && FRACTION.matcher(buff).matches()) {
             return Symbol.FRACTION;
-        } else if (hasOnly(LETTERS)) {
+        } else if (hasOnly(LETTERS) || hasOnly(LETTERS, PUNCTUATION)) {
             return Symbol.STRING;
         }
 

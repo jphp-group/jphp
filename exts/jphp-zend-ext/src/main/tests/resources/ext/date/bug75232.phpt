@@ -5,22 +5,27 @@ date.timezone=UTC
 --FILE--
 <?php
 
-$d1 = DateTime::createFromFormat("Ymd\THis\Z", '20170920T091600Z');
+$d1 = DateTime::createFromFormat("Ymd\\THis\\Z", '20170920T091600Z');
+print_r($d1);
 echo $d1->date, "\n";
 
-$d2 = DateTime::createFromFormat("Ymd\THis\Z", '20170920T091600Z');
+$d2 = DateTime::createFromFormat("Ymd\\THis\\Z", '20170920T091600Z');
 print_r($d2);
 echo $d2->date, "\n";
 
 ?>
 --EXPECTF--
-Notice: Undefined property: DateTime::$date in %s on line %d
-
 DateTime Object
 (
     [date] => 2017-09-20 09:16:00.000000
     [timezone_type] => 3
     [timezone] => UTC
 )
-
-Notice: Undefined property: DateTime::$date in %s on line %d
+2017-09-20 09:16:00.000000
+DateTime Object
+(
+    [date] => 2017-09-20 09:16:00.000000
+    [timezone_type] => 3
+    [timezone] => UTC
+)
+2017-09-20 09:16:00.000000

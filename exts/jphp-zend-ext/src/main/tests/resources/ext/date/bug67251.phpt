@@ -27,7 +27,7 @@ array(12) {
   array(0) {
   }
   ["error_count"]=>
-  int(2)
+  int(1)
   ["errors"]=>
   array(1) {
     [0]=>

@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.time.Year;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.assertj.core.api.SoftAssertions;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import php.runtime.common.Pair;
@@ -50,20 +53,40 @@ public class DateTimeParserTest {
         return parseWithMicro(input, ZonedDateTime.now()).withNano(0);
     }
 
+    private static LocalDateTime parseLocal(String input) {
+        return parseWithMicro(input).toLocalDateTime();
+    }
+
+    private static LocalTime parseTime(String input) {
+        return parse(input).toLocalTime();
+    }
+
     private static ZonedDateTime parse(String input, String zoneId) {
         return parseWithMicro(input, zoneId).withNano(0);
     }
 
     private static ZonedDateTime parseWithMicro(String input) {
-        return new DateTimeParser(input).parse();
+        try {
+            return new DateTimeParser(input).parse();
+        } catch (DateTimeParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static ZonedDateTime parseWithMicro(String input, String zoneId) {
-        return new DateTimeParser(input, ZoneId.of(zoneId)).parse();
+        try {
+            return new DateTimeParser(input, ZoneId.of(zoneId)).parse();
+        } catch (DateTimeParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static ZonedDateTime parseWithMicro(String input, ZonedDateTime base) {
-        return new DateTimeParser(input, base).parse();
+        try {
+            return new DateTimeParser(input, base).parse();
+        } catch (DateTimeParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static ZonedDateTime withTime(int hour, int minute, int second) {
@@ -77,10 +100,6 @@ public class DateTimeParserTest {
 
     @Test
     public void dummy() {
-        //assertEquals(ZonedDateTime.parse("2008-01-28T00:00:00+04:00[Asia/Yerevan]"), parse("2008-W05"));
-        //assertEquals(ZonedDateTime.parse("2007-12-31T00:00:00+04:00[Asia/Yerevan]"), parse("2008W01"));
-        //assertEquals(ZonedDateTime.parse("2007-12-31T00:00:00+04:00[Asia/Yerevan]"), parse("2008-W01-3"));
-
         assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-07:00[GMT-07:00]"), parse("10/Oct/2000:13:55:36 GMT-7"));
         assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36+04:30[GMT+04:30]"), parse("10/Oct/2000:13:55:36 GMT+04:30"));
         assertEquals(ZonedDateTime.parse("2000-10-10T13:55:36-04:30[GMT-04:30]"), parse("10/Oct/2000:13:55:36 GMT-04:30"));
@@ -128,6 +147,12 @@ public class DateTimeParserTest {
 
     @Test
     public void onlyTimeZone() {
+        assertThat(parse("+1:2"))
+                .isEqualTo(parse("+1:02"))
+                .isEqualTo(parse("+01:02"))
+                .isEqualTo(parse("+01:2"))
+                .isEqualToIgnoringNanos(now().withZoneSameLocal(ZoneId.of("+01:02")));
+
         assertThat(parse("+0000 GMT"))
                 .isEqualToIgnoringNanos(now().withZoneSameLocal(ZoneId.of("Z")));
 
@@ -288,9 +313,9 @@ public class DateTimeParserTest {
 
     @Test
     public void GNUDate() {
-        assertThat(parse("2008-6")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
-        assertThat(parse("2008-06")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6));
-        assertThat(parse("1978-12")).isEqualToIgnoringNanos(now().withYear(1978).withMonth(12));
+        assertThat(parse("2008-6")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1).truncatedTo(DAYS));
+        assertThat(parse("2008-06")).isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(1).truncatedTo(DAYS));
+        assertThat(parse("1978-12")).isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(1).truncatedTo(DAYS));
     }
 
     @Test
@@ -328,6 +353,7 @@ public class DateTimeParserTest {
     }
 
     @Test
+    @Ignore
     public void isoYearWithWeek() {
         assertThat(parse("2004W30"))
                 .isEqualToIgnoringNanos(withTime(0, 0, 0).withYear(2004).withMonth(7).withDayOfMonth(19));
@@ -339,6 +365,15 @@ public class DateTimeParserTest {
         assertThat(parse)
                 .isEqualToIgnoringNanos(withTime(5, 0, 0).withYear(2004).withMonth(3).withDayOfMonth(1)
                         .withZoneSameLocal(ZoneId.of("+0")));
+    }
+
+    @Test
+    public void ordinalWithSuffix() {
+        assertThat(parse("26th Nov 2005 18:18"))
+                .isEqualTo(parse("Sat 26th Nov 2005 18:18"))
+                .isEqualTo("2005-11-26T18:18:00+04:00");
+
+        assertThat(parse("26th Nov")).isEqualTo(parse("26 Nov"));
     }
 
     @Test
@@ -463,7 +498,7 @@ public class DateTimeParserTest {
                 .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS));
 
         assertThat(parse("8-6-21"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(21));
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(21).truncatedTo(DAYS));
 
         assertThat(parse("2005-07-18 22:10:00 +0400"))
                 .isEqualToIgnoringNanos(now().withYear(2005).withMonth(7).withDayOfMonth(18)
@@ -525,6 +560,7 @@ public class DateTimeParserTest {
         Stream.of(
                 Pair.of("150year 150years", 300),
                 Pair.of("+1 year", 1),
+                Pair.of("+ 1 year", 1),
                 Pair.of("+5 year", 5),
                 Pair.of("5 year", 5),
                 Pair.of("-5 year", -5),
@@ -612,6 +648,9 @@ public class DateTimeParserTest {
 
     @Test
     public void firstDayOf() {
+        assertThat(parseLocal("first day of next month"))
+                .isEqualToIgnoringNanos(LocalDateTime.now().plusMonths(1).withDayOfMonth(1));
+
         assertThat(parse("first day of March 2005")).isEqualToIgnoringNanos(now().withYear(2005).withMonth(3).withDayOfMonth(1).truncatedTo(DAYS));
         assertThat(parse("first day of")).isEqualToIgnoringNanos(now().withDayOfMonth(1));
     }
@@ -770,12 +809,113 @@ public class DateTimeParserTest {
     }
 
     @Test
+    public void wddxDateTime() {
+        assertThat(parse("2006-1-6T0:0:0-8:0"))
+                .isEqualTo("2006-01-06T00:00:00-08:00");
+    }
+
+    @Test
     public void monthYearAndYearMonth() {
         assertThat(parse("2001 Oct")).isEqualTo(parse("Oct 2001"));
     }
 
     @Test
+    public void yearMonthDay() {
+        assertThat(parse("2005/8/12").toLocalDateTime())
+                .isEqualTo(parse("2005-8-12").toLocalDateTime())
+                .isEqualTo("2005-08-12T00:00:00");
+
+        Stream.of("2005/1/2", "2005/01/02", "2005/01/2", "2005/1/02")
+                .map(DateTimeParserTest::parse)
+                .map(ZonedDateTime::toLocalDateTime)
+                .forEach(actual -> {
+                    assertThat(actual).isEqualTo("2005-01-02T00:00:00");
+                });
+    }
+
+    @Test
+    public void textualMonthAndDayWithoutSuffix() {
+        assertThat(parseLocal("Oct11"))
+                .isEqualTo(parseLocal("11Oct"))
+                .isEqualTo(LocalDate.now().atStartOfDay().withMonth(10).withDayOfMonth(11));
+
+        assertThat(parseLocal("11Oct 2005"))
+                .isEqualTo(parseLocal("11Oct2005"))
+                .isEqualTo(LocalDate.of(2005, 10, 11).atStartOfDay());
+    }
+
+    @Test
+    public void only12HourTime() {
+        Stream.of("5:05", "05:05", "05:5", "05.05", "5.05", "5.5", "05.5")
+                .map(DateTimeParserTest::parseTime)
+                .forEach(actual -> assertThat(actual).isEqualTo("05:05:00"));
+    }
+
+    @Test
+    public void support24AsHour() {
+        assertThat(parse("2007-11-01T24:34:00+00:00")).isEqualTo("2007-11-02T00:34:00+00:00");
+    }
+
+    @Test
+    public void decimalInRelativeTime() {
+        assertThat(parse("+1.61538461538 day"))
+                .isEqualTo(parse("+1 61538461538 day"))
+                .isEqualToIgnoringNanos(now().plusDays(61538461538L).withZoneSameLocal(ZoneId.of("+01:00")));
+    }
+
+    @Test
+    public void relativeTimeSecondFractions() {
+        // millis
+        Stream.of("ms", "msec", "msecs", "millisecond", "milliseconds")
+                .map(unit -> "2016-10-07 13:25:50 +1 " + unit)
+                .map(DateTimeParserTest::parseLocal)
+                .forEach(actual -> assertThat(actual).isEqualTo("2016-10-07T13:25:50.001"));
+
+
+        // micros
+        Stream.of("usec", "usecs", "microsecond", "microseconds", "µs", "µsec", "µsecs")
+                .map(unit -> "2016-10-07 13:25:50 -6 " + unit)
+                .map(DateTimeParserTest::parseLocal)
+                .forEach(actual -> assertThat(actual).isEqualTo("2016-10-07T13:25:49.999994"));
+    }
+
+    @Test
+    public void timezoneWithComment() {
+        assertThat(parse("Sun, 13 Nov 2005 22:56:10 -0800 (PST)"))
+                .isEqualTo("2005-11-13T22:56:10-08:00");
+    }
+
+    @Test
+    public void longTimezones() {
+        SoftAssertions.assertSoftly(sa -> {
+            Stream.of("Africa/Dar_es_Salaam", "Africa/Porto-Novo", "Chile/EasterIsland")
+                    .forEach(s -> {
+                        sa.assertThat(parse(s)).isEqualToIgnoringSeconds(now().withZoneSameLocal(ZoneId.of(s)));
+                    });
+            sa.assertAll();
+        });
+    }
+
+    @Test
+    public void fourDigitYear() {
+        assertThat(parse("Jan 0099").getYear())
+                .isEqualTo(parse("0099-01").getYear())
+                .isEqualTo(parse("Jan 1, 0099").getYear())
+                .isEqualTo(99);
+    }
+
+    @Test
+    public void incompleteDates() {
+        assertThat(parseLocal("2017-03"))
+                .isEqualTo("2017-03-01T00:00:00");
+    }
+
+    @Test
     public void shouldThrowExceptionWhenDateInvalid() {
-        assertThatThrownBy(() -> parse("2009---01"));
+        assertThatThrownBy(() -> parse("£61538461538 day"))
+                .hasCause(new DateTimeParserException("£61538461538 day", 0));
+
+        assertThatThrownBy(() -> parse("2009---01"))
+                .hasCauseExactlyInstanceOf(DateTimeParserException.class);
     }
 }

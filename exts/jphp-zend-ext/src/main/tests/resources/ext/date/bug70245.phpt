@@ -9,5 +9,5 @@ try {
     echo $e->getMessage(), "\n";
 }
 ?>
---EXPECTF--
-strtotime() expects parameter 2 to be int, object given
+--EXPECT--
+strtotime() expects parameter 2 to be integer, object given

@@ -13,29 +13,36 @@ import java.time.format.TextStyle;
 import java.time.temporal.IsoFields;
 import java.time.DateTimeException;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.Locale;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.TimeZone;
 
 import org.develnext.jphp.zend.ext.standard.date.DateFormat;
+import org.develnext.jphp.zend.ext.standard.date.DateInterval;
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
 import org.develnext.jphp.zend.ext.standard.date.DateTime;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeInterface;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeParseResult;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeParserException;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeZone;
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
 
 import php.runtime.Memory;
+import php.runtime.common.Messages;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.compile.FunctionsContainer;
+import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.DoubleMemory;
 import php.runtime.memory.LongMemory;
@@ -150,7 +157,8 @@ public class DateFunctions extends FunctionsContainer {
 
     private static Memory __date(Environment env, TraceInfo traceInfo, ZoneId zoneId, String format, long time) {
         ZonedDateTime date = ZonedDateTime.ofInstant(Instant.ofEpochSecond(time), zoneId);
-        return StringMemory.valueOf(DateFormat.formatForDateFunction(env, date, format));
+        DateTimeParseResult parseResult = new DateTimeParseResult(date, Collections.emptySet(), null, null);
+        return StringMemory.valueOf(DateFormat.formatForDateFunction(env, parseResult, format));
     }
 
     public static Memory date_format(Environment env, TraceInfo traceInfo, Memory object, String format) {
@@ -158,18 +166,28 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time) {
-        return strtotime(env, traceInfo, time, epochSeconds());
+        return __strtotime(env, traceInfo, time, epochSeconds());
     }
 
-    public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time, long now) {
-        ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
+    private static Memory __strtotime(Environment env, TraceInfo traceInfo, Memory time, long now) {
+        Memory zoneMemory = date_default_timezone_get(env, traceInfo);
+        ZoneId zoneId = zoneId(zoneMemory);
         ZonedDateTime base = Instant.ofEpochSecond(now).atZone(zoneId);
         try {
-            ZonedDateTime dateTime = DateTime.parse(env, traceInfo, time, date_default_timezone_get(env, traceInfo), base);
+            ZonedDateTime dateTime = DateTime.parse(env, traceInfo, time, zoneMemory, base).dateTime();
             return LongMemory.valueOf(dateTime.toEpochSecond());
-        } catch (DateTimeException e) {
+        } catch (Throwable e) {
             return Memory.FALSE;
         }
+    }
+
+    public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time, Memory now) {
+        if (!now.isNumber()) {
+            env.exception(traceInfo, new BaseTypeError(env, ErrorType.E_ERROR),
+                    Messages.ERR_WRONG_PARAM_TYPE.fetch("strtotime()", 2, Memory.Type.INT.toString(), now.getRealType().toString()));
+        }
+
+        return __strtotime(env, traceInfo, time, now.toLong());
     }
 
     public static Memory mktime(Environment env, TraceInfo traceInfo,
@@ -563,8 +581,72 @@ public class DateFunctions extends FunctionsContainer {
         return object.toObject(DateTime.class).setDate(env, traceInfo, year, month, day);
     }
 
+    public static Memory date_add(Environment env, TraceInfo traceInfo,
+                                  Memory dateTime, Memory interval) {
+        return dateTime.toObject(DateTime.class).add(env, traceInfo, interval.toObject(DateInterval.class));
+    }
+
+    public static Memory date_sub(Environment env, TraceInfo traceInfo,
+                                  Memory dateTime, Memory interval) {
+        return dateTime.toObject(DateTime.class).sub(env, traceInfo, interval.toObject(DateInterval.class));
+    }
+
+    public static Memory date_diff(Environment env, TraceInfo traceInfo, Memory dateTime1,
+                                   Memory dateTime2, boolean absolute) {
+        return dateTime1.toObject(DateTimeInterface.class).diff(env, traceInfo, dateTime2);
+    }
+
+    public static Memory date_diff(Environment env, TraceInfo traceInfo, Memory dateTime1,
+                                   Memory dateTime2) {
+        return date_diff(env, traceInfo, dateTime1, dateTime2, false);
+    }
+
+    public static Memory date_timestamp_set(Environment env, TraceInfo traceInfo, DateTime dateTime, long timestamp) {
+        return dateTime.setTimestamp(env, traceInfo, timestamp);
+    }
+
+    public static Memory date_isodate_set(Environment env, TraceInfo traceInfo, DateTime dateTime, int year, int week, int day) {
+        return dateTime.setISODate(env, traceInfo, year, week, day);
+    }
+
+    public static Memory date_isodate_set(Environment env, TraceInfo traceInfo, DateTime dateTime, int year, int week) {
+        return dateTime.setISODate(env, traceInfo, year, week);
+    }
+
+    public static Memory date_parse(Environment env, TraceInfo traceInfo, Memory date) {
+        try {
+            DateTimeParseResult result = DateTime.parse(env, traceInfo, date, Memory.NULL, ZonedDateTime.now());
+
+            return result.toArrayMemory();
+        } catch (DateTimeParserException e) {
+            return Memory.FALSE;
+        }
+    }
+
+    public static Memory date_parse_from_format(Environment env, TraceInfo traceInfo, Memory format, Memory date) {
+        try {
+            ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
+            DateTimeParseResult result = DateFormat.createParseResultFromFormat(format.toString(), date.toString(),
+                    ZonedDateTime.now(zoneId));
+
+            return result.toArrayMemory();
+        } catch (DateTimeException | NoSuchElementException | IllegalArgumentException e) {
+            return new DateTimeParseResult(null, Collections.emptySet(), null, null)
+                    .toArrayMemory();
+        }
+    }
+
     public static Memory time() {
         return LongMemory.valueOf(epochSeconds());
+    }
+
+    // Timezone
+    public static Memory date_timezone_get(Environment env, TraceInfo traceInfo, Memory object) {
+        return object.toObject(DateTimeInterface.class).getTimezone(env, traceInfo);
+    }
+
+    public static Memory timezone_offset_get(Environment env, TraceInfo traceInfo, Memory object, Memory dateTime) {
+        return object.toObject(DateTimeZone.class).getOffset(env, traceInfo, dateTime);
     }
 
     public static Memory timezone_name_from_abbr(Environment env, TraceInfo traceInfo, String abbr, int gmtOffset, int isDst) {
@@ -588,8 +670,26 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     public static Memory timezone_open(Environment env, TraceInfo traceInfo, Memory... args) {
+        StringMemory arg = args[0].toValue(StringMemory.class);
+        if (arg.toString().indexOf('\0') != -1) {
+            env.warning(traceInfo, Messages.ERR_TIMEZONE_NULL_BYTE, "timezone_open()");
+            return Memory.FALSE;
+        }
+
         DateTimeZone dateTimeZone = new DateTimeZone(env);
-        return dateTimeZone.__construct(env, traceInfo, args[0].toValue(StringMemory.class));
+        return dateTimeZone.__construct(env, traceInfo, arg);
+    }
+
+    public static Memory timezone_identifiers_list(Environment env, TraceInfo traceInfo, int what, String country) {
+        return DateTimeZone.listIdentifiers(env, traceInfo, what, country);
+    }
+
+    public static Memory timezone_identifiers_list(Environment env, TraceInfo traceInfo, int what) {
+        return DateTimeZone.listIdentifiers(env, traceInfo, what);
+    }
+
+    public static Memory timezone_identifiers_list(Environment env, TraceInfo traceInfo) {
+        return DateTimeZone.listIdentifiers(env, traceInfo);
     }
 
     private static long epochSeconds() {

@@ -17,7 +17,16 @@ public class DateIntervalTest extends ZendJvmTestCase {
         check("ext/date/DateInterval_days_prop1.phpt");
         check("ext/date/DateInterval_write_property_return.phpt");
         check("ext/date/DateInterval__set_state.phpt");
-        check("ext/date/DateInterval_format.phpt");
+        check("ext/date/bug52738.phpt");
+        check("ext/date/bug62500.phpt");
+        check("ext/date/bug74852.phpt");
+    }
+
+    @Test
+    public void format() {
+        check("ext/date/bug71889.phpt");
         check("ext/date/DateInterval_format_a.phpt");
+        check("ext/date/bug49778.phpt");
+        check("ext/date/DateInterval_format.phpt");
     }
 }

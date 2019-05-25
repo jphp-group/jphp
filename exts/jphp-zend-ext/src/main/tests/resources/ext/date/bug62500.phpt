@@ -22,7 +22,6 @@ try {
 --EXPECTF--
 NULL
 int(3)
-
-Notice: Undefined property: Crasher::$2 in %sbug62500.php on line %d
+Notice: Undefined property: Crasher::$2 in %s on line %d at pos %d
 NULL
-string(%s) "DateInterval::__construct(): Unknown or bad format (blah)"
+string(%d) "DateInterval::__construct(): Unknown or bad format (blah)"

@@ -13,8 +13,8 @@ $d->setTimeZone( new DateTimeZone( 'Europe/Budapest' ) );
 var_dump( $d );
 echo $d->format( DATE_ISO8601 ), "\n\n";
 echo $d->format( 'U' ), "\n\n";
---EXPECT--
-object(DateTime)#1 (3) {
+--EXPECTF--
+object(DateTime)#%d (3) {
   ["date"]=>
   string(26) "1955-05-23 00:00:00.000000"
   ["timezone_type"]=>
@@ -25,7 +25,7 @@ object(DateTime)#1 (3) {
 1955-05-23T00:00:00+0200
 -461124000
 
-object(DateTime)#1 (3) {
+object(DateTime)#%d (3) {
   ["date"]=>
   string(26) "1955-05-22 23:00:00.000000"
   ["timezone_type"]=>

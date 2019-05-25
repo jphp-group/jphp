@@ -4,17 +4,17 @@ Bug #45554 (Inconsistent behavior of the u format char)
 date.timezone=UTC
 --FILE--
 <?php
-$format = "m-d-Y H:i:s.u T";
-$d = date_create_from_format($format, "03-15-2005 12:22:29.000000 PST");
+$format = "m-d-Y H:i:s.u";
+$d = date_create_from_format($format, "03-15-2005 12:22:29.000000");
 echo $d->format($format), "\n";
 
-$d = date_create_from_format($format, "03-15-2005 12:22:29.001001 PST");
+$d = date_create_from_format($format, "03-15-2005 12:22:29.001001");
 echo $d->format($format), "\n";
 
-$d = date_create_from_format($format, "03-15-2005 12:22:29.0010 PST");
+$d = date_create_from_format($format, "03-15-2005 12:22:29.0010");
 echo $d->format($format), "\n";
 ?>
 --EXPECT--
-03-15-2005 12:22:29.000000 PST
-03-15-2005 12:22:29.001001 PST
-03-15-2005 12:22:29.001000 PST
+03-15-2005 12:22:29.000000
+03-15-2005 12:22:29.001001
+03-15-2005 12:22:29.001000

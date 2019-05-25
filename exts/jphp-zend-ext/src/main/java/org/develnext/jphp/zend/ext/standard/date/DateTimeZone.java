@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 
@@ -9,6 +10,7 @@ import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Property;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
+import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
@@ -48,6 +50,7 @@ public class DateTimeZone extends BaseObject {
     public static final int ALL_WITH_BC = 4095;
     @Property
     public static final int PER_COUNTRY = 4096;
+    private static final Memory ZERO_OFFSET = StringMemory.valueOf("+00:00");
     @Property("timezone")
     Memory timezone = Memory.UNDEFINED;
     @Property("timezone_type")
@@ -75,9 +78,27 @@ public class DateTimeZone extends BaseObject {
         return ZoneIdFactory.listAbbreviations();
     }
 
-    @Signature
+    @Signature(result = @Arg(type = HintType.ARRAY))
     public static Memory listIdentifiers(Environment env, TraceInfo traceInfo) {
-        return Memory.UNDEFINED;
+        return listIdentifiers(env, traceInfo, DateTimeZone.ALL);
+    }
+
+    @Signature(result = @Arg(type = HintType.ARRAY))
+    public static Memory listIdentifiers(Environment env, TraceInfo traceInfo, int what) {
+        return listIdentifiers(env, traceInfo, DateTimeZone.ALL, null);
+    }
+
+    @Signature(result = @Arg(type = HintType.ARRAY))
+    public static Memory listIdentifiers(Environment env, TraceInfo traceInfo, int what, String country) {
+        String[] identifiers = ZoneIdFactory.listIdentifiers(what, country);
+        ArrayMemory array = ArrayMemory.createListed(identifiers.length);
+
+        for (String identifier : identifiers) {
+            Memory memory = StringMemory.valueOf(identifier);
+            array.add(memory);
+        }
+
+        return array;
     }
 
     static int getTimeZoneType(ZoneId zoneId) {
@@ -89,7 +110,7 @@ public class DateTimeZone extends BaseObject {
         } else {
             String id = zoneId.getId();
 
-            if (id.contains("/") || id.equals("UTC")) {
+            if (!id.equals("GMT") && zoneId.getClass().getSimpleName().equals("ZoneRegion")) {
                 return 3;
             }
         }
@@ -105,13 +126,21 @@ public class DateTimeZone extends BaseObject {
             @Arg(value = "timezone", type = HintType.STRING)
     }, result = @Arg(type = HintType.OBJECT))
     public Memory __construct(Environment env, TraceInfo traceInfo, StringMemory arg) {
-        init(arg.toString());
+        String zone = arg.toString();
+        if (zone.indexOf('\0') != -1) {
+            env.exception(traceInfo, Messages.ERR_TIMEZONE_NULL_BYTE, "DateTimeZone::__construct()");
+        }
+        init(zone);
         return new ObjectMemory(this);
     }
 
     private void init(String zone) {
-        this.nativeZone = ZoneId.of(zone);
-        this.timezone = StringMemory.valueOf(zone);
+        this.nativeZone = ZoneIdFactory.of(zone);
+        if (nativeZone instanceof ZoneOffset && zone.equals("Z")) {
+            this.timezone = ZERO_OFFSET;
+        } else {
+            this.timezone = StringMemory.valueOf(zone);
+        }
         type = LongMemory.valueOf(getTimeZoneType(nativeZone));
     }
 
@@ -131,8 +160,13 @@ public class DateTimeZone extends BaseObject {
     }
 
     @Signature
-    public Memory getOffset(Environment env, TraceInfo traceInfo) {
-        return Memory.UNDEFINED;
+    public Memory getOffset(Environment env, TraceInfo traceInfo, Memory datetime) {
+        DateTimeInterface dateTime = datetime.toObject(DateTimeInterface.class);
+        long timestamp = dateTime.getTimestamp(env, traceInfo).toLong();
+        ZoneOffset offset = nativeZone.getRules().getOffset(Instant.ofEpochSecond(timestamp));
+        int totalSeconds = offset.getTotalSeconds();
+
+        return LongMemory.valueOf(totalSeconds);
     }
 
     @Signature
@@ -144,7 +178,11 @@ public class DateTimeZone extends BaseObject {
     public ArrayMemory getProperties() {
         ArrayMemory props = super.getProperties();
         props.refOfIndex("timezone_type").assign(type);
-        props.refOfIndex("timezone").assign(timezone);
+        if (type.toInteger() == 1) {
+            props.refOfIndex("timezone").assign(nativeZone.toString());
+        } else {
+            props.refOfIndex("timezone").assign(timezone);
+        }
 
         return props;
     }

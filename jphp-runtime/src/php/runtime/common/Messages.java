@@ -128,6 +128,9 @@ final public class Messages {
     public final static Item ERR_INVALID_UNICODE_ESCAPE_SEQUENCE = new Item("Invalid UTF-8 codepoint escape sequence");
     public final static Item ERR_INVALID_UNICODE_ESCAPE_SEQUENCE_WITH_REASON = new Item(ERR_INVALID_UNICODE_ESCAPE_SEQUENCE.message + ": %s");
 
+    public final static Item ERR_TIMEZONE_NULL_BYTE = new Item("%s: Timezone must not contain null bytes");
+    public final static Item ERR_WRONG_PARAM_TYPE = new Item("%s expects parameter %d to be %s, %s given");
+
     public static class Item {
         private String message;
         public Item(String message){

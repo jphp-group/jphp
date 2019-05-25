@@ -263,9 +263,37 @@ public class DateTimeTokenizerTest {
     }
 
     @Test
+    public void characterT() {
+        assertThat(tokenize("15T15"))
+                .containsExactly(
+                        Token.of(Symbol.DIGITS, 0, 2),
+                        Token.of(Symbol.STRING, 2, 1),
+                        Token.of(Symbol.DIGITS, 3, 2)
+                );
+    }
+
+    @Test
     public void comma() {
         assertThat(tokenize(",")).containsOnly(Token.of(Symbol.COMMA, 0, 1));
+    }
 
-        List<Token> tokenize = tokenize("28 Feb 2008 12:00:00 +400 years");
+    @Test
+    public void textualMonthNameWithDayWithoutSpace() {
+        assertThat(tokenize("Oct11"))
+                .containsExactly(
+                        Token.of(Symbol.STRING, 0, 3),
+                        Token.of(Symbol.DIGITS, 3, 2)
+                );
+    }
+
+    @Test
+    public void relativeTimeWithWrongCharacter() {
+        assertThat(tokenize("£61538461538 day"))
+                .containsExactly(
+                        Token.of(Symbol.STRING, 0, 1),
+                        Token.of(Symbol.DIGITS, 1, 11),
+                        Token.of(Symbol.SPACE, 12, 1),
+                        Token.of(Symbol.STRING, 13, 3)
+                );
     }
 }

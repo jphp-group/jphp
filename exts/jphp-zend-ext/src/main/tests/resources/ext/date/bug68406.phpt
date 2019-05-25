@@ -17,14 +17,14 @@ if($tz2 == $d->getTimezone()) {
 else {
     echo "no";
 }
---EXPECT--
-object(DateTimeZone)#4 (2) {
+--EXPECTF--
+object(DateTimeZone)#%d (2) {
   ["timezone_type"]=>
   int(3)
   ["timezone"]=>
   string(13) "Europe/Berlin"
 }
-object(DateTimeZone)#2 (2) {
+object(DateTimeZone)#%d (2) {
   ["timezone_type"]=>
   int(3)
   ["timezone"]=>

@@ -45,4 +45,10 @@ public class DateTimeZoneTest extends ZendJvmTestCase {
         check("ext/date/DateTimeZone_compare_basic1.phpt");
         check("ext/date/DateTimeZone_extends_basic1.phpt");
     }
+
+    @Test
+    public void timezones() {
+        check("ext/date/bug66985.phpt");
+        check("ext/date/bug70277.phpt");
+    }
 }
