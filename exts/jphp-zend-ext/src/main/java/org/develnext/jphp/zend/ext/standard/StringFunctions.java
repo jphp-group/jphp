@@ -21,7 +21,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DecimalFormat;
@@ -29,15 +28,8 @@ import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
-import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-/**
- * TODO:
- * - addcslashes
- * - bin2hex ?
- * - chunk_split
- */
 public class StringFunctions extends FunctionsContainer {
     private static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS;
 
@@ -2957,15 +2949,24 @@ public class StringFunctions extends FunctionsContainer {
         return URLDecoder.decode(url, "UTF-8");
     }
 
-    public static String urlencode(String url) throws UnsupportedEncodingException {
-        return URLEncoder.encode(url, "UTF-8");
+    public static String urlencode(String url) {
+        try {
+            return URLEncoder.encode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static String rawurlencode(String url) throws UnsupportedEncodingException {
-        return URLEncoder.encode(url, "UTF-8")
-                // OAuth encodes some characters differently:
-                .replace("+", "%20").replace("*", "%2A")
-                .replace("%7E", "~");
+    public static String rawurlencode(String url) {
+        try {
+            return URLEncoder.encode(url, "UTF-8")
+                    // OAuth encodes some characters differently:
+                    .replace("+", "%20")
+                    .replace("*", "%2A")
+                    .replace("%7E", "~");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String rawurldecode(String url) throws UnsupportedEncodingException {
@@ -2989,6 +2990,23 @@ public class StringFunctions extends FunctionsContainer {
 
     public static int strnatcasecmp(String one, String two) {
         return new NaturalOrderComparator(true, false).compare(one, two);
+    }
+
+    public static String http_build_query(Environment env, Memory queryData, String numericPrefix, String argSeparator,
+                                          int encType) {
+        return HttpQueryBuilder.buildFrom(env, queryData, numericPrefix, argSeparator, encType);
+    }
+
+    public static String http_build_query(Environment env, Memory queryData, String numericPrefix, String argSeparator) {
+        return http_build_query(env, queryData, numericPrefix, argSeparator, StringConstants.PHP_QUERY_RFC1738);
+    }
+
+    public static String http_build_query(Environment env, Memory queryData, String numericPrefix) {
+        return http_build_query(env, queryData, numericPrefix, null);
+    }
+
+    public static String http_build_query(Environment env, Memory queryData) {
+        return http_build_query(env, queryData, null);
     }
 
     static class MyGZIPOutputStream

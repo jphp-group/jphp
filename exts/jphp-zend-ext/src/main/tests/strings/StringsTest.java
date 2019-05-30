@@ -55,4 +55,12 @@ public class StringsTest extends ZendJvmTestCase {
 
     @Test
     public void testBase64() { check("ext/strings/base64_001.php"); }
+
+    @Test
+    public void testHttpBuildQuery() {
+        check("ext/strings/http_build_query.phpt");
+        check("ext/strings/http_build_query_variation1.phpt");
+        check("ext/strings/http_build_query_variation2.phpt");
+        check("ext/strings/http_build_query_variation3.phpt");
+    }
 }
