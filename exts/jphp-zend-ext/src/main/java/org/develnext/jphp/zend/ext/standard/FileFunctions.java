@@ -642,21 +642,21 @@ public class FileFunctions extends FunctionsContainer {
     }
 
     public static Memory fseek(Environment env, TraceInfo trace, Memory stream, long offset) {
-        return fseek(env, trace, stream, offset, 0);
+        return fseek(env, trace, stream, offset, SEEK_SET);
     }
 
     public static Memory fseek(Environment env, TraceInfo trace, Memory stream, long offset, int whence) {
         if (stream.instanceOf(Stream.CLASS_NAME)) {
             try {
                 switch (whence) {
-                    case 1:
+                    case SEEK_CUR:
                         offset += env.invokeMethod(trace, stream, "getPosition").toLong();
                         break;
-                    case 2:
+                    case SEEK_END:
                         env.error(trace, "fseek(): flag SEEK_END is not supported.");
                         break;
                     default:
-                    case 0:
+                    case SEEK_SET:
                         break;
                 }
 
