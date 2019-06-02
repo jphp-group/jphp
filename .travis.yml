@@ -14,6 +14,7 @@ env:
   - JPHP_TEST_CONCURRENT=1
 
 before_install:
+ - export TZ=
  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh
  - cat /etc/hosts # optionally check the content *before*
  - sudo hostname "$(hostname | cut -c1-63)"
