@@ -63,7 +63,7 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory date_default_timezone_set(Environment env, TraceInfo traceInfo, String tz) {
         try {
-            ZoneId.of(tz);
+            ZoneIdFactory.of(tz);
 
             env.setConfigValue("date.timezone", StringMemory.valueOf(tz));
 
