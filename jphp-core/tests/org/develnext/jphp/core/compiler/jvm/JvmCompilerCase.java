@@ -48,7 +48,7 @@ abstract public class JvmCompilerCase {
     }
 
     public boolean shouldPrintIniConfig() {
-        return Boolean.getBoolean("JPHP_PRINT_INI_CONFIG");
+        return Boolean.valueOf(System.getenv("JPHP_PRINT_INI_CONFIG"));
     }
 
     protected CompileScope newScope(){
