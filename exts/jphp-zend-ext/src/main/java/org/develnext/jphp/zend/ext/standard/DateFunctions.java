@@ -78,6 +78,7 @@ public class DateFunctions extends FunctionsContainer {
         // from "TZ" environment variable
         String tz = (String) env.getUserValue("env", Map.class).get("TZ");
 
+        System.out.println(tz);
         if (StringUtils.isBlank(tz)) {
             // if "TZ" does not contain value read from ini config
             Memory iniConfig = env.getConfigValue("date.timezone", Memory.UNDEFINED);
