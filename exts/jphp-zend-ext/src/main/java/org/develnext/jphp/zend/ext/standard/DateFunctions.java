@@ -79,10 +79,13 @@ public class DateFunctions extends FunctionsContainer {
         String tz = (String) env.getUserValue("env", Map.class).get("TZ");
 
         if (StringUtils.isBlank(tz)) {
+            System.out.println("TZ is blank!");
             // if "TZ" does not contain value read from ini config
             Memory iniConfig = env.getConfigValue("date.timezone", Memory.UNDEFINED);
 
+            System.out.println("date.timezone=" + iniConfig);
             if (iniConfig == Memory.UNDEFINED || StringUtils.isBlank(iniConfig.toString())) {
+                System.out.println("TZ is blank!");
                 // the fallback timezone.
                 return TZ_UTC;
             }
@@ -98,6 +101,8 @@ public class DateFunctions extends FunctionsContainer {
             }
         }
 
+
+        System.out.println("TZ is not blank!");
         return StringMemory.valueOf(tz);
     }
 
