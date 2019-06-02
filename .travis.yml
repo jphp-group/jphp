@@ -10,8 +10,8 @@ services:
 
 env:
   -
-  - JPHP_TEST_COMPILED=1 JPHP_PRINT_INI_CONFIG=true
-  - JPHP_TEST_CONCURRENT=1 JPHP_PRINT_INI_CONFIG=true
+  - JPHP_TEST_COMPILED=1
+  - JPHP_TEST_CONCURRENT=1
 
 before_install:
  - wget https://github.com/sormuras/bach/raw/master/install-jdk.sh

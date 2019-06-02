@@ -47,10 +47,6 @@ abstract public class JvmCompilerCase {
         return jphpTestCompiled != null;
     }
 
-    public boolean shouldPrintIniConfig() {
-        return Boolean.valueOf(System.getenv("JPHP_PRINT_INI_CONFIG"));
-    }
-
     protected CompileScope newScope(){
         CompileScope compileScope = new CompileScope();
         compileScope.setDebugMode(true);
@@ -213,14 +209,7 @@ abstract public class JvmCompilerCase {
 
         Test test = new Test(file = new File(resource.getFile()));
 
-        test.getIniEntries().forEach((name1, value) -> {
-            if (shouldPrintIniConfig()) {
-                System.out.println(name1 + " " + value.toString());
-            }
-
-            environment.setConfigValue(name1, value);
-        });
-
+        test.getIniEntries().forEach(environment::setConfigValue);
         Context context = new Context(test.getFile(), file);
 
         try {
