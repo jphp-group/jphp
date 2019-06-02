@@ -22,7 +22,7 @@ before_install:
 # - gradle wrapper
  - chmod +x gradlew
 
-script: ./gradlew check --stacktrace -Dfile.encoding=UTF-8
+script: ./gradlew check --stacktrace --info -Dfile.encoding=UTF-8
 
 addons:
   hosts:
