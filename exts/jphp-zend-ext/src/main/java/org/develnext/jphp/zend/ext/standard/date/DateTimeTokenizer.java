@@ -7,6 +7,8 @@ import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.Buffer
 import java.nio.CharBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 class DateTimeTokenizer {
@@ -414,5 +416,91 @@ class DateTimeTokenizer {
         DIGITS,
         LETTERS,
         PUNCTUATION
+    }
+
+    static class Token {
+        public static Token EOF = Token.of(Symbol.EOF, -1, 0);
+
+        private final Symbol symbol;
+        private final int start;
+        private final int length;
+
+        private Token(Symbol symbol, int start, int length) {
+            this.symbol = symbol;
+            this.start = start;
+            this.length = length;
+        }
+
+        static Token of(Symbol type, int start, int length) {
+            return new Token(type, start, length);
+        }
+
+        public Symbol symbol() {
+            return symbol;
+        }
+
+        public int start() {
+            return start;
+        }
+
+        public int length() {
+            return length;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Token)) return false;
+            Token token = (Token) o;
+            return start == token.start &&
+                    length == token.length &&
+                    symbol == token.symbol;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", Token.class.getSimpleName() + "[", "]")
+                    .add("symbol=" + symbol)
+                    .add("start=" + start)
+                    .add("length=" + length)
+                    .toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(symbol, start, length);
+        }
+    }
+
+    public enum Symbol {
+        EOF("End of input", ""),
+        DIGITS("HH", "[0-9]+"),
+        FRACTION("frac", ".[0-9]+"),
+        HOUR_12("hh", "\"0\"?[1-9] | \"1\"[0-2]"),
+        COLON("colon", ":"),
+        DOT("dot", "."),
+        MINUS("minus", "-"),
+        PLUS("plus", "+"),
+        COMMA("comma", ","),
+        STRING("string", "[a-z][A-Z]+"),
+        AT("at", "@"),
+        NEWLINE("the line break characters", "\r\n"),
+        SPACE("space", "[ \\t]");
+
+        private final String description;
+        private final String format;
+
+        Symbol(String description, String format) {
+            this.description = description;
+            this.format = format;
+        }
+
+        String description() {
+            return description;
+        }
+
+        String format() {
+            return format;
+        }
     }
 }

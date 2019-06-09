@@ -1,13 +1,15 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.Token.EOF;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.Symbol;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.Token;
 import org.junit.Test;
 
 public class DateTimeTokenizerTest {

@@ -1,6 +1,6 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import static org.develnext.jphp.zend.ext.standard.date.Token.EOF;
+import static org.develnext.jphp.zend.ext.standard.date.DateTimeTokenizer.Token.EOF;
 
 import java.nio.CharBuffer;
 import java.time.Instant;
@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.function.Consumer;
@@ -30,7 +31,7 @@ class DateTimeParserContext {
     static final ZoneId ZERO_OFFSET = ZoneId.of("+00:00");
     private static final Consumer<DateTimeParserContext> EMPTY_CONSUMER = ctx -> {};
     private static final List<ChronoField> TIME_CHRONO_FIELDS = Arrays.asList(ChronoField.MICRO_OF_SECOND, ChronoField.SECOND_OF_MINUTE, ChronoField.MINUTE_OF_HOUR, ChronoField.HOUR_OF_DAY);
-    private final List<Token> tokens;
+    private final List<DateTimeTokenizer.Token> tokens;
     private final Cursor cursor;
     private final DateTimeTokenizer tokenizer;
     private final Set<TemporalField> modified;
@@ -39,7 +40,7 @@ class DateTimeParserContext {
     private ZoneId zoneId;
     private String parsedZone;
 
-    DateTimeParserContext(List<Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer,
+    DateTimeParserContext(List<DateTimeTokenizer.Token> tokens, Cursor cursor, DateTimeTokenizer tokenizer,
                           ZonedDateTime dateTime) {
         this.tokens = tokens;
         this.cursor = cursor;
@@ -53,7 +54,7 @@ class DateTimeParserContext {
         return !modified.isEmpty();
     }
 
-    public List<Token> tokens() {
+    public List<DateTimeTokenizer.Token> tokens() {
         return tokens;
     }
 
@@ -61,11 +62,11 @@ class DateTimeParserContext {
         return cursor;
     }
 
-    public Token tokenAtCursor() {
+    public DateTimeTokenizer.Token tokenAtCursor() {
         return hasMoreTokens() ? tokens.get(cursor.value()) : EOF;
     }
 
-    public Token tokenAt(int idx) {
+    public DateTimeTokenizer.Token tokenAt(int idx) {
         try {
             return tokens.get(idx);
         } catch (IndexOutOfBoundsException e) {
@@ -73,16 +74,16 @@ class DateTimeParserContext {
         }
     }
 
-    public Symbol symbolAtCursor() {
+    public DateTimeTokenizer.Symbol symbolAtCursor() {
         return tokenAtCursor().symbol();
     }
 
-    public boolean isSymbolAtCursor(Symbol symbol) {
+    public boolean isSymbolAtCursor(DateTimeTokenizer.Symbol symbol) {
         return tokenAtCursor().symbol() == symbol;
     }
 
     public void skipWhitespaces() {
-        while (isSymbolAtCursor(Symbol.SPACE))
+        while (isSymbolAtCursor(DateTimeTokenizer.Symbol.SPACE))
             cursor.inc();
     }
 
@@ -453,6 +454,46 @@ class DateTimeParserContext {
 
         static Consumer<DateTimeParserContext> monthAdjuster() {
             return ctx -> ctx.setMonth(ctx.readIntAtCursor());
+        }
+    }
+
+    static class Cursor {
+        private int value;
+
+        void inc() {
+            value++;
+        }
+
+        void dec() {
+            value--;
+        }
+
+        int value() {
+            return value;
+        }
+
+        void setValue(int cursor) {
+            value = cursor;
+        }
+
+        @Override
+        public String toString() {
+            return new StringJoiner(", ", Cursor.class.getSimpleName() + "[", "]")
+                    .add("value=" + value)
+                    .toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Cursor)) return false;
+            Cursor cursor = (Cursor) o;
+            return value == cursor.value;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(value);
         }
     }
 }
