@@ -95,6 +95,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/bug36599.phpt");
         check("ext/date/bug43075.phpt");
         check("ext/date/date_create-1.phpt");
+        check("ext/date/timestamp-in-dst.phpt");
     }
 
     @Test
@@ -364,6 +365,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     public void testDateDefaultTimezoneSet() {
         check("ext/date/date_default_timezone_set-1.phpt");
         check("ext/date/date_default_timezone_set_error.phpt");
+        check("ext/date/timezone-configuration.phpt");
     }
 
     @Test
@@ -378,8 +380,8 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     }
 
     @Test
-    @Ignore
     public void testTimezoneNameFromAbbr() {
+        check("ext/date/timezone_name_from_abbr_basic1.phpt");
         check("ext/date/011.phpt");
         check("ext/date/bug44780.phpt");
     }
@@ -395,5 +397,10 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/rfc-datetime_and_daylight_saving_time-type3-bd2.phpt");
         check("ext/date/rfc-datetime_and_daylight_saving_time-type3-bd1.phpt");
         check("ext/date/rfc-datetime_and_daylight_saving_time-type3-fd.phpt");
+    }
+
+    @Test
+    public void time() {
+        check("ext/date/time_basic.phpt");
     }
 }
