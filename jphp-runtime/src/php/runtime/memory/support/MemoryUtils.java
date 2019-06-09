@@ -51,7 +51,7 @@ public class MemoryUtils {
         });
         put(Short.TYPE, get(Short.class));
 
-        put(Short.class, new Unconverter<Byte>() {
+        put(Byte.class, new Unconverter<Byte>() {
             @Override
             public Memory run(Byte value) {
                 return LongMemory.valueOf(value);
