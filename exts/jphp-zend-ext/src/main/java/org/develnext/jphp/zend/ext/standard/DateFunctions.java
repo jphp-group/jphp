@@ -1,10 +1,13 @@
 package org.develnext.jphp.zend.ext.standard;
 
 import java.time.DateTimeException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
@@ -213,5 +216,63 @@ public class DateFunctions extends FunctionsContainer {
         LocalDateTime date = LocalDateTime.now();
         return __mktime(ZONE_GMT, date.getHour(), date.getMinute(), date.getSecond(), date.getMonthValue(),
                 date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory localtime(Environment env, TraceInfo traceInfo, long time, boolean isAssociative) {
+        ZoneId zone = zoneId(date_default_timezone_get(env, traceInfo));
+
+        Instant instant = Instant.ofEpochSecond(time);
+        ZonedDateTime dateTime = instant.atZone(zone);
+
+        Memory[] ret = new Memory[9];
+
+        ret[0] = LongMemory.valueOf(dateTime.getSecond());
+        ret[1] = LongMemory.valueOf(dateTime.getMinute());
+        ret[2] = LongMemory.valueOf(dateTime.getHour());
+        ret[3] = LongMemory.valueOf(dateTime.getDayOfMonth());
+        ret[4] = LongMemory.valueOf(dateTime.getMonthValue() - 1);
+        ret[5] = LongMemory.valueOf(dateTime.getYear() - 1900);
+        ret[6] = LongMemory.valueOf(dateTime.getDayOfWeek().getValue());
+        ret[7] = LongMemory.valueOf(dateTime.getDayOfYear() - 1);
+        Duration ds = zone.getRules().getDaylightSavings(instant);
+        ret[8] = ds.isZero() ? Memory.CONST_INT_0 : Memory.CONST_INT_1;
+
+        if (isAssociative) {
+            Memory[] struct = LocaltimeStructureHolder.VALUE;
+            ArrayMemory array = ArrayMemory.createHashed(ret.length);
+            for (int i = 0; i < struct.length; i++) {
+                array.put(struct[i], ret[i]);
+            }
+
+            return array;
+        }
+
+        return ArrayMemory.of(ret);
+    }
+
+    public static Memory localtime(Environment env, TraceInfo traceInfo, long time) {
+        return localtime(env, traceInfo, time, false);
+    }
+
+    public static Memory localtime(Environment env, TraceInfo traceInfo) {
+        return localtime(env, traceInfo, epochSeconds(), false);
+    }
+
+    private static long epochSeconds() {
+        return System.currentTimeMillis() / 1000;
+    }
+
+    private static class LocaltimeStructureHolder {
+        private static final Memory[] VALUE = {
+                StringMemory.valueOf("tm_sec"),
+                StringMemory.valueOf("tm_min"),
+                StringMemory.valueOf("tm_hour"),
+                StringMemory.valueOf("tm_mday"),
+                StringMemory.valueOf("tm_mon"),
+                StringMemory.valueOf("tm_year"),
+                StringMemory.valueOf("tm_wday"),
+                StringMemory.valueOf("tm_yday"),
+                StringMemory.valueOf("tm_isdst")
+        };
     }
 }
