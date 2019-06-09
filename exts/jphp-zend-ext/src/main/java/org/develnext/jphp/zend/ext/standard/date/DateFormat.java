@@ -2,6 +2,7 @@ package org.develnext.jphp.zend.ext.standard.date;
 
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
+import static java.time.temporal.ChronoField.DAY_OF_YEAR;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MICRO_OF_SECOND;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
@@ -358,10 +359,6 @@ public class DateFormat {
             return Long.parseLong(scanner.findWithinHorizon(pattern, 0));
         }
 
-        private static boolean checkRange(int value, int min, int max) {
-            return value < min || value > max;
-        }
-
         private DateTimeParseResult parseResult() {
             return new DateTimeParseResult(parse(), mods, null, null);
         }
@@ -411,17 +408,14 @@ public class DateFormat {
                     case 'z': {
                         int doy = Integer.parseInt(scanner.findWithinHorizon(DAY_OF_YEAR, 0));
 
-                        if (checkRange(doy, 0, 365)) {
+                        if (doy < 0 || doy > 365) {
                             throw new DateTimeParseException("Invalid value for z modifier day of year", date, i);
                         }
 
                         ++doy;
                         ZonedDateTime result = dateTime.withDayOfYear(doy).with(truncateIfNotModified(HOUR_OF_DAY, DAYS));
                         mods.add(ChronoField.DAY_OF_YEAR);
-
-                        if (result.getMonth() != dateTime.getMonth()) {
-                            mods.add(MONTH_OF_YEAR);
-                        }
+                        mods.add(ChronoField.MONTH_OF_YEAR);
 
                         dateTime = result;
                         break;
