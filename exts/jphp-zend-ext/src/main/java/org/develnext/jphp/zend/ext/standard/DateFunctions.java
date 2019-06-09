@@ -278,12 +278,12 @@ public class DateFunctions extends FunctionsContainer {
         if (format.isEmpty())
             return Memory.FALSE;
 
-        StringBuilder buff = __strftime(zonedDateTime(env, traceInfo, time), env.getLocale(), format, new StringBuilder());
+        StringBuilder buff = strftimeImpl(zonedDateTime(env, traceInfo, time), env.getLocale(), format, new StringBuilder());
 
         return StringMemory.valueOf(buff.toString());
     }
 
-    private static StringBuilder __strftime(ZonedDateTime date, Locale l, String format, StringBuilder buff) {
+    private static StringBuilder strftimeImpl(ZonedDateTime date, Locale l, String format, StringBuilder buff) {
         for (int i = 0, n = format.length(); i < n; i++) {
             char c = format.charAt(i);
 
@@ -393,11 +393,11 @@ public class DateFunctions extends FunctionsContainer {
                         break;
                     }
                     case 'r': {
-                        __strftime(date, l, "%I:%M:%S %p", buff);
+                        strftimeImpl(date, l, "%I:%M:%S %p", buff);
                         break;
                     }
                     case 'R': {
-                        __strftime(date, l, "%H:%M", buff);
+                        strftimeImpl(date, l, "%H:%M", buff);
                         break;
                     }
                     case 'S': {
@@ -406,7 +406,7 @@ public class DateFunctions extends FunctionsContainer {
                     }
                     case 'X':
                     case 'T': {
-                        __strftime(date, l, "%H:%M:%S", buff);
+                        strftimeImpl(date, l, "%H:%M:%S", buff);
                         break;
                     }
                     case 'z': {
@@ -419,7 +419,7 @@ public class DateFunctions extends FunctionsContainer {
                         ZoneId zone = date.getZone();
                         if (zone instanceof ZoneOffset) {
                             buff.append("GMT");
-                            __strftime(date, l, "%z", buff);
+                            strftimeImpl(date, l, "%z", buff);
                         } else {
                             String str = ZoneIdFactory.aliasFor(date);
                             if (str == null) {
@@ -433,16 +433,16 @@ public class DateFunctions extends FunctionsContainer {
                     }
                     // Timestamps
                     case 'c': {
-                        __strftime(date, l, "%a %b %e %H:%M:%S %Y", buff);
+                        strftimeImpl(date, l, "%a %b %e %H:%M:%S %Y", buff);
                         break;
                     }
                     case 'x':
                     case 'D': {
-                        __strftime(date, l, "%m/%d/%y", buff);
+                        strftimeImpl(date, l, "%m/%d/%y", buff);
                         break;
                     }
                     case 'F': {
-                        __strftime(date, l, "%Y-%m-%d", buff);
+                        strftimeImpl(date, l, "%Y-%m-%d", buff);
                         break;
                     }
                     case 's': {
@@ -478,7 +478,7 @@ public class DateFunctions extends FunctionsContainer {
         if (format.isEmpty())
             return Memory.FALSE;
 
-        StringBuilder buff = __strftime(Instant.ofEpochSecond(time).atZone(ZONE_GMT), env.getLocale(), format, new StringBuilder());
+        StringBuilder buff = strftimeImpl(Instant.ofEpochSecond(time).atZone(ZONE_GMT), env.getLocale(), format, new StringBuilder());
 
         return StringMemory.valueOf(buff.toString());
     }
