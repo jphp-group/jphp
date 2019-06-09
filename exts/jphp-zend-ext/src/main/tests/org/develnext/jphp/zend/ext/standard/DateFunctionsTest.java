@@ -24,6 +24,14 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     }
 
     @Test
+    public void testlocaltime() {
+        check("ext/date/007.phpt");
+        check("ext/date/localtime_basic.phpt");
+        check("ext/date/localtime_variation4.phpt");
+        check("ext/date/localtime_variation5.phpt");
+    }
+
+    @Test
     public void testMkTime() {
         check("ext/date/bug21966.phpt");
         check("ext/date/gmmktime_basic.phpt");
