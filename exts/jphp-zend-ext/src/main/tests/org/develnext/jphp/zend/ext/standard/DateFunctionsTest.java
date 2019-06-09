@@ -75,6 +75,11 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     }
 
     @Test
+    public void dateDefaultTimezoneSet() {
+        check("ext/date/date_default_timezone_set_error.phpt");
+    }
+
+    @Test
     public void testMkTime() {
         check("ext/date/bug21966.phpt");
         check("ext/date/mktime-1.phpt");

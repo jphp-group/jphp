@@ -12,10 +12,13 @@ import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.IsoFields;
 import java.time.DateTimeException;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
@@ -246,6 +249,20 @@ public class DateFunctions extends FunctionsContainer {
                 date.getDayOfMonth(), date.getYear());
     }
 
+    private static class LocaltimeStructureHolder {
+        private static final Memory[] VALUE = {
+                StringMemory.valueOf("tm_sec"),
+                StringMemory.valueOf("tm_min"),
+                StringMemory.valueOf("tm_hour"),
+                StringMemory.valueOf("tm_mday"),
+                StringMemory.valueOf("tm_mon"),
+                StringMemory.valueOf("tm_year"),
+                StringMemory.valueOf("tm_wday"),
+                StringMemory.valueOf("tm_yday"),
+                StringMemory.valueOf("tm_isdst")
+        };
+    }
+
     public static Memory date(Environment env, TraceInfo traceInfo, String format, long time) {
         ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
         return __date(env, traceInfo, zoneId, format, time);
@@ -331,7 +348,7 @@ public class DateFunctions extends FunctionsContainer {
         ret[8] = ds.isZero() ? Memory.CONST_INT_0 : Memory.CONST_INT_1;
 
         if (isAssociative) {
-            Memory[] struct = LocaltimeStructureHolder.STRUCT;
+            Memory[] struct = LocaltimeStructureHolder.VALUE;
             ArrayMemory array = ArrayMemory.createHashed(ret.length);
             for (int i = 0; i < struct.length; i++) array.put(struct[i], ret[i]);
 
@@ -733,19 +750,5 @@ public class DateFunctions extends FunctionsContainer {
 
     private static long epochSeconds() {
         return System.currentTimeMillis() / 1000;
-    }
-
-    private static class LocaltimeStructureHolder {
-        private static final Memory[] STRUCT = {
-                StringMemory.valueOf("tm_sec"),
-                StringMemory.valueOf("tm_min"),
-                StringMemory.valueOf("tm_hour"),
-                StringMemory.valueOf("tm_mday"),
-                StringMemory.valueOf("tm_mon"),
-                StringMemory.valueOf("tm_year"),
-                StringMemory.valueOf("tm_wday"),
-                StringMemory.valueOf("tm_yday"),
-                StringMemory.valueOf("tm_isdst")
-        };
     }
 }

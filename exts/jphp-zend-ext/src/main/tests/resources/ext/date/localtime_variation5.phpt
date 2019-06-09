@@ -24,7 +24,7 @@ $inputs = array(
 );
 
 foreach($inputs as $key =>$value) {
-      echo "\n==$key==\n";
+      echo "\n--$key--\n";
 	  var_dump( localtime($value) );
 	  var_dump( localtime($value, $is_associative) );
 }
@@ -34,7 +34,7 @@ foreach($inputs as $key =>$value) {
 --EXPECT--
 *** Testing localtime() : usage variation ***
 
-==Hexa-decimal 0==
+--Hexa-decimal 0--
 array(9) {
   [0]=>
   int(0)
@@ -76,7 +76,7 @@ array(9) {
   int(0)
 }
 
-==Hexa-decimal 10==
+--Hexa-decimal 10--
 array(9) {
   [0]=>
   int(10)
@@ -118,7 +118,7 @@ array(9) {
   int(0)
 }
 
-==Hexa-decimal -10==
+--Hexa-decimal -10--
 array(9) {
   [0]=>
   int(50)
