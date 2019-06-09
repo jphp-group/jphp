@@ -1,5 +1,5 @@
 --TEST--
-Test gmstrftime() function : usage variation - Checking time related formats which was not supported on Windows before VC14.
+Test gmstrftime() function : usage variation - Checking Preferred date and time representation on Windows.
 --FILE--
 <?php
 /* Prototype  : string gmstrftime(string format [, int timestamp])
@@ -17,31 +17,33 @@ date_default_timezone_set("Asia/Calcutta");
 
 //array of values to iterate over
 $inputs = array(
-	  'Time in a.m/p.m notation' => "%r",
-	  'Time in 24 hour notation' => "%R",
-	  'Current time %H:%M:%S format' => "%T",
+      'Preferred date and time representation' => "%c",
+	  'Preferred date representation' => "%x",
+	  'Preferred time representation' => "%X",
 );
 
 // loop through each element of the array for timestamp
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      echo gmstrftime($value) . "\n";
+      var_dump( gmstrftime($value) );
       var_dump( gmstrftime($value, $timestamp) );
 };
 
 ?>
+===DONE===
 --EXPECTF--
 *** Testing gmstrftime() : usage variation ***
 
---Time in a.m/p.m notation--
-%02d:%02d:%02d %s
-string(11) "08:08:08 AM"
+--Preferred date and time representation--
+string(%d) "%s %s %d %d:%d:%d %d"
+string(24) "Fri Aug  8 08:08:08 2008"
 
---Time in 24 hour notation--
-%02d:%02d
-string(5) "08:08"
+--Preferred date representation--
+string(%d) "%d/%d/%d"
+string(8) "08/08/08"
 
---Current time %H:%M:%S format--
-%02d:%02d:%02d
+--Preferred time representation--
+string(%d) "%d:%d:%d"
 string(8) "08:08:08"
+===DONE===

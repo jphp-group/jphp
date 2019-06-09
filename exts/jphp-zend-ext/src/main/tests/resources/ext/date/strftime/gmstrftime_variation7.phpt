@@ -1,11 +1,5 @@
 --TEST--
-Test gmstrftime() function : usage variation - Checking date related formats which are supported other than on Windows.
---SKIPIF--
-<?php
-if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
-    die("skip Test is not valid for Windows");
-}
-?>
+Test gmstrftime() function : usage variation - Passing day related format strings to format argument.
 --FILE--
 <?php
 /* Prototype  : string gmstrftime(string format [, int timestamp])
@@ -23,10 +17,9 @@ date_default_timezone_set("Asia/Calcutta");
 
 //array of values to iterate over
 $inputs = array(
-	  'Century number' => "%C",
-	  'Month Date Year' => "%D",
-	  'Year with century' => "%G",
-	  'Year without century' => "%g",
+	  'Day of the month as a decimal number' => "%d",
+	  'Day of the year as a decimal number' => "%j",
+	  'Day of the week as a decimal number' => "%w"
 );
 
 // loop through each element of the array for timestamp
@@ -42,19 +35,15 @@ foreach($inputs as $key =>$value) {
 --EXPECTF--
 *** Testing gmstrftime() : usage variation ***
 
---Century number--
-string(%d) "%d"
-string(2) "20"
-
---Month Date Year--
-string(%d) "%02d/%02d/%02d"
-string(8) "08/08/08"
-
---Year with century--
-string(%d) "%d"
-string(4) "2008"
-
---Year without century--
+--Day of the month as a decimal number--
 string(%d) "%d"
 string(2) "08"
+
+--Day of the year as a decimal number--
+string(%d) "%d"
+string(3) "221"
+
+--Day of the week as a decimal number--
+string(%d) "%d"
+string(1) "5"
 ===DONE===

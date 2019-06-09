@@ -1,20 +1,19 @@
 --TEST--
-Test gmstrftime() function : usage variation - Passing date related format strings to format argument.
+Test strftime() function : usage variation - Passing date related format strings to format argument.
 --FILE--
 <?php
-/* Prototype  : string gmstrftime(string format [, int timestamp])
- * Description: Format a GMT/UCT time/date according to locale settings
+/* Prototype  : string strftime(string format [, int timestamp])
+ * Description: Format a local time/date according to locale settings
  * Source code: ext/date/php_date.c
  * Alias to functions:
  */
 
-echo "*** Testing gmstrftime() : usage variation ***\n";
+echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-$timestamp = gmmktime(8, 8, 8, 8, 8, 2008);
 setlocale(LC_ALL, "en_US");
 date_default_timezone_set("Asia/Calcutta");
-
+$timestamp = mktime(8, 8, 8, 8, 8, 2008);
 
 //array of values to iterate over
 $inputs = array(
@@ -28,24 +27,24 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      echo gmstrftime($value), "\n";
-      var_dump( gmstrftime($value, $timestamp) );
+      var_dump( strftime($value) );
+      var_dump( strftime($value, $timestamp) );
 };
 
 ?>
 ===DONE===
 --EXPECTF--
-*** Testing gmstrftime() : usage variation ***
+*** Testing strftime() : usage variation ***
 
 --Year as decimal number without a century--
-%02d
+string(%d) "%d"
 string(2) "08"
 
 --Year as decimal number including the century--
-%d
+string(%d) "%d"
 string(4) "2008"
 
 --Time zone offset--
-%s
-string(5) "+0000"
+string(%d) "%s"
+string(%d) "%s"
 ===DONE===

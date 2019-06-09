@@ -15,14 +15,17 @@ $timestamp = gmmktime(8, 8, 8, 8, 8, 2008);
 setlocale(LC_ALL, "en_US");
 date_default_timezone_set("Asia/Calcutta");
 
+echo "\n-- Testing gmstrftime() function with  Abbreviated month name format %h --\n";
 $format = "%h";
-echo gmstrftime($format) . "\n";
+var_dump( gmstrftime($format) );
 var_dump( gmstrftime($format, $timestamp) );
 
 ?>
 ===DONE===
 --EXPECTF--
 *** Testing gmstrftime() : usage variation ***
-%s
+
+-- Testing gmstrftime() function with  Abbreviated month name format %h --
+string(%d) "%s"
 string(3) "Aug"
 ===DONE===

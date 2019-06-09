@@ -1,17 +1,18 @@
 --TEST--
-Test gmstrftime() function : usage variation - Passing month related format strings to format argument.
+Test strftime() function : usage variation - Passing month related format strings to format argument.
 --FILE--
 <?php
-/* Prototype  : string gmstrftime(string format [, int timestamp])
- * Description: Format a GMT/UCT time/date according to locale settings
+/* Prototype  : string strftime(string format [, int timestamp])
+ * Description: Format a local time/date according to locale settings
  * Source code: ext/date/php_date.c
  * Alias to functions:
  */
 
-echo "*** Testing gmstrftime() : usage variation ***\n";
+echo "*** Testing strftime() : usage variation ***\n";
 
+date_default_timezone_set("Asia/Calcutta");
 // Initialise function arguments not being substituted (if any)
-$timestamp = gmmktime(8, 8, 8, 8, 8, 2008);
+$timestamp = mktime(8, 8, 8, 8, 8, 2008);
 
 //array of values to iterate over
 $inputs = array(
@@ -24,24 +25,24 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      echo gmstrftime($value), "\n";
-      var_dump( gmstrftime($value, $timestamp) );
+      var_dump( strftime($value) );
+      var_dump( strftime($value, $timestamp) );
 };
 
 ?>
 ===DONE===
 --EXPECTF--
-*** Testing gmstrftime() : usage variation ***
+*** Testing strftime() : usage variation ***
 
 --Abbreviated month name--
-%s
+string(%d) "%s"
 string(3) "Aug"
 
 --Full month name--
-%s
+string(%d) "%s"
 string(6) "August"
 
 --Month as decimal--
-%02d
+string(%d) "%d"
 string(2) "08"
 ===DONE===

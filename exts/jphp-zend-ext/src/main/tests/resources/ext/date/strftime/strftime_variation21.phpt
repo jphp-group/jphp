@@ -1,19 +1,19 @@
 --TEST--
-Test gmstrftime() function : usage variation - Checking Preferred date and time representation on Windows.
+Test strftime() function : usage variation - Checking Preferred date and time representation on Windows.
 --FILE--
 <?php
-/* Prototype  : string gmstrftime(string format [, int timestamp])
- * Description: Format a GMT/UCT time/date according to locale settings
+/* Prototype  : string strftime(string format [, int timestamp])
+ * Description: Format a local time/date according to locale settings
  * Source code: ext/date/php_date.c
  * Alias to functions:
  */
 
-echo "*** Testing gmstrftime() : usage variation ***\n";
+echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-$timestamp = gmmktime(8, 8, 8, 8, 8, 2008);
 setlocale(LC_ALL, "C");
 date_default_timezone_set("Asia/Calcutta");
+$timestamp = mktime(8, 8, 8, 8, 8, 2008);
 
 //array of values to iterate over
 $inputs = array(
@@ -26,24 +26,24 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      var_dump( gmstrftime($value) );
-      var_dump( gmstrftime($value, $timestamp) );
-};
+	  var_dump( strftime($value) );
+	  var_dump( strftime($value, $timestamp) );
+}
 
 ?>
 ===DONE===
 --EXPECTF--
-*** Testing gmstrftime() : usage variation ***
+*** Testing strftime() : usage variation ***
 
 --Preferred date and time representation--
-string(%d) "%s %s %d %02d:%02d:%02d %04d"
+string(%d) "%s %s %d %d:%d:%d %d"
 string(24) "Fri Aug  8 08:08:08 2008"
 
 --Preferred date representation--
-string(%d) "%02d/%02d/%02d"
+string(%d) "%d/%d/%d"
 string(8) "08/08/08"
 
 --Preferred time representation--
-string(%d) "%02d:%02d:%02d"
+string(%d) "%d:%d:%d"
 string(8) "08:08:08"
 ===DONE===

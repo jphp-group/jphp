@@ -25,30 +25,30 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     @Test
     public void teststrftime() {
 
-        // check("ext/date/gmstrftime_variation3.phpt");
+        //check("ext/date/gmstrftime_variation3.phpt");
 
         // prinf or sscanf bug
         // check("ext/date/gmstrftime_variation15.phpt");
         // check("ext/date/gmstrftime_variation16.phpt");
 
-        check("ext/date/gmstrftime_variation5.phpt");
         check("ext/date/009.phpt");
-        check("ext/date/gmstrftime_basic.phpt");
-        check("ext/date/gmstrftime_variation20.phpt");
-        check("ext/date/gmstrftime_variation4.phpt");
-        check("ext/date/gmstrftime_variation6.phpt");
-        check("ext/date/gmstrftime_variation7.phpt");
-        check("ext/date/gmstrftime_variation8.phpt");
-        check("ext/date/gmstrftime_variation9.phpt");
-        check("ext/date/gmstrftime_variation10.phpt");
-        check("ext/date/gmstrftime_variation11.phpt");
-        check("ext/date/gmstrftime_variation13.phpt");
-        check("ext/date/gmstrftime_variation14.phpt");
-        check("ext/date/gmstrftime_variation17.phpt");
-        check("ext/date/gmstrftime_variation18.phpt");
-        check("ext/date/gmstrftime_variation19.phpt");
-        check("ext/date/gmstrftime_variation21.phpt");
-        check("ext/date/gmstrftime_variation22.phpt");
+        check("ext/date/strftime/gmstrftime_variation5.phpt");
+        check("ext/date/strftime/gmstrftime_basic.phpt");
+        check("ext/date/strftime/gmstrftime_variation20.phpt");
+        check("ext/date/strftime/gmstrftime_variation4.phpt");
+        check("ext/date/strftime/gmstrftime_variation6.phpt");
+        check("ext/date/strftime/gmstrftime_variation7.phpt");
+        check("ext/date/strftime/gmstrftime_variation8.phpt");
+        check("ext/date/strftime/gmstrftime_variation9.phpt");
+        check("ext/date/strftime/gmstrftime_variation10.phpt");
+        check("ext/date/strftime/gmstrftime_variation11.phpt");
+        check("ext/date/strftime/gmstrftime_variation13.phpt");
+        check("ext/date/strftime/gmstrftime_variation14.phpt");
+        check("ext/date/strftime/gmstrftime_variation17.phpt");
+        check("ext/date/strftime/gmstrftime_variation18.phpt");
+        check("ext/date/strftime/gmstrftime_variation19.phpt");
+        check("ext/date/strftime/gmstrftime_variation21.phpt");
+        check("ext/date/strftime/gmstrftime_variation22.phpt");
     }
 
     @Test
