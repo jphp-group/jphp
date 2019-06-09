@@ -12,6 +12,9 @@ import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.time.temporal.IsoFields;
 import java.time.DateTimeException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.ZoneId;
 import java.util.Collections;
 import java.util.Date;
@@ -138,6 +141,111 @@ public class DateFunctions extends FunctionsContainer {
         return StringMemory.valueOf(tz);
     }
 
+    public static Memory mktime(Environment env, TraceInfo traceInfo,
+                                int hour, int minute, int second, int month, int day, int year) {
+        return __mktime(zoneId(date_default_timezone_get(env, traceInfo)), hour, minute, second,
+                month, day, year);
+    }
+
+    private static Memory __mktime(ZoneId zoneId, int hour, int minute, int second, int month, int day, int year) {
+        if (year >= 0 && year <= 69) {
+            year += 2000;
+        } else if (year >= 70 && year <= 100) {
+            year += 1900;
+        } else if (year < 0) {
+            year = 1970 + year;
+        }
+
+        long time = UNIX_EPOCH.plusYears(year - 1970)
+                .plusMonths(month - 1)
+                .plusDays(day - 1)
+                .plusMinutes(minute)
+                .plusHours(hour)
+                .plusSeconds(second)
+                .atZone(zoneId)
+                .toEpochSecond();
+
+        return LongMemory.valueOf(time);
+    }
+
+    private static ZoneId zoneId(Memory memory) {
+        return ZoneIdFactory.of(memory.toString());
+    }
+
+    public static Memory mktime(Environment env, TraceInfo traceInfo,
+                                int hour, int minute, int second, int month, int day) {
+        return mktime(env, traceInfo, hour, minute, second, month, day, Year.now().getValue());
+    }
+
+    public static Memory mktime(Environment env, TraceInfo traceInfo,
+                                int hour, int minute, int second, int month) {
+        LocalDate date = LocalDate.now();
+        return mktime(env, traceInfo, hour, minute, second, month, date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory mktime(Environment env, TraceInfo traceInfo,
+                                int hour, int minute, int second) {
+        LocalDate date = LocalDate.now();
+        return mktime(env, traceInfo, hour, minute, second, date.getMonthValue(), date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory mktime(Environment env, TraceInfo traceInfo,
+                                int hour, int minute) {
+        LocalDateTime date = LocalDateTime.now();
+        return mktime(env, traceInfo, hour, minute, date.getSecond(), date.getMonthValue(), date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory mktime(Environment env, TraceInfo traceInfo,
+                                int hour) {
+        LocalDateTime date = LocalDateTime.now();
+        return mktime(env, traceInfo, hour, date.getMinute(), date.getSecond(), date.getMonthValue(), date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory mktime(Environment env, TraceInfo traceInfo) {
+        env.error(traceInfo, ErrorType.E_DEPRECATED, "mktime(): You should be using the time() function instead");
+        LocalDateTime date = LocalDateTime.now();
+        return mktime(env, traceInfo, date.getHour(), date.getMinute(), date.getSecond(), date.getMonthValue(), date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour, int minute, int second, int month,
+                                  int day, int year) {
+        return __mktime(ZONE_GMT, hour, minute, second, month, day, year);
+    }
+
+    public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour, int minute, int second, int month,
+                                  int day) {
+        return __mktime(ZONE_GMT, hour, minute, second, month, day, Year.now().getValue());
+    }
+
+    public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour, int minute, int second, int month) {
+        LocalDate date = LocalDate.now();
+        return __mktime(ZONE_GMT, hour, minute, second, month, date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour, int minute, int second) {
+        LocalDate date = LocalDate.now();
+        return __mktime(ZONE_GMT, hour, minute, second, date.getMonthValue(), date.getDayOfMonth(), date.getYear());
+    }
+
+    public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour, int minute) {
+        LocalDateTime date = LocalDateTime.now();
+        return __mktime(ZONE_GMT, hour, minute, date.getSecond(), date.getMonthValue(), date.getDayOfMonth(),
+                date.getYear());
+    }
+
+    public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour) {
+        LocalDateTime date = LocalDateTime.now();
+        return __mktime(ZONE_GMT, hour, date.getMinute(), date.getSecond(), date.getMonthValue(), date.getDayOfMonth(),
+                date.getYear());
+    }
+
+    public static Memory gmmktime(Environment env, TraceInfo traceInfo) {
+        env.error(traceInfo, ErrorType.E_DEPRECATED, "gmmktime(): You should be using the time() function instead");
+        LocalDateTime date = LocalDateTime.now();
+        return __mktime(ZONE_GMT, date.getHour(), date.getMinute(), date.getSecond(), date.getMonthValue(),
+                date.getDayOfMonth(), date.getYear());
+    }
+
     public static Memory date(Environment env, TraceInfo traceInfo, String format, long time) {
         ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
         return __date(env, traceInfo, zoneId, format, time);
@@ -188,75 +296,6 @@ public class DateFunctions extends FunctionsContainer {
         }
 
         return __strtotime(env, traceInfo, time, now.toLong());
-    }
-
-    public static Memory mktime(Environment env, TraceInfo traceInfo,
-                                int hour, int minute, int second, int month, int day, int year) {
-        return __mktime(zoneId(date_default_timezone_get(env, traceInfo)), hour, minute, second,
-                month, day, year);
-    }
-
-    private static Memory __mktime(ZoneId zoneId, int hour, int minute, int second, int month, int day, int year) {
-        // TODO replace with adjuster
-        if (year >= 0 && year <= 69) {
-            year += 2000;
-        } else if (year >= 70 && year <= 100) {
-            year += 1900;
-        } else if (year < 0) {
-            year = 1970 + year;
-        }
-
-        LocalDateTime tmp = UNIX_EPOCH.plusYears(year - 1970);
-        tmp = tmp.plusMonths(month - 1);
-        tmp = tmp.plusDays(day - 1);
-
-        tmp = tmp.plusMinutes(minute).plusHours(hour).plusSeconds(second);
-
-        return LongMemory.valueOf(tmp.atZone(zoneId).toEpochSecond());
-    }
-
-    private static ZoneId zoneId(Memory memory) {
-        return ZoneIdFactory.of(memory.toString());
-    }
-
-    public static Memory mktime(Environment env, TraceInfo traceInfo,
-                                int hour, int minute, int second, int month, int day) {
-        return mktime(env, traceInfo, hour, minute, second, month, day, Year.now().getValue());
-    }
-
-    public static Memory mktime(Environment env, TraceInfo traceInfo,
-                                int hour, int minute, int second, int month) {
-        LocalDate date = LocalDate.now();
-        return mktime(env, traceInfo, hour, minute, second, month, date.getDayOfMonth(), date.getYear());
-    }
-
-    public static Memory mktime(Environment env, TraceInfo traceInfo,
-                                int hour, int minute, int second) {
-        LocalDate date = LocalDate.now();
-        return mktime(env, traceInfo, hour, minute, second, date.getMonthValue(), date.getDayOfMonth(), date.getYear());
-    }
-
-    public static Memory mktime(Environment env, TraceInfo traceInfo,
-                                int hour, int minute) {
-        LocalDateTime date = LocalDateTime.now();
-        return mktime(env, traceInfo, hour, minute, date.getSecond(), date.getMonthValue(), date.getDayOfMonth(), date.getYear());
-    }
-
-    public static Memory mktime(Environment env, TraceInfo traceInfo,
-                                int hour) {
-        LocalDateTime date = LocalDateTime.now();
-        return mktime(env, traceInfo, hour, date.getMinute(), date.getSecond(), date.getMonthValue(), date.getDayOfMonth(), date.getYear());
-    }
-
-    public static Memory mktime(Environment env, TraceInfo traceInfo) {
-        env.error(traceInfo, ErrorType.E_DEPRECATED, "mktime(): You should be using the time() function instead");
-        LocalDateTime date = LocalDateTime.now();
-        return mktime(env, traceInfo, date.getHour(), date.getMinute(), date.getSecond(), date.getMonthValue(), date.getDayOfMonth(), date.getYear());
-    }
-
-    public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour, int minute, int second, int month,
-                                  int day, int year) {
-        return __mktime(ZONE_GMT, hour, minute, second, month, day, year);
     }
 
     public static Memory checkdate(int month, int day, int year) {
