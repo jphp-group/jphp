@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -46,7 +47,7 @@ public final class ZoneIdFactory {
     private static final Map<String, List<TimezoneWithAlias>> idToAliases;
     private static final Map<String, List<Timezone>> ABBREVIATION;
 
-    private static final String TZ_ABBREVIATIONS_JSON = "tz_abbreviations.json";
+    private static final String TZ_ABBREVIATIONS_JSON = "tzdb.json";
     private static final Type TYPE = new TypeToken<CaseInsensitiveMap<List<Timezone>>>() {
     }.getType();
 
@@ -211,23 +212,51 @@ public final class ZoneIdFactory {
     }
 
     public static String abbrToRegion(String abbreviation, int offset, int isDst) {
-        if (StringUtils.isBlank(abbreviation)) {
-            if (offset == -1 && isDst == -1)
-                return null;
+        switch (abbreviation) {
+            case "GMT":
+            case "UTC":
+                return "UTC";
+            default: {
+                if (StringUtils.isBlank(abbreviation)) {
+                    if (offset == -1 && isDst == -1) {
+                        return null;
+                    }
 
-            if (isDst == -1)
-                return abbreviationByOffset(offset);
+                    // find only with offset
+                    if (isDst == -1) {
+                        return abbreviationByOffset(offset);
+                    }
 
-            return abbreviationByOffsetAndDst(offset, isDst == 1);
+                    return abbreviationByOffsetAndDst(offset, isDst == 1);
+                }
+
+                List<Timezone> timezoneItems = ABBREVIATION.get(abbreviation);
+
+                if (timezoneItems == null) {
+                    return null;
+                }
+
+                Predicate<Timezone> filter = timezone -> true;
+
+                if (offset != -1) {
+                    filter = filter.and(timezone -> timezone.getOffset() == offset);
+                }
+
+                if (isDst != -1) {
+                    filter = filter.and(timezone -> (isDst == 0) != timezone.isDst());
+                }
+
+                if (offset == -1 && isDst == -1) {
+                    return timezoneItems.iterator().next().timezoneId;
+                }
+
+                return timezoneItems.stream()
+                        .filter(filter)
+                        .map(Timezone::getTimezoneId)
+                        .findFirst()
+                        .orElse(null);
+            }
         }
-
-        List<Timezone> timezoneItems = ABBREVIATION.get(abbreviation);
-
-        if (timezoneItems != null && offset == -1 && isDst == -1) {
-            return timezoneItems.iterator().next().timezoneId;
-        }
-
-        return null;
     }
 
     private static String abbreviationByOffsetAndDst(int offset, boolean dst) {
