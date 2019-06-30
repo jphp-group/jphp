@@ -258,6 +258,10 @@ public class DateFunctions extends FunctionsContainer {
         return localtime(env, traceInfo, epochSeconds(), false);
     }
 
+    public static Memory time() {
+        return LongMemory.valueOf(epochSeconds());
+    }
+
     private static long epochSeconds() {
         return System.currentTimeMillis() / 1000;
     }
