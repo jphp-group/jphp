@@ -31,6 +31,6 @@ var_dump( strftime($format, $timestamp) );
 *** Testing strftime() : usage variation ***
 
 -- Testing strftime() function with Day of the month as decimal single digit format --
- %s
+%s
 string(2) " 8"
 ===DONE===
