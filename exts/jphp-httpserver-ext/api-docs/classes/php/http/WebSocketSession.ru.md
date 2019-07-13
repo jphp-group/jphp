@@ -20,6 +20,13 @@
 - `->`[`policy()`](#method-policy)
 - `->`[`batchMode()`](#method-batchmode)
 - `->`[`flush()`](#method-flush)
+- `->`[`host()`](#method-host)
+- `->`[`allHeaders()`](#method-allheaders)
+- `->`[`header()`](#method-header)
+- `->`[`headers()`](#method-headers)
+- `->`[`addResponseHeader()`](#method-addresponseheader)
+- `->`[`responseHeaders()`](#method-responseheaders)
+- `->`[`extensions()`](#method-extensions)
 
 ---
 # Методы
@@ -128,4 +135,67 @@ batchMode(string $mode): string
 ### flush()
 ```php
 flush(): void
+```
+
+---
+
+<a name="method-host"></a>
+
+### host()
+```php
+host(): string
+```
+
+---
+
+<a name="method-allheaders"></a>
+
+### allHeaders()
+```php
+allHeaders(): array
+```
+
+---
+
+<a name="method-header"></a>
+
+### header()
+```php
+header(string $header): string
+```
+
+---
+
+<a name="method-headers"></a>
+
+### headers()
+```php
+headers(string $header): array
+```
+
+---
+
+<a name="method-addresponseheader"></a>
+
+### addResponseHeader()
+```php
+addResponseHeader(string $header, string $value): string
+```
+
+---
+
+<a name="method-responseheaders"></a>
+
+### responseHeaders()
+```php
+responseHeaders(): array
+```
+
+---
+
+<a name="method-extensions"></a>
+
+### extensions()
+```php
+extensions(): array
 ```

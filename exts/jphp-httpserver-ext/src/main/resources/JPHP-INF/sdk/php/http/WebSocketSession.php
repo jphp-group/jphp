@@ -97,4 +97,57 @@ abstract class WebSocketSession
     public function flush(): void
     {
     }
+
+    /**
+     * @return string
+     */
+    public function host(): string
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function allHeaders(): array
+    {
+    }
+
+    /**
+     * @param string $header
+     * @return string
+     */
+    public function header(string $header): string
+    {
+    }
+
+    /**
+     * @param string $header
+     * @return array
+     */
+    public function headers(string $header): array
+    {
+    }
+
+    /**
+     * @param string $header
+     * @param string $value
+     * @return string
+     */
+    public function addResponseHeader(string $header, string $value): string
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function responseHeaders(): array
+    {
+    }
+
+    /**
+     * @return array
+     */
+    public function extensions(): array
+    {
+    }
 }

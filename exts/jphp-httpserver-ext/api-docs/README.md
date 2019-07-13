@@ -3,12 +3,12 @@
 ---
 
 ## jphp-httpserver-ext
-> version 1.0.0, created by JPPM.
+> version 1.0.2, created by JPPM.
 
 
 ### Install
 ```
-jppm add jphp-httpserver-ext@1.0.0
+jppm add jphp-httpserver-ext@1.0.2
 ```
 
 ### API

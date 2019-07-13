@@ -2,6 +2,7 @@ package org.develnext.jphp.ext.httpserver.classes;
 
 import org.develnext.jphp.ext.httpserver.HttpServerExtension;
 import org.eclipse.jetty.websocket.api.*;
+import org.eclipse.jetty.websocket.api.extensions.ExtensionConfig;
 import org.eclipse.jetty.websocket.common.WebSocketSession;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection.*;
@@ -9,12 +10,17 @@ import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.WrapFuture;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseWrapper;
+import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 @Abstract
 @Name("WebSocketSession")
@@ -46,6 +52,55 @@ public class PWebSocketSession extends BaseWrapper<Session> {
     public void sendPartialText(String text, boolean isLast) throws IOException {
         getWrappedObject().getRemote().sendPartialString(text, isLast);
     }
+
+    @Signature
+    public String host(){
+        return getWrappedObject().getUpgradeRequest().getHost();
+    }
+
+    @Signature
+    public Memory allHeaders(){
+        ArrayMemory result = new ArrayMemory();
+
+        for(Map.Entry<String, List<String>> entry : getWrappedObject().getUpgradeRequest().getHeaders().entrySet()){
+            result.refOfIndex(entry.getKey()).assign(ArrayMemory.ofStringCollection(entry.getValue()));
+        }
+
+        return result;
+    }
+
+    @Signature
+    public String header(String header){
+        return getWrappedObject().getUpgradeRequest().getHeader(header);
+    }
+
+    @Signature
+    public List<String> headers(String header){
+        return getWrappedObject().getUpgradeRequest().getHeaders(header);
+    }
+
+
+    @Signature
+    public void addResponseHeader(String header, String value){
+        getWrappedObject().getUpgradeResponse().addHeader(header, value);
+    }
+
+    @Signature
+    public Memory responseHeaders(){
+        ArrayMemory result = new ArrayMemory();
+
+        for(Map.Entry<String, List<String>> entry : getWrappedObject().getUpgradeResponse().getHeaders().entrySet()){
+            result.refOfIndex(entry.getKey()).assign(ArrayMemory.ofStringCollection(entry.getValue()));
+        }
+
+        return result;
+    }
+
+    @Signature
+    public List<ExtensionConfig> extensions(){
+        return getWrappedObject().getUpgradeRequest().getExtensions();
+    }
+
 
     @Signature
     public void sendText(String text, @Nullable Invoker callback) throws IOException {

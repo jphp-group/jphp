@@ -1,6 +1,7 @@
 package org.develnext.jphp.ext.httpserver;
 
 import org.develnext.jphp.ext.httpserver.classes.*;
+import org.develnext.jphp.ext.httpserver.support.ExtensionConfigMemoryOperation;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.websocket.api.Session;
@@ -51,6 +52,8 @@ public class HttpServerExtension extends Extension {
     public void onRegister(CompileScope scope) {
         registerWrapperClass(scope, Session.class, PWebSocketSession.class);
         MemoryOperation.registerWrapper(WebSocketSession.class, PWebSocketSession.class);
+
+        MemoryOperation.register(new ExtensionConfigMemoryOperation());
 
         registerClass(scope, PHttpServer.class);
         registerClass(scope, PHttpServerRequest.class);
