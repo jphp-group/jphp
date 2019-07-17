@@ -301,7 +301,7 @@ public class DateFunctions extends FunctionsContainer {
                         break;
                     }
                     case 'd': {
-                        buff.append(String.format(l, "%02d", date.getDayOfMonth()));
+                        buff.append(String.format(l, TWO_DIGIT_INT, date.getDayOfMonth()));
                         break;
                     }
                     case 'e': {
@@ -381,7 +381,7 @@ public class DateFunctions extends FunctionsContainer {
                         break;
                     }
                     case 'M': {
-                        buff.append(String.format(l, "%02d", date.getMinute()));
+                        buff.append(String.format(l, TWO_DIGIT_INT, date.getMinute()));
                         break;
                     }
                     case 'p': {
@@ -424,7 +424,8 @@ public class DateFunctions extends FunctionsContainer {
                             String str = ZoneIdFactory.aliasFor(date);
                             if (str == null) {
                                 long hours = Duration.ofSeconds(date.getOffset().getTotalSeconds()).toHours();
-                                buff.append(hours < 0 ? '-' : '+').append(String.format(l, "%02d", Math.abs(hours)));
+                                buff.append(hours < 0 ? '-' : '+')
+                                    .append(String.format(l, TWO_DIGIT_INT, Math.abs(hours)));
                             } else {
                                 buff.append(str);
                             }
