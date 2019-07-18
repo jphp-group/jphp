@@ -19,16 +19,61 @@ import java.util.Map;
 import java.util.Set;
 
 public class MemorySerializer implements JsonSerializer<Memory> {
-    protected boolean forceObject;
-    protected boolean numericCheck;
-    protected WeakReference<Environment> env;
-
-    protected Map<Memory.Type, Handler> typeHandlers;
-    protected Map<String, Handler> classHandlers;
+    private WeakReference<Environment> env;
+    private boolean forceObject;
+    private boolean numericCheck;
+    private boolean unescapedUnicode;
+    private Map<Memory.Type, Handler> typeHandlers;
+    private Map<String, Handler> classHandlers;
 
     {
-        typeHandlers = new HashedMap<Memory.Type, Handler>(1);
-        classHandlers = new HashedMap<String, Handler>(1);
+        typeHandlers = new HashedMap<>(1);
+        classHandlers = new HashedMap<>(1);
+    }
+
+    private static String escapeUnicode(String input) {
+        int unicodeIdx = indexOfUnicodeChar(input);
+
+        // If there is no unicode characters just return as is
+        if (unicodeIdx == -1) {
+            return input;
+        }
+
+        StringBuilder sb = new StringBuilder(input.length())
+            .append(input, 0, unicodeIdx);
+
+        for (int i = unicodeIdx; i < input.length(); i++) {
+            int c = input.charAt(i);
+
+            if (c > 0x7F) {
+                sb.append('\\').append('u');
+
+                String hex = Integer.toHexString(c);
+
+                // padding with zeros
+                for (int j = 0; j < 4 - hex.length(); j++) sb.append('0');
+
+                sb.append(hex);
+            } else {
+                sb.append(c);
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Finds first occurrence of unicode character and returns its index or {@code -1} otherwise.
+     */
+    private static int indexOfUnicodeChar(String input) {
+        for (int i = 0; i < input.length(); i++) {
+            int c = input.charAt(i);
+            if (c > 0x7F) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     public Environment getEnv() {
@@ -66,36 +111,43 @@ public class MemorySerializer implements JsonSerializer<Memory> {
         switch (src.getRealType()) {
             case BOOL:
                 return new JsonPrimitive(src.toBoolean());
-            case DOUBLE: return new JsonPrimitive(src.toDouble());
-            case INT: return new JsonPrimitive(src.toLong());
+            case DOUBLE:
+                return new JsonPrimitive(src.toDouble());
+            case INT:
+                return new JsonPrimitive(src.toLong());
             case STRING: {
                 if (numericCheck) {
                     Memory m = StringMemory.toLong(src.toString());
-                    if (m != null)
+                    if (m != null) {
                         return new JsonPrimitive(m.toLong());
-                    else
+                    } else {
                         return new JsonPrimitive(src.toString());
-                } else
-                    return new JsonPrimitive(src.toString());
+                    }
+                } else {
+                    return new JsonPrimitive(unescapedUnicode ? src.toString() : escapeUnicode(src.toString()));
+                }
             }
-            case NULL: return JsonNull.INSTANCE;
+            case NULL:
+                return JsonNull.INSTANCE;
             case ARRAY: {
-                if (used.add(src.getPointer())){
+                if (used.add(src.getPointer())) {
                     JsonArray array = new JsonArray();
                     JsonObject object = new JsonObject();
 
                     boolean isList = !forceObject && src.toValue(ArrayMemory.class).isList();
                     ForeachIterator iterator = src.toValue(ArrayMemory.class).foreachIterator(false, false);
                     while (iterator.next()) {
-                        if (isList)
+                        if (isList) {
                             array.add(convert(iterator.getValue(), used, useHandlers));
-                        else
+                        } else {
                             object.add(iterator.getKey().toString(), convert(iterator.getValue(), used, useHandlers));
+                        }
                     }
                     used.remove(src.getPointer());
                     return isList ? array : object;
-                } else
+                } else {
                     return JsonNull.INSTANCE;
+                }
             }
             case OBJECT: {
                 if (used.add(src.getPointer())) {
@@ -108,8 +160,9 @@ public class MemorySerializer implements JsonSerializer<Memory> {
                         do {
                             handler = classHandlers.get(pr.getLowerName());
                             pr = pr.getParent();
-                            if (pr == null)
+                            if (pr == null) {
                                 break;
+                            }
 
                         } while (handler == null);
 
@@ -133,13 +186,15 @@ public class MemorySerializer implements JsonSerializer<Memory> {
                         JsonObject r = new JsonObject();
                         while (iterator.next()) {
                             String key = iterator.getKey().toString();
-                            if (!key.startsWith("\0"))
+                            if (!key.startsWith("\0")) {
                                 r.add(iterator.getKey().toString(), convert(iterator.getValue(), used, useHandlers));
+                            }
                         }
                         return r;
                     }
-                } else
+                } else {
                     return JsonNull.INSTANCE;
+                }
             }
             default:
                 return JsonNull.INSTANCE;
@@ -153,17 +208,23 @@ public class MemorySerializer implements JsonSerializer<Memory> {
     public void setTypeHandler(Memory.Type type, Handler handler) {
         if (handler == null) {
             typeHandlers.remove(type);
-        } else
+        } else {
             typeHandlers.put(type, handler);
+        }
     }
 
     public void setClassHandler(String className, Handler handler) {
         className = className.toLowerCase();
 
-        if (handler == null)
+        if (handler == null) {
             classHandlers.remove(className);
-        else
+        } else {
             classHandlers.put(className, handler);
+        }
+    }
+
+    public void unescapedUnicode(boolean unescapedUnicode) {
+        this.unescapedUnicode = unescapedUnicode;
     }
 
     public interface Handler {
