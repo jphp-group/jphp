@@ -379,4 +379,9 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     public void time() {
         check("ext/date/time_basic.phpt");
     }
+
+    @Test
+    public void testTime() {
+        check("ext/date/time_basic.phpt");
+    }
 }

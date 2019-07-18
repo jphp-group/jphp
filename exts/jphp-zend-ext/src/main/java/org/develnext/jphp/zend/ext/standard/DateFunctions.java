@@ -350,7 +350,9 @@ public class DateFunctions extends FunctionsContainer {
         if (isAssociative) {
             Memory[] struct = LocaltimeStructureHolder.VALUE;
             ArrayMemory array = ArrayMemory.createHashed(ret.length);
-            for (int i = 0; i < struct.length; i++) array.put(struct[i], ret[i]);
+            for (int i = 0; i < struct.length; i++) {
+                array.put(struct[i], ret[i]);
+            }
 
             return array;
         }
@@ -692,10 +694,6 @@ public class DateFunctions extends FunctionsContainer {
         }
     }
 
-    public static Memory time() {
-        return LongMemory.valueOf(epochSeconds());
-    }
-
     // Timezone
     public static Memory date_timezone_get(Environment env, TraceInfo traceInfo, Memory object) {
         return object.toObject(DateTimeInterface.class).getTimezone(env, traceInfo);
@@ -746,6 +744,10 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory timezone_identifiers_list(Environment env, TraceInfo traceInfo) {
         return DateTimeZone.listIdentifiers(env, traceInfo);
+    }
+
+    public static Memory time() {
+        return LongMemory.valueOf(epochSeconds());
     }
 
     private static long epochSeconds() {
