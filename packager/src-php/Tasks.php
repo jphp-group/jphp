@@ -114,7 +114,7 @@ class Tasks
      * @param bool $ignoreErrs
      * @return bool
      */
-    static function deleteFile(string $path, bool $ignoreErrs = false): bool
+    static function deleteFile(string $path, bool $ignoreErrs = true): bool
     {
         if (fs::exists($path)) {
             Console::log("-> delete file '{0}'", $path);
