@@ -27,13 +27,15 @@ import php.runtime.reflection.ClassEntity;
 
 @Name("DateInterval")
 public class DateInterval extends BaseObject {
+    static final String FAILED = "Failed to parse interval";
+    static final String BAD_FORMAT = "Unknown or bad format";
+    private static final String MESSAGE = "DateInterval::__construct(): %s (%s)";
     /**
      * The pattern for parsing.
      */
     private static final Pattern PATTERN =
-            Pattern.compile("P(?:([0-9]+)Y)?(?:([0-9]+)M)?(?:([0-9]+)W)?(?:([0-9]+)D)?" +
-                    "(T(?:([0-9]+)H)?(?:([0-9]+)M)?(?:([0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?", Pattern.CASE_INSENSITIVE);
-
+        Pattern.compile("P(?:([0-9]+)Y)?(?:([0-9]+)M)?(?:([0-9]+)W)?(?:([0-9]+)D)?" +
+            "(T(?:([0-9]+)H)?(?:([0-9]+)M)?(?:([0-9]+)(?:[.,]([0-9]{0,9}))?S)?)?", Pattern.CASE_INSENSITIVE);
     @Property
     public Memory y;
     @Property
@@ -62,8 +64,9 @@ public class DateInterval extends BaseObject {
     }
 
     private static Memory parseLongMemory(String group, Memory def) {
-        if (group == null)
+        if (group == null) {
             return def;
+        }
 
         return LongMemory.valueOf(Long.parseLong(group));
     }
@@ -91,8 +94,9 @@ public class DateInterval extends BaseObject {
     private static Memory getKeyOrDefault(ArrayMemory array, String key, Memory def) {
         ReferenceMemory item = array.getByScalar(key);
 
-        if (item == null)
+        if (item == null) {
             return def;
+        }
 
         return item.toNumeric();
     }
@@ -123,35 +127,69 @@ public class DateInterval extends BaseObject {
         String endStr = spec.substring(slashIdx + 1);
 
         if (endStr.trim().isEmpty()) {
-            env.exception(traceInfo, "DateInterval::__construct(): Failed to parse interval (" + spec + ")");
+
+            env.exception(traceInfo, MESSAGE, FAILED, spec);
         }
 
         try {
             ZonedDateTime start = ZonedDateTime.parse(startStr);
-            ZonedDateTime end = ZonedDateTime.parse(endStr);
-            Duration diff = Duration.between(start, end);
+            ZonedDateTime end;
 
-            y = absDiff(ChronoUnit.YEARS, start, end);
-            m = absDiff(ChronoUnit.MONTHS, start, end).minus(y.mul(12));
-            d = absDiff(ChronoUnit.DAYS, start, end).minus(m.mul(31)).minus(y.mul(365));
+            try {
+                end = ZonedDateTime.parse(endStr);
+            } catch (DateTimeParseException e) {
+                env.exception(traceInfo, MESSAGE, BAD_FORMAT, spec);
+                return;
+            }
 
-            h = unsignedLongMemory(start.getHour() - end.getHour());
-            i = unsignedLongMemory(start.getMinute() - end.getMinute());
-            s = unsignedLongMemory(Math.abs(start.getSecond() - end.getSecond()));
+            invert = start.isAfter(end) ? Memory.CONST_INT_1 : Memory.CONST_INT_0;
+
+            if (invert.toBoolean()) {
+                ZonedDateTime tmp = start;
+                start = end;
+                end = tmp;
+            }
+
+            ZonedDateTime tempDateTime = ZonedDateTime.from(start);
+
+            y = unsignedLongMemory(tempDateTime.until(end, ChronoUnit.YEARS));
+            tempDateTime = tempDateTime.plusYears(y.toLong());
+
+            m = unsignedLongMemory(tempDateTime.until(end, ChronoUnit.MONTHS));
+            tempDateTime = tempDateTime.plusMonths(m.toLong());
+
+            d = unsignedLongMemory(tempDateTime.until(end, ChronoUnit.DAYS));
+            tempDateTime = tempDateTime.plusDays(d.toLong());
+
+            h = unsignedLongMemory(tempDateTime.until(end, ChronoUnit.HOURS));
+            tempDateTime = tempDateTime.plusHours(h.toLong());
+
+            i = unsignedLongMemory(tempDateTime.until(end, ChronoUnit.MINUTES));
+            tempDateTime = tempDateTime.plusMinutes(i.toLong());
+
+            s = unsignedLongMemory(tempDateTime.until(end, ChronoUnit.SECONDS));
+
             f = Memory.CONST_DOUBLE_0;
 
-            this.days = LongMemory.valueOf(Math.abs(diff.toDays()));
-            this.invert = diff.isNegative() ? Memory.CONST_INT_1 : Memory.CONST_INT_0;
+            this.days = LongMemory.valueOf(Math.abs(Duration.between(start, end).toDays()));
         } catch (DateTimeParseException e) {
-            env.exception(traceInfo, "DateInterval::__construct(): Failed to parse interval (" + spec + ")");
+            env.exception(traceInfo, MESSAGE, FAILED, spec);
         }
     }
 
     private void initWithIsoSpec(Environment env, TraceInfo traceInfo, String spec) {
         Matcher matcher = PATTERN.matcher(spec);
 
-        if (!matcher.matches())
-            env.exception(traceInfo, BaseException.class, "DateInterval::__construct(): Unknown or bad format (" + spec + ")");
+        if (!matcher.matches()) {
+
+            try {
+                ZonedDateTime.parse(spec);
+                env.exception(traceInfo, BaseException.class, MESSAGE, FAILED, spec);
+            } catch (DateTimeParseException ignore) {
+                env.exception(traceInfo, BaseException.class, MESSAGE, BAD_FORMAT, spec);
+            }
+
+        }
 
         y = parseLongMemory(matcher.group(1), Memory.CONST_INT_0);
         m = parseLongMemory(matcher.group(2), Memory.CONST_INT_0);
@@ -210,10 +248,11 @@ public class DateInterval extends BaseObject {
                         buff.append(d.toLong());
                         break;
                     case 'a':
-                        if (days == Memory.CONST_INT_M1 || days == Memory.FALSE)
+                        if (days == Memory.CONST_INT_M1 || days == Memory.FALSE) {
                             buff.append("(unknown)");
-                        else
+                        } else {
                             buff.append(days.toLong());
+                        }
                         break;
                     case 'H':
                         min2Digit(buff, h.toLong());
@@ -262,8 +301,9 @@ public class DateInterval extends BaseObject {
     }
 
     private void min2Digit(StringBuilder buff, long years) {
-        if (years < 10)
+        if (years < 10) {
             buff.append('0');
+        }
 
         buff.append(years);
     }

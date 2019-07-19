@@ -240,8 +240,6 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         //check("ext/date/bug35143.phpt"); // timeofday
         //check("ext/date/bug52430.phpt"); // parsing
         //check("ext/date/bug52342.phpt"); // setIsoDate
-        //check("ext/date/bug52808.phpt"); // DateInterval from two dates
-        //check("ext/date/bug60774.phpt"); // DateInterval::createFromDateString
 
         // Comparation
         //check("ext/date/bug65548.phpt");
@@ -356,6 +354,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     }
 
     @Test
+    @Ignore
     public void testTimezoneNameFromAbbr() {
         check("ext/date/timezone_name_from_abbr_basic1.phpt");
         check("ext/date/011.phpt");
