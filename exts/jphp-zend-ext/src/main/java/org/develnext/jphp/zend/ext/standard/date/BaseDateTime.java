@@ -1,16 +1,13 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
-import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.develnext.jphp.zend.ext.standard.DateFunctions;
-
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.Arg;
@@ -22,7 +19,6 @@ import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.support.IComparableObject;
 import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.DoubleMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
@@ -49,7 +45,7 @@ abstract class BaseDateTime extends BaseObject implements DateTimeInterface, ICo
 
     public static DateTimeParseResult parse(Environment env, TraceInfo traceInfo, Memory time, Memory timeZone,
                                             ZonedDateTime baseDateTime) throws DateTimeParserException {
-        String timeStr = time.isNull() ? "now": time.toString();
+        String timeStr = time.isNull() ? "now" : time.toString();
         baseDateTime = baseDateTime.withZoneSameLocal(toZoneId(env, traceInfo, timeZone));
         if ("now".equals(timeStr)) {
             return new DateTimeParseResult(baseDateTime, Collections.emptySet(), null, null);
@@ -85,7 +81,7 @@ abstract class BaseDateTime extends BaseObject implements DateTimeInterface, ICo
             }
 
             props.refOfIndex("timezone")
-                    .assign(parsedZone == null ? nativeDateTime.getZone().toString() : parsedZone);
+                .assign(parsedZone == null ? nativeDateTime.getZone().toString() : parsedZone);
         }
 
         return props;
@@ -93,69 +89,26 @@ abstract class BaseDateTime extends BaseObject implements DateTimeInterface, ICo
 
     @Override
     @Signature(value = {
-            @Arg(value = "datetime2", type = HintType.OBJECT, typeClass = "DateTimeInterface"),
-            @Arg(value = "absolute", type = HintType.BOOLEAN, optional = @Reflection.Optional("FALSE"))
+        @Arg(value = "datetime2", type = HintType.OBJECT, typeClass = "DateTimeInterface"),
+        @Arg(value = "absolute", type = HintType.BOOLEAN, optional = @Reflection.Optional("FALSE"))
     }, result = @Arg(type = HintType.OBJECT, typeClass = "DateInterval"))
     public Memory diff(Environment env, TraceInfo t, Memory dateTimeInterface) {
         BaseDateTime dateTime = dateTimeInterface.toObject(BaseDateTime.class);
 
-        long diff = dateTime.nativeDateTime.toEpochSecond() - nativeDateTime.toEpochSecond();
-        long diffAbs = Math.abs(diff);
-        long offsetDiff = 0;
+        String intervalSpec = String.format("%s/%s",
+            nativeDateTime.withZoneSameInstant(ZoneId.of("Z")),
+            dateTime.nativeDateTime.withZoneSameInstant(ZoneId.of("Z"))
+        );
 
-        if (!dateTime.getOffset(env, t).equals(getOffset(env, t))) {
-            offsetDiff = Duration.ofSeconds(dateTime.getOffset(env, t).toLong())
-                    .minus(Duration.ofSeconds(getOffset(env, t).toLong()))
-                    .getSeconds();
-
-            //diffAbs += offsetDiff;
-        }
-
-        long years = diffAbs / SECONDS_IN_YEAR;
-        if (years != 0) {
-            diffAbs -= (years * SECONDS_IN_YEAR);
-        }
-
-        long months = diffAbs / SECONDS_IN_MONTH;
-        if (months != 0) {
-            diffAbs -= (months * SECONDS_IN_MONTH);
-        }
-
-        long days = diffAbs / SECONDS_IN_DAY;
-        if (days != 0) {
-            diffAbs -= (days * SECONDS_IN_DAY);
-        }
-
-        long hours = diffAbs / SECONDS_IN_HOUR;
-        if (hours != 0) {
-            diffAbs -= hours * SECONDS_IN_HOUR;
-        }
-
-        long minutes = diffAbs / SECONDS_IN_MINUTE;
-        if (minutes != 0) {
-            diffAbs -= minutes * SECONDS_IN_MINUTE;
-        }
-
-        DateInterval interval = new DateInterval(env);
-        interval.y = LongMemory.valueOf(years);
-        interval.m = LongMemory.valueOf(months);
-        interval.d = LongMemory.valueOf(days);
-        interval.h = LongMemory.valueOf(hours);
-        interval.i = LongMemory.valueOf(minutes);
-        interval.s = LongMemory.valueOf(diffAbs);
-        int f = dateTime.nativeDateTime.get(ChronoField.MICRO_OF_SECOND) - nativeDateTime.get(ChronoField.MICRO_OF_SECOND);
-        interval.f = DoubleMemory.valueOf(f * 0.000001);
-        interval.days = LongMemory.valueOf(Math.abs(Duration.ofSeconds(diff).toDays()));
-
-        interval.invert = diff > 0 ? Memory.CONST_INT_0 : Memory.CONST_INT_1;
-        return new ObjectMemory(interval);
+        DateInterval dateInterval = new DateInterval(env);
+        return dateInterval.__construct(env, t, intervalSpec);
     }
 
     @Override
     @Signature(value = {@Arg(value = "format", type = HintType.STRING)}, result = @Arg(type = HintType.STRING))
     public Memory format(Environment env, TraceInfo traceInfo, String format) {
         return StringMemory.valueOf(DateFormat.formatForDateFunction(env,
-                new DateTimeParseResult(nativeDateTime, Collections.emptySet(), parsedZone, null), format));
+            new DateTimeParseResult(nativeDateTime, Collections.emptySet(), parsedZone, null), format));
     }
 
     @Override

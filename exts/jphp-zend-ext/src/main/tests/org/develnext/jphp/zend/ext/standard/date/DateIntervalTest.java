@@ -25,14 +25,14 @@ public class DateIntervalTest extends ZendJvmTestCase {
 
     @Test
     public void format() {
+        //check("ext/date/DateInterval_format.phpt");
         check("ext/date/bug71889.phpt");
         check("ext/date/DateInterval_format_a.phpt");
         check("ext/date/bug49778.phpt");
-        //check("ext/date/DateInterval_format.phpt");
     }
 
     @Test
     public void failing() {
-        //check("ext/date/bug60774.phpt"); // DateInterval::createFromDateString
+        check("ext/date/bug60774.phpt");
     }
 }

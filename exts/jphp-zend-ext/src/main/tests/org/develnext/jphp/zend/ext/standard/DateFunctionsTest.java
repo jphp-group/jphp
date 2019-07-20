@@ -316,12 +316,12 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void datePeriod() {
+        check("ext/date/DatePeriod_getter.phpt");
         check("ext/date/DatePeriod_set_state.phpt");
         check("ext/date/bug46874.phpt");
         check("ext/date/bug54283.phpt");
         check("ext/date/bug52668.phpt");
         check("ext/date/DatePeriod_broken_isostr.phpt");
-        check("ext/date/DatePeriod_getter.phpt");
         //check("ext/date/DatePeriod_wrong_constructor.phpt");
     }
 

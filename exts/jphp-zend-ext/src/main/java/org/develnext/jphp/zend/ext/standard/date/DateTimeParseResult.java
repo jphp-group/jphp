@@ -12,6 +12,7 @@ import static java.time.temporal.ChronoField.YEAR;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalField;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +37,7 @@ public final class DateTimeParseResult {
         this.modified = Collections.unmodifiableSet(modified);
         this.zone = zone;
         this.relativeContributors = relativeContributors != null ?
-                Collections.unmodifiableMap(relativeContributors) : null;
+                Collections.unmodifiableMap(relativeContributors) : Collections.emptyMap();
     }
 
     public ZonedDateTime dateTime() {
@@ -90,7 +91,7 @@ public final class DateTimeParseResult {
         array.refOfIndex("is_localtime").assign(Memory.FALSE);
 
         // the parsed string has a relative part
-        if (relativeContributors != null) {
+        if (!relativeContributors.isEmpty()) {
             ArrayMemory relative = ArrayMemory.createHashed(RELATIVE_CONTRIBUTOR_NAMES.length);
             array.refOfIndex("relative").assign(relative);
 

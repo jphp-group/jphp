@@ -110,8 +110,9 @@ public class DatePeriod extends BaseObject implements Traversable {
 
         try {
             ZonedDateTime parse = ZonedDateTime.parse(parts[1]);
-            if (parts.length == 2)
+            if (parts.length == 2) {
                 env.exception(traceInfo, notContain.fetch(isoString, "an interval"));
+            }
 
             try {
                 this.interval = new DateInterval(env).__construct(env, traceInfo, parts[2]);

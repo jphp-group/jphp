@@ -91,6 +91,32 @@ public class DateInterval extends BaseObject {
         return new ObjectMemory(interval);
     }
 
+    @Signature(value = @Arg(value = "time", type = HintType.STRING), result = @Arg(type = HintType.OBJECT))
+    public static Memory createFromDateString(Environment env, Memory arg) {
+        try {
+            DateTimeParseResult result = new DateTimeParser(arg.toString()).parseResult();
+            ArrayMemory referenceMemories = result.toArrayMemory();
+            DateInterval dateInterval = new DateInterval(env);
+            Memory relative = referenceMemories.refOfIndex("relative");
+
+            dateInterval.y = relative.refOfIndex("year").toValue(LongMemory.class);
+            dateInterval.m = relative.refOfIndex("month").toValue(LongMemory.class);
+            dateInterval.d = relative.refOfIndex("day").toValue(LongMemory.class);
+            dateInterval.h = relative.refOfIndex("hour").toValue(LongMemory.class);
+            dateInterval.i = relative.refOfIndex("minute").toValue(LongMemory.class);
+            dateInterval.s = relative.refOfIndex("second").toValue(LongMemory.class);
+            dateInterval.f = Memory.CONST_DOUBLE_0;
+            dateInterval.invert = Memory.CONST_INT_0;
+            dateInterval.days = Memory.FALSE;
+
+            return new ObjectMemory(dateInterval);
+        } catch (DateTimeParserException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     private static Memory getKeyOrDefault(ArrayMemory array, String key, Memory def) {
         ReferenceMemory item = array.getByScalar(key);
 
@@ -99,10 +125,6 @@ public class DateInterval extends BaseObject {
         }
 
         return item.toNumeric();
-    }
-
-    private static Memory absDiff(ChronoUnit unit, ZonedDateTime start, ZonedDateTime end) {
-        return LongMemory.valueOf(Math.abs(start.until(end, unit)));
     }
 
     private static Memory unsignedLongMemory(long l) {
@@ -127,7 +149,6 @@ public class DateInterval extends BaseObject {
         String endStr = spec.substring(slashIdx + 1);
 
         if (endStr.trim().isEmpty()) {
-
             env.exception(traceInfo, MESSAGE, FAILED, spec);
         }
 
@@ -144,7 +165,7 @@ public class DateInterval extends BaseObject {
 
             invert = start.isAfter(end) ? Memory.CONST_INT_1 : Memory.CONST_INT_0;
 
-            if (invert.toBoolean()) {
+            if (invert == Memory.CONST_INT_1) {
                 ZonedDateTime tmp = start;
                 start = end;
                 end = tmp;
@@ -168,8 +189,10 @@ public class DateInterval extends BaseObject {
             tempDateTime = tempDateTime.plusMinutes(i.toLong());
 
             s = unsignedLongMemory(tempDateTime.until(end, ChronoUnit.SECONDS));
+            tempDateTime = tempDateTime.plusSeconds(s.toLong());
 
-            f = Memory.CONST_DOUBLE_0;
+            long abs = Math.abs(tempDateTime.until(end, ChronoUnit.MICROS));
+            f = DoubleMemory.valueOf(abs / 1000000.0);
 
             this.days = LongMemory.valueOf(Math.abs(Duration.between(start, end).toDays()));
         } catch (DateTimeParseException e) {
@@ -279,10 +302,10 @@ public class DateInterval extends BaseObject {
                         buff.append(f.toLong());
                         break;
                     case 'R':
-                        buff.append(invert.toLong() == 0 ? '+' : '-');
+                        buff.append(invert.toLong() >= 0 ? '+' : '-');
                         break;
                     case 'r':
-                        if (!invert.toBoolean()) {
+                        if (invert.toLong() < 0) {
                             buff.append('-');
                         }
                         break;
