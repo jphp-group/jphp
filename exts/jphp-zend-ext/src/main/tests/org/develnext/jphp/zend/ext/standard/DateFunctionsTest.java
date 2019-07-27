@@ -236,7 +236,6 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         //check("ext/date/bug43808.phpt"); // DateTime::getLastErrors()
         //check("ext/date/bug40861.phpt"); // Multiple +/- on relative units breaks strtotime()
         //check("ext/date/bug29585.phpt"); // week number
-        //check("ext/date/bug35425.phpt"); // idate
         //check("ext/date/bug35143.phpt"); // timeofday
         //check("ext/date/bug52430.phpt"); // parsing
         //check("ext/date/bug52342.phpt"); // setIsoDate
@@ -382,5 +381,14 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     @Test
     public void testTime() {
         check("ext/date/time_basic.phpt");
+    }
+
+    @Test
+    public void testIdate() {
+        check("ext/date/idate_basic.phpt");
+        check("ext/date/idate_variation4.phpt");
+        check("ext/date/idate_variation5.phpt");
+        check("ext/date/idate_variation6.phpt");
+        check("ext/date/bug35425.phpt");
     }
 }

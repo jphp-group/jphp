@@ -10,19 +10,10 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoField;
 import java.time.temporal.IsoFields;
-import java.time.DateTimeException;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Year;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Map;
-import java.util.TimeZone;
 import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,17 +21,12 @@ import java.util.TimeZone;
 
 import org.develnext.jphp.zend.ext.standard.date.DateFormat;
 import org.develnext.jphp.zend.ext.standard.date.DateInterval;
-import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
-
 import org.develnext.jphp.zend.ext.standard.date.DateTime;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeInterface;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeParseResult;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeParserException;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeZone;
 import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
-
-import org.develnext.jphp.zend.ext.standard.date.ZoneIdFactory;
-
 import php.runtime.Memory;
 import php.runtime.common.Messages;
 import php.runtime.common.StringUtils;
@@ -67,8 +53,8 @@ public class DateFunctions extends FunctionsContainer {
         int s = (int) now;
 
         return getAsFloat
-                ? new DoubleMemory(now)
-                : new StringMemory((Math.round((now - s) * 1000) / 1000) + " " + s);
+            ? new DoubleMemory(now)
+            : new StringMemory((Math.round((now - s) * 1000) / 1000) + " " + s);
     }
 
     public static Memory microtime() {
@@ -136,7 +122,7 @@ public class DateFunctions extends FunctionsContainer {
                 ZoneIdFactory.of(tz);
             } catch (DateTimeException e) {
                 env.warning(traceInfo, "date_default_timezone_get(): Invalid date.timezone value '%s'," +
-                        " we selected the timezone '%s' for now.", tz, TZ_UTC);
+                    " we selected the timezone '%s' for now.", tz, TZ_UTC);
                 return TZ_UTC;
             }
         }
@@ -147,7 +133,7 @@ public class DateFunctions extends FunctionsContainer {
     public static Memory mktime(Environment env, TraceInfo traceInfo,
                                 int hour, int minute, int second, int month, int day, int year) {
         return __mktime(zoneId(date_default_timezone_get(env, traceInfo)), hour, minute, second,
-                month, day, year);
+            month, day, year);
     }
 
     private static Memory __mktime(ZoneId zoneId, int hour, int minute, int second, int month, int day, int year) {
@@ -160,13 +146,13 @@ public class DateFunctions extends FunctionsContainer {
         }
 
         long time = UNIX_EPOCH.plusYears(year - 1970)
-                .plusMonths(month - 1)
-                .plusDays(day - 1)
-                .plusMinutes(minute)
-                .plusHours(hour)
-                .plusSeconds(second)
-                .atZone(zoneId)
-                .toEpochSecond();
+            .plusMonths(month - 1)
+            .plusDays(day - 1)
+            .plusMinutes(minute)
+            .plusHours(hour)
+            .plusSeconds(second)
+            .atZone(zoneId)
+            .toEpochSecond();
 
         return LongMemory.valueOf(time);
     }
@@ -233,34 +219,20 @@ public class DateFunctions extends FunctionsContainer {
     public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour, int minute) {
         LocalDateTime date = LocalDateTime.now();
         return __mktime(ZONE_GMT, hour, minute, date.getSecond(), date.getMonthValue(), date.getDayOfMonth(),
-                date.getYear());
+            date.getYear());
     }
 
     public static Memory gmmktime(Environment env, TraceInfo traceInfo, int hour) {
         LocalDateTime date = LocalDateTime.now();
         return __mktime(ZONE_GMT, hour, date.getMinute(), date.getSecond(), date.getMonthValue(), date.getDayOfMonth(),
-                date.getYear());
+            date.getYear());
     }
 
     public static Memory gmmktime(Environment env, TraceInfo traceInfo) {
         env.error(traceInfo, ErrorType.E_DEPRECATED, "gmmktime(): You should be using the time() function instead");
         LocalDateTime date = LocalDateTime.now();
         return __mktime(ZONE_GMT, date.getHour(), date.getMinute(), date.getSecond(), date.getMonthValue(),
-                date.getDayOfMonth(), date.getYear());
-    }
-
-    private static class LocaltimeStructureHolder {
-        private static final Memory[] VALUE = {
-                StringMemory.valueOf("tm_sec"),
-                StringMemory.valueOf("tm_min"),
-                StringMemory.valueOf("tm_hour"),
-                StringMemory.valueOf("tm_mday"),
-                StringMemory.valueOf("tm_mon"),
-                StringMemory.valueOf("tm_year"),
-                StringMemory.valueOf("tm_wday"),
-                StringMemory.valueOf("tm_yday"),
-                StringMemory.valueOf("tm_isdst")
-        };
+            date.getDayOfMonth(), date.getYear());
     }
 
     public static Memory date(Environment env, TraceInfo traceInfo, String format, long time) {
@@ -309,7 +281,7 @@ public class DateFunctions extends FunctionsContainer {
     public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time, Memory now) {
         if (!now.isNumber()) {
             env.exception(traceInfo, new BaseTypeError(env, ErrorType.E_ERROR),
-                    Messages.ERR_WRONG_PARAM_TYPE.fetch("strtotime()", 2, Memory.Type.INT.toString(), now.getRealType().toString()));
+                Messages.ERR_WRONG_PARAM_TYPE.fetch("strtotime()", 2, Memory.Type.INT.toString(), now.getRealType().toString()));
         }
 
         return __strtotime(env, traceInfo, time, now.toLong());
@@ -317,8 +289,9 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory checkdate(int month, int day, int year) {
         // checkdate spec
-        if (year < 1 || year > 32767)
+        if (year < 1 || year > 32767) {
             return Memory.FALSE;
+        }
 
         try {
             LocalDate.of(year, month, day);
@@ -397,8 +370,9 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     public static Memory strftime(Environment env, TraceInfo traceInfo, String format, long time) {
-        if (format.isEmpty())
+        if (format.isEmpty()) {
             return Memory.FALSE;
+        }
 
         StringBuilder buff = __strftime(zonedDateTime(env, traceInfo, time), env.getLocale(), format, new StringBuilder());
 
@@ -428,8 +402,9 @@ public class DateFunctions extends FunctionsContainer {
                     }
                     case 'e': {
                         int dayOfMonth = date.getDayOfMonth();
-                        if (dayOfMonth < 10)
+                        if (dayOfMonth < 10) {
                             buff.append(' ');
+                        }
 
                         buff.append(dayOfMonth);
                         break;
@@ -602,8 +577,9 @@ public class DateFunctions extends FunctionsContainer {
     }
 
     public static Memory gmstrftime(Environment env, TraceInfo traceInfo, String format, long time) {
-        if (format.isEmpty())
+        if (format.isEmpty()) {
             return Memory.FALSE;
+        }
 
         StringBuilder buff = __strftime(Instant.ofEpochSecond(time).atZone(ZONE_GMT), env.getLocale(), format, new StringBuilder());
 
@@ -620,8 +596,9 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory date_create(Environment env, TraceInfo traceInfo, Memory... args) {
         DateTime dateTime = new DateTime(env);
-        if (args == null || args.length == 0)
+        if (args == null || args.length == 0) {
             return dateTime.__construct(env, traceInfo, StringMemory.valueOf("now"), Memory.NULL);
+        }
         return dateTime.__construct(env, traceInfo, args[0], args.length == 2 ? args[1] : Memory.NULL);
     }
 
@@ -685,12 +662,12 @@ public class DateFunctions extends FunctionsContainer {
         try {
             ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
             DateTimeParseResult result = DateFormat.createParseResultFromFormat(format.toString(), date.toString(),
-                    ZonedDateTime.now(zoneId));
+                ZonedDateTime.now(zoneId));
 
             return result.toArrayMemory();
         } catch (DateTimeException | NoSuchElementException | IllegalArgumentException e) {
             return new DateTimeParseResult(null, Collections.emptySet(), null, null)
-                    .toArrayMemory();
+                .toArrayMemory();
         }
     }
 
@@ -705,8 +682,9 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory timezone_name_from_abbr(Environment env, TraceInfo traceInfo, String abbr, int gmtOffset, int isDst) {
         String timezone = ZoneIdFactory.abbrToRegion(abbr, gmtOffset, isDst);
-        if (timezone == null)
+        if (timezone == null) {
             return Memory.FALSE;
+        }
 
         return StringMemory.valueOf(timezone);
     }
@@ -750,7 +728,101 @@ public class DateFunctions extends FunctionsContainer {
         return LongMemory.valueOf(epochSeconds());
     }
 
+    public static Memory idate(Environment env, TraceInfo traceInfo, String format) {
+        return idate(env, traceInfo, format, epochSeconds());
+    }
+
+    public static Memory idate(Environment env, TraceInfo traceInfo, String format, long time) {
+        if (format.length() != 1) {
+            env.warning(traceInfo, "idate(): idate format is one char");
+            return Memory.FALSE;
+        }
+
+        char c = format.charAt(0);
+
+        ZonedDateTime dateTime = zonedDateTime(env, traceInfo, time);
+        long ret;
+
+        switch (c) {
+            case 'B':
+                // https://stackoverflow.com/questions/22693794/how-do-i-get-the-current-time-in-swatch-internet-time-in-java
+                ZonedDateTime dt = dateTime.withZoneSameInstant(ZoneId.of("UTC+01:00"));
+                ret = (int) ((dt.get(ChronoField.SECOND_OF_MINUTE) +
+                    (dt.get(ChronoField.MINUTE_OF_HOUR) * 60) +
+                    (dt.get(ChronoField.HOUR_OF_DAY) * 3600)) / 86.4);
+                break;
+            case 'd':
+                ret = dateTime.getDayOfMonth();
+                break;
+            case 'h':
+                ret = dateTime.getHour() % 12;
+                break;
+            case 'H':
+                ret = dateTime.getHour();
+                break;
+            case 'i':
+                ret = dateTime.getMinute();
+                break;
+            case 'I':
+                boolean dst = dateTime.getZone().getRules().isDaylightSavings(dateTime.toInstant());
+                ret = dst ? 1 : 0;
+                break;
+            case 'L':
+                ret = Year.isLeap(dateTime.getYear()) ? 1 : 0;
+                break;
+            case 'm':
+                ret = dateTime.getMonthValue();
+                break;
+            case 's':
+                ret = dateTime.getSecond();
+                break;
+            case 't':
+                ret = dateTime.getMonth().length(Year.isLeap(dateTime.getYear()));
+                break;
+            case 'U':
+                ret = time;
+                break;
+            case 'w': // 0 - Sunday
+                ret = dateTime.getDayOfWeek().getValue();
+                break;
+            case 'W':
+                ret = dateTime.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+                break;
+            case 'y':
+                ret = dateTime.getYear() % 100;
+                break;
+            case 'Y':
+                ret = dateTime.getYear();
+                break;
+            case 'z':
+                ret = dateTime.getDayOfYear() - 1;
+                break;
+            case 'Z':
+                ret = dateTime.toOffsetDateTime().getOffset().getTotalSeconds();
+                break;
+            default:
+                env.warning(traceInfo, "idate(): Unrecognized date format token");
+                return Memory.FALSE;
+        }
+
+        return LongMemory.valueOf(ret);
+    }
+
     private static long epochSeconds() {
         return System.currentTimeMillis() / 1000;
+    }
+
+    private static class LocaltimeStructureHolder {
+        private static final Memory[] VALUE = {
+            StringMemory.valueOf("tm_sec"),
+            StringMemory.valueOf("tm_min"),
+            StringMemory.valueOf("tm_hour"),
+            StringMemory.valueOf("tm_mday"),
+            StringMemory.valueOf("tm_mon"),
+            StringMemory.valueOf("tm_year"),
+            StringMemory.valueOf("tm_wday"),
+            StringMemory.valueOf("tm_yday"),
+            StringMemory.valueOf("tm_isdst")
+        };
     }
 }
