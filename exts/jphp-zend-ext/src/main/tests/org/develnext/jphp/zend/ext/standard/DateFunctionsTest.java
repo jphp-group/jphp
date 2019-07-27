@@ -232,12 +232,11 @@ public class DateFunctionsTest extends ZendJvmTestCase {
     @Ignore
     public void laterOn() {
         //check("ext/date/bug44742.phpt"); // Timezone issues
-        //check("ext/date/bug44562.phpt"); // DatePeriod
         //check("ext/date/bug43808.phpt"); // DateTime::getLastErrors()
         //check("ext/date/bug40861.phpt"); // Multiple +/- on relative units breaks strtotime()
         //check("ext/date/bug29585.phpt"); // week number
         //check("ext/date/bug35143.phpt"); // timeofday
-        //check("ext/date/bug52430.phpt"); // parsing
+        //check("ext/date/bug52430.phpt"); // 24:59:59
         //check("ext/date/bug52342.phpt"); // setIsoDate
 
         // Comparation
@@ -315,6 +314,7 @@ public class DateFunctionsTest extends ZendJvmTestCase {
 
     @Test
     public void datePeriod() {
+        check("ext/date/bug44562.phpt");
         check("ext/date/DatePeriod_getter.phpt");
         check("ext/date/DatePeriod_set_state.phpt");
         check("ext/date/bug46874.phpt");

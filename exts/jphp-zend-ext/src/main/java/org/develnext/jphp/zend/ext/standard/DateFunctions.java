@@ -22,6 +22,7 @@ import java.util.TimeZone;
 import org.develnext.jphp.zend.ext.standard.date.DateFormat;
 import org.develnext.jphp.zend.ext.standard.date.DateInterval;
 import org.develnext.jphp.zend.ext.standard.date.DateTime;
+import org.develnext.jphp.zend.ext.standard.date.DateTimeImmutable;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeInterface;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeParseResult;
 import org.develnext.jphp.zend.ext.standard.date.DateTimeParserException;
@@ -260,6 +261,10 @@ public class DateFunctions extends FunctionsContainer {
 
     public static Memory date_format(Environment env, TraceInfo traceInfo, Memory object, String format) {
         return object.toObject(DateTimeInterface.class).format(env, traceInfo, format);
+    }
+
+    public static Memory date_get_last_errors(Environment env, TraceInfo traceInfo, Memory object, String format) {
+        return DateTime.getLastErrors(env, traceInfo);
     }
 
     public static Memory strtotime(Environment env, TraceInfo traceInfo, Memory time) {
@@ -612,6 +617,24 @@ public class DateFunctions extends FunctionsContainer {
         return Memory.UNDEFINED;
     }
 
+    public static Memory date_create_immutable_from_format(Environment env, TraceInfo traceInfo, Memory... args) {
+        if (args.length == 2) {
+            return DateTimeImmutable.createFromFormat(env, traceInfo, args[0], args[1], Memory.NULL);
+        } else if (args.length == 3) {
+            return DateTimeImmutable.createFromFormat(env, traceInfo, args[0], args[1], args[2]);
+        }
+
+        return Memory.UNDEFINED;
+    }
+
+    public static Memory date_create_immutable(Environment env, TraceInfo traceInfo, Memory... args) {
+        DateTimeImmutable dateTime = new DateTimeImmutable(env);
+        if (args == null || args.length == 0) {
+            return dateTime.__construct(env, traceInfo, StringMemory.valueOf("now"), Memory.NULL);
+        }
+        return dateTime.__construct(env, traceInfo, args[0], args.length == 2 ? args[1] : Memory.NULL);
+    }
+
     public static Memory date_date_set(Environment env, TraceInfo traceInfo, Memory object, int year, int month, int day) {
         return object.toObject(DateTime.class).setDate(env, traceInfo, year, month, day);
     }
@@ -640,12 +663,39 @@ public class DateFunctions extends FunctionsContainer {
         return dateTime.setTimestamp(env, traceInfo, timestamp);
     }
 
+    public static Memory date_timestamp_get(Environment env, TraceInfo traceInfo, DateTime dateTime) {
+        return dateTime.getTimestamp(env, traceInfo);
+    }
+
     public static Memory date_isodate_set(Environment env, TraceInfo traceInfo, DateTime dateTime, int year, int week, int day) {
         return dateTime.setISODate(env, traceInfo, year, week, day);
     }
 
     public static Memory date_isodate_set(Environment env, TraceInfo traceInfo, DateTime dateTime, int year, int week) {
         return dateTime.setISODate(env, traceInfo, year, week);
+    }
+
+    public static Memory date_modify(Environment env, TraceInfo traceInfo, DateTime dateTime, String modify) {
+        return dateTime.modify(env, traceInfo, modify);
+    }
+
+    public static Memory date_offset_get(Environment env, TraceInfo traceInfo, DateTime dateTime) {
+        return dateTime.getOffset(env, traceInfo);
+    }
+
+    public static Memory date_time_set(Environment env, TraceInfo traceInfo, DateTime dateTime,
+                                       int hour, int minute, int second, int micosecond) {
+        return dateTime.setTime(env, traceInfo, hour, minute, second, micosecond);
+    }
+
+    public static Memory date_time_set(Environment env, TraceInfo traceInfo, DateTime dateTime,
+                                       int hour, int minute, int second) {
+        return dateTime.setTime(env, traceInfo, hour, minute, second);
+    }
+
+    public static Memory date_time_set(Environment env, TraceInfo traceInfo, DateTime dateTime,
+                                       int hour, int minute) {
+        return dateTime.setTime(env, traceInfo, hour, minute);
     }
 
     public static Memory date_parse(Environment env, TraceInfo traceInfo, Memory date) {
@@ -671,9 +721,22 @@ public class DateFunctions extends FunctionsContainer {
         }
     }
 
+    public static Memory date_interval_format(Environment env, TraceInfo traceInfo, Memory object, String format) {
+        return object.toObject(DateInterval.class).format(env, traceInfo, format);
+    }
+
+    public static Memory date_interval_create_from_date_string(Environment env, TraceInfo traceInfo,
+                                                               Memory time) {
+        return DateInterval.createFromDateString(env, traceInfo, time);
+    }
+
     // Timezone
     public static Memory date_timezone_get(Environment env, TraceInfo traceInfo, Memory object) {
         return object.toObject(DateTimeInterface.class).getTimezone(env, traceInfo);
+    }
+
+    public static Memory date_timezone_set(Environment env, TraceInfo traceInfo, Memory object, DateTimeZone timeZone) {
+        return object.toObject(DateTime.class).setTimezone(env, traceInfo, timeZone);
     }
 
     public static Memory timezone_offset_get(Environment env, TraceInfo traceInfo, Memory object, Memory dateTime) {

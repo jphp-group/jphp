@@ -92,7 +92,7 @@ public class DateInterval extends BaseObject {
     }
 
     @Signature(value = @Arg(value = "time", type = HintType.STRING), result = @Arg(type = HintType.OBJECT))
-    public static Memory createFromDateString(Environment env, Memory arg) {
+    public static Memory createFromDateString(Environment env, TraceInfo traceInfo, Memory arg) {
         try {
             DateTimeParseResult result = new DateTimeParser(arg.toString()).parseResult();
             ArrayMemory referenceMemories = result.toArrayMemory();
