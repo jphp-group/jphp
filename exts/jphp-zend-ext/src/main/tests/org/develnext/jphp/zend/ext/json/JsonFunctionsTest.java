@@ -48,22 +48,22 @@ public class JsonFunctionsTest extends JvmCompilerCase {
     @Test
     public void testArrayJsonEncode() {
         // simple
-        assertEquals("[1,2,3,4]", JsonFunctions.json_encode(new ArrayMemory(1,2,3,4)));
+        assertEquals("[1,2,3,4]", JsonFunctions.json_encode(ArrayMemory.ofIntegers(1,2,3,4)));
         assertEquals("[1,\"foo\",3.5,true]", JsonFunctions.json_encode(new ArrayMemory(1,"foo",3.5,true)));
 
         // nested
         assertEquals("[[1,2],[3,4],5]", JsonFunctions.json_encode(new ArrayMemory(
-                new ArrayMemory(1,2), new ArrayMemory(3,4), 5
+            ArrayMemory.ofIntegers(1,2), ArrayMemory.ofIntegers(3,4), 5
         )));
     }
 
     @Test
     public void testObjectJsonEncode() {
         assertEquals("{\"0\":100,\"1\":500}", JsonFunctions.json_encode(
-                new ArrayMemory(100,500), JsonConstants.JSON_FORCE_OBJECT
+            ArrayMemory.ofIntegers(100, 500), JsonConstants.JSON_FORCE_OBJECT
         ));
 
-        ArrayMemory array = new ArrayMemory(100, 500);
+        ArrayMemory array = ArrayMemory.ofIntegers(100, 500);
         array.put("x", new LongMemory(100500));
 
         assertEquals("{\"0\":100,\"1\":500,\"x\":100500}", JsonFunctions.json_encode(array));
@@ -135,5 +135,10 @@ public class JsonFunctionsTest extends JvmCompilerCase {
     @Test
     public void testBugs() {
         check("json/json_bug217.php");
+    }
+
+    @Test
+    public void testStandard() {
+        check("json/002.phpt");
     }
 }
