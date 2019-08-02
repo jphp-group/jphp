@@ -9,6 +9,8 @@ import org.junit.runners.MethodSorters;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.Memory;
+import php.runtime.memory.StringMemory;
+import php.runtime.reflection.PropertyEntity;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -36,6 +38,33 @@ public class ClassesTest extends JvmCompilerCase {
 
         memory = runDynamic("class A { public $arr = array(1, 2, 3); } return new A()->arr;", false);
         Assert.assertTrue(memory.isArray());
+    }
+
+    @Test
+    public void testDefineTypedProperties() throws Throwable{
+        Memory memory;
+        memory = runDynamic("class A { public int $int; public ?string $stringNullable; public A $classProperty; public $untyped; } return new A();", false);
+
+        IObject object = ((ObjectMemory)memory).value;
+        Assert.assertEquals(object.getReflection().getProperties().size(), 4);
+
+        PropertyEntity intProperty = object.getReflection().findProperty("int");
+        Assert.assertNotNull(intProperty.getTypeChecker());
+        Assert.assertFalse(intProperty.isTypeNullable());
+        Assert.assertEquals(intProperty.getTypeChecker().getSignature(), "int");
+
+        PropertyEntity stringNullableProperty = object.getReflection().findProperty("stringNullable");
+        Assert.assertNotNull(stringNullableProperty.getTypeChecker());
+        Assert.assertTrue(stringNullableProperty.isTypeNullable());
+        Assert.assertEquals(stringNullableProperty.getTypeChecker().getSignature(), "string");
+
+        PropertyEntity classProperty = object.getReflection().findProperty("classProperty");
+        Assert.assertNotNull(classProperty.getTypeChecker());
+        Assert.assertFalse(classProperty.isTypeNullable());
+        Assert.assertEquals(classProperty.getTypeChecker().getSignature(), "A");
+
+        PropertyEntity untypedProperty = object.getReflection().findProperty("untyped");
+        Assert.assertNull(untypedProperty.getTypeChecker());
     }
 
     @Test

@@ -11,6 +11,7 @@ import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.support.Entity;
+import php.runtime.reflection.support.TypeChecker;
 
 import java.lang.reflect.Field;
 
@@ -20,6 +21,9 @@ public class PropertyEntity extends Entity {
     protected Modifier modifier = Modifier.PUBLIC;
     private Memory defaultValue;
     protected DocumentComment docComment;
+
+    protected TypeChecker typeChecker;
+    protected boolean typeNullable;
 
     protected boolean isStatic;
     protected Field field;
@@ -60,6 +64,20 @@ public class PropertyEntity extends Entity {
     public void setField(Field field) {
         field.setAccessible(true);
         this.field = field;
+    }
+
+    public TypeChecker getTypeChecker(){
+        return typeChecker;
+    }
+    public void setTypeChecker(TypeChecker typeChecker){
+        this.typeChecker = typeChecker;
+    }
+
+    public boolean isTypeNullable(){
+        return typeNullable;
+    }
+    public void setTypeNullable(boolean typeNullable){
+        this.typeNullable = typeNullable;
     }
 
     public DocumentComment getDocComment() {
@@ -192,6 +210,7 @@ public class PropertyEntity extends Entity {
     public void setSetter(MethodEntity setter) {
         this.setter = setter;
     }
+
 
 
     public int canAccess(Environment env, ClassEntity context) {

@@ -32,6 +32,7 @@ import php.runtime.invoke.cache.*;
 import php.runtime.lang.BaseObject;
 import php.runtime.reflection.*;
 import php.runtime.reflection.helper.GeneratorEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -368,6 +369,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setDefaultValue(value);
                 prop.setDefault(property.getValue() != null);
                 prop.setTrace(property.toTraceInfo(compiler.getContext()));
+
+                if(property.getHintType() != null){
+                    prop.setTypeChecker(TypeChecker.of(property.getHintType()));
+                }
+                else if(property.getHintTypeClass() != null){
+                    prop.setTypeChecker(TypeChecker.of(property.getHintTypeClass().getName()));
+                }
+                prop.setTypeNullable(property.isOptional());
 
                 if (property.getDocComment() != null) {
                     prop.setDocComment(new DocumentComment(property.getDocComment().getComment()));

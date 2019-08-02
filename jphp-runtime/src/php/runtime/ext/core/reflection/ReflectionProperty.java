@@ -9,6 +9,7 @@ import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.PropertyEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -200,5 +201,25 @@ public class ReflectionProperty extends Reflection implements Reflector {
                 exception(env, "Argument 1 must be object, given %s", arg.getRealType().toString());
         }
         return Memory.NULL;
+    }
+
+
+    @Signature
+    public Memory hasType(Environment env, Memory... args) {
+        return entity.getTypeChecker() != null ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory getType(Environment env, Memory... args) {
+        TypeChecker typeChecker = entity.getTypeChecker();
+
+        if (typeChecker == null) {
+            return Memory.NULL;
+        }
+
+        String name = typeChecker.getSignature();
+        boolean isBuiltin = typeChecker.isBuiltin();
+
+        return ObjectMemory.valueOf(new ReflectionType(env, name, entity.isTypeNullable(), isBuiltin));
     }
 }

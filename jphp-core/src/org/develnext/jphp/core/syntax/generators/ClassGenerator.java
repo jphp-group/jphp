@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.syntax.generators;
 
+import org.develnext.jphp.core.compiler.jvm.JvmCompiler;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
 import org.develnext.jphp.core.tokenizer.TokenType;
@@ -9,21 +10,46 @@ import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.AssignExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ValueIfElseToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
-import php.runtime.common.LangMode;
-import php.runtime.common.Messages;
-import php.runtime.common.Modifier;
+import php.runtime.common.*;
 import org.develnext.jphp.core.common.Separator;
-import php.runtime.common.StringUtils;
+import php.runtime.env.CompileScope;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import php.runtime.env.Package;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.ModuleEntity;
 
 import java.util.*;
 
 public class ClassGenerator extends Generator<ClassStmtToken> {
+
+    protected final static Set<String> scalarTypeHints = new HashSet<String>(){{
+        add("array");
+        add("callable");
+        add("iterable");
+        add("string");
+        add("int");
+        add("float");
+        add("bool");
+        add("object");
+        add("self");
+    }};
+    protected final static Set<String> jphp_scalarTypeHints = new HashSet<String>(){{
+        add("scalar");
+        add("number");
+        add("string");
+        add("int");
+        add("integer");
+        add("double");
+        add("float");
+        add("bool");
+        add("boolean");
+    }};
 
     @SuppressWarnings("unchecked")
     private final static Class<? extends Token>[] modifiers = new Class[]{
@@ -144,8 +170,9 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             iterator.previous();
     }
 
+
     protected List<ClassVarStmtToken> processProperty(ClassStmtToken clazz, VariableExprToken current,
-                                                      List<Token> modifiers,
+                                                      List<Token> modifiers, boolean optional, HintType hintType, NameToken hintTypeClass,
                                                       ListIterator<Token> iterator){
         Token next = current;
         Token prev = null;
@@ -215,6 +242,9 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             classVar.setValue(initValues.get(i));
             classVar.setVariable(variable);
             classVar.setClazz(clazz);
+            classVar.setHintType(hintType);
+            classVar.setHintTypeClass(hintTypeClass);
+            classVar.setOptional(optional);
 
             result.add(classVar);
             i++;
@@ -414,7 +444,40 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                                 unexpectedToken(current);
                         }
                         modifiers.add(current);
-                    } else if (current instanceof VariableExprToken) {
+                    } else if (current instanceof NameToken || current instanceof ValueIfElseToken || current instanceof VariableExprToken) {
+                        Token next = current;
+
+                        HintType hintType = null;
+                        NameToken hintTypeClass = null;
+                        boolean optional = false;
+
+                        if(next instanceof ValueIfElseToken){
+                            optional = true;
+                            next = nextToken(iterator);
+                            if(!(next instanceof NameToken)){
+                                unexpectedToken(next);
+                            }
+                        }
+                        if(next instanceof NameToken){
+                            hintTypeClass = (NameToken) next;
+
+                            String word = ((NameToken) next).getName().toLowerCase();
+                            if (scalarTypeHints.contains(word)) {
+                                hintType = HintType.of(word);
+                            } else {
+                                hintType = jphp_scalarTypeHints.contains(word) ? null : HintType.of(word);
+
+                                if (hintType == null) {
+                                    hintTypeClass = analyzer.getRealName((NameToken) next);
+                                }
+                            }
+
+                            next = nextToken(iterator);
+                        }
+                        if(!(next instanceof VariableExprToken)){
+                            unexpectedToken(next);
+                        }
+
                         if (result.isInterface()) {
                             analyzer.getEnvironment().error(
                                     result.toTraceInfo(analyzer.getContext()),
@@ -429,8 +492,9 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                             }
                         }
 
+
                         List<ClassVarStmtToken> vars = processProperty(
-                                result, (VariableExprToken) current, modifiers, iterator
+                                result, (VariableExprToken) next, modifiers, optional, hintType, hintTypeClass, iterator
                         );
 
                         if (lastComment != null) {
