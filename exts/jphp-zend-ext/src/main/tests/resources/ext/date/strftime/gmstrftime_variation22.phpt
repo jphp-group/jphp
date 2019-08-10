@@ -21,7 +21,6 @@ echo "*** Testing gmstrftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
 $timestamp = gmmktime(8, 8, 8, 8, 8, 2008);
-setlocale(LC_TIME, "POSIX");
 putenv("LC_TIME=POSIX");
 date_default_timezone_set("Asia/Calcutta");
 

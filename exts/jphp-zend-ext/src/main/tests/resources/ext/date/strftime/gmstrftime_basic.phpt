@@ -25,5 +25,5 @@ var_dump( gmstrftime($format) );
 --EXPECTF--
 *** Testing gmstrftime() : basic functionality ***
 string(20) "Aug 08 2008 08:08:08"
-string(%d) "%s %d %d %d:%d:%d"
+string(%d) "%s %02d %d %02d:%02d:%02d"
 ===DONE===

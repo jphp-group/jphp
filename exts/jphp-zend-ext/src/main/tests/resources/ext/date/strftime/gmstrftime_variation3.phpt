@@ -25,7 +25,8 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      var_dump( gmstrftime($value) );
+      print_r( gmstrftime($value) );
+      echo PHP_EOL;
       var_dump( gmstrftime($value, $timestamp) );
 };
 
@@ -35,18 +36,18 @@ foreach($inputs as $key =>$value) {
 *** Testing gmstrftime() : usage variation ***
 
 --Abbreviated weekday name--
-string(%d) "%s"
+%s
 string(3) "Fri"
 
 --Full weekday name--
-string(%d) "%s"
+%s
 string(6) "Friday"
 
 --Week number of the year--
-string(%d) "%d"
+%d
 string(2) "31"
 
 --Week number of the year in decimal number--
-string(%d) "%d"
+%d
 string(2) "31"
 ===DONE===

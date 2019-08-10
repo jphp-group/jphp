@@ -11,7 +11,6 @@ Test strftime() function : usage variation - Checking week related formats which
 echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-setlocale(LC_ALL, "C");
 date_default_timezone_set("Asia/Calcutta");
 $timestamp = mktime(8, 8, 8, 8, 8, 2008);
 

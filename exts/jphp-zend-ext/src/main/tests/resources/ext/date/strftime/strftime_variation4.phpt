@@ -25,7 +25,8 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      var_dump( strftime($value) );
+      print_r( strftime($value) );
+      echo PHP_EOL;
       var_dump( strftime($value, $timestamp) );
 };
 
@@ -35,14 +36,14 @@ foreach($inputs as $key =>$value) {
 *** Testing strftime() : usage variation ***
 
 --Abbreviated month name--
-string(%d) "%s"
+%s
 string(3) "Aug"
 
 --Full month name--
-string(%d) "%s"
+%s
 string(6) "August"
 
 --Month as decimal--
-string(%d) "%d"
+%s
 string(2) "08"
 ===DONE===

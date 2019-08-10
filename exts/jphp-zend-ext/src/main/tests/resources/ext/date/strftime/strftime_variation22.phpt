@@ -20,7 +20,6 @@ if(!setlocale(LC_ALL, "POSIX")) {
 echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-setlocale(LC_ALL, "POSIX");
 putenv("LC_ALL=POSIX");
 date_default_timezone_set("Asia/Calcutta");
 $timestamp = mktime(8, 8, 8, 8, 8, 2008);

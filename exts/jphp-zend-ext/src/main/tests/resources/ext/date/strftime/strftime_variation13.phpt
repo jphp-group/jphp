@@ -11,7 +11,6 @@ Test strftime() function : usage variation - Checking date related formats which
 echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-setlocale(LC_ALL, "C");
 date_default_timezone_set("Asia/Calcutta");
 $timestamp = mktime(8, 8, 8, 8, 8, 2008);
 
@@ -41,7 +40,7 @@ string(2) "20"
 string(2) "20"
 
 --Month Date Year--
-string(%d) "%d/%d/%d"
+string(%d) "%02d/%02d/%02d"
 string(8) "08/08/08"
 
 --Year with century--
@@ -49,6 +48,6 @@ string(4) "%d"
 string(4) "2008"
 
 --Year without century--
-string(2) "%d"
+string(2) "%02d"
 string(2) "08"
 ===DONE===

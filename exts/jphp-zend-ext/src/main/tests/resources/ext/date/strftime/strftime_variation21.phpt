@@ -11,7 +11,6 @@ Test strftime() function : usage variation - Checking Preferred date and time re
 echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-setlocale(LC_ALL, "C");
 date_default_timezone_set("Asia/Calcutta");
 $timestamp = mktime(8, 8, 8, 8, 8, 2008);
 
@@ -36,14 +35,14 @@ foreach($inputs as $key =>$value) {
 *** Testing strftime() : usage variation ***
 
 --Preferred date and time representation--
-string(%d) "%s %s %d %d:%d:%d %d"
+string(%d) "%s %s %d %02d:%02d:%02d %d"
 string(24) "Fri Aug  8 08:08:08 2008"
 
 --Preferred date representation--
-string(%d) "%d/%d/%d"
+string(%d) "%02d/%02d/%02d"
 string(8) "08/08/08"
 
 --Preferred time representation--
-string(%d) "%d:%d:%d"
+string(%d) "%02d:%02d:%02d"
 string(8) "08:08:08"
 ===DONE===

@@ -74,24 +74,28 @@ public class JsonFunctions extends FunctionsContainer {
     @Immutable
     public static String json_encode(Memory memory, int options) {
         GsonBuilder builder;
-        if (options != 0){
+        if (options != 0) {
             MemorySerializer serializer = new MemorySerializer();
             builder = JsonExtension.createGsonBuilder(serializer);
 
-            if ((options & JsonConstants.JSON_PRETTY_PRINT) == JsonConstants.JSON_PRETTY_PRINT){
+            if ((options & JsonConstants.JSON_PRETTY_PRINT) == JsonConstants.JSON_PRETTY_PRINT) {
                 builder.setPrettyPrinting();
             }
 
-            if ((options & JsonConstants.JSON_HEX_TAG) != JsonConstants.JSON_HEX_TAG){
+            if ((options & JsonConstants.JSON_HEX_TAG) != JsonConstants.JSON_HEX_TAG) {
                 builder.disableHtmlEscaping();
             }
 
-            if ((options & JsonConstants.JSON_FORCE_OBJECT) == JsonConstants.JSON_FORCE_OBJECT){
+            if ((options & JsonConstants.JSON_FORCE_OBJECT) == JsonConstants.JSON_FORCE_OBJECT) {
                 serializer.setForceObject(true);
             }
 
-            if ((options & JsonConstants.JSON_NUMERIC_CHECK) == JsonConstants.JSON_NUMERIC_CHECK){
+            if ((options & JsonConstants.JSON_NUMERIC_CHECK) == JsonConstants.JSON_NUMERIC_CHECK) {
                 serializer.setNumericCheck(true);
+            }
+
+            if ((options & JsonConstants.JSON_UNESCAPED_UNICODE) == JsonConstants.JSON_UNESCAPED_UNICODE) {
+                serializer.unescapedUnicode(true);
             }
         } else {
             builder = JsonExtension.DEFAULT_GSON_BUILDER;

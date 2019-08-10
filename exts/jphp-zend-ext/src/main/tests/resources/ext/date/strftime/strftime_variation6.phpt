@@ -11,7 +11,6 @@ Test strftime() function : usage variation - Passing time related format strings
 echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-setlocale(LC_ALL, "en_US");
 date_default_timezone_set("Asia/Calcutta");
 $timestamp = mktime(18, 8, 8, 8, 8, 2008);
 
@@ -29,7 +28,8 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      var_dump( strftime($value) );
+      print_r( strftime($value) );
+      echo PHP_EOL;
       var_dump( strftime($value, $timestamp) );
 };
 
@@ -39,22 +39,22 @@ foreach($inputs as $key =>$value) {
 *** Testing strftime() : usage variation ***
 
 --Hour as decimal by 24-hour format--
-string(%d) "%d"
+%s
 string(2) "18"
 
 --Hour as decimal by 12-hour format--
-string(%d) "%d"
+%s
 string(2) "06"
 
 --Minute as decimal number--
-string(%d) "%d"
+%s
 string(2) "08"
 
 --AM/PM format for a time--
-string(%d) "%s"
+%s
 string(2) "PM"
 
 --Second as decimal number--
-string(%d) "%d"
+%s
 string(2) "08"
 ===DONE===

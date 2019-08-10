@@ -12,7 +12,6 @@ echo "*** Testing gmstrftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
 $timestamp = gmmktime(8, 8, 8, 8, 8, 2008);
-setlocale(LC_ALL, "en_US");
 date_default_timezone_set("Asia/Calcutta");
 
 
@@ -28,8 +27,10 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      var_dump( gmstrftime($value) );
-      var_dump( gmstrftime($value, $timestamp) );
+      print_r( gmstrftime($value) );
+      echo PHP_EOL;
+      print_r( gmstrftime($value, $timestamp) );
+      echo PHP_EOL;
 };
 
 ?>
@@ -38,14 +39,14 @@ foreach($inputs as $key =>$value) {
 *** Testing gmstrftime() : usage variation ***
 
 --Year as decimal number without a century--
-string(%d) "%d"
-string(2) "08"
+%d
+08
 
 --Year as decimal number including the century--
-string(%d) "%d"
-string(4) "2008"
+%d
+2008
 
 --Time zone offset--
-string(%s) "%s"
-string(%s) "%s"
+%s
+%s
 ===DONE===

@@ -11,6 +11,7 @@ import org.junit.runners.MethodSorters;
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DateFunctionsTest extends ZendJvmTestCase {
+
     @Test
     public void testcheckdate() {
         check("ext/date/checkdate_basic1.phpt");
@@ -390,5 +391,55 @@ public class DateFunctionsTest extends ZendJvmTestCase {
         check("ext/date/idate_variation5.phpt");
         check("ext/date/idate_variation6.phpt");
         check("ext/date/bug35425.phpt");
+    }
+
+    @Test
+    public void testStrftime() {
+        check("ext/date/strftime/strftime_basic.phpt");
+        check("ext/date/strftime/strftime_variation3.phpt");
+        check("ext/date/strftime/strftime_variation4.phpt");
+        check("ext/date/strftime/strftime_variation5.phpt");
+        check("ext/date/strftime/strftime_variation6.phpt");
+        check("ext/date/strftime/strftime_variation7.phpt");
+        check("ext/date/strftime/strftime_variation8.phpt");
+        check("ext/date/strftime/strftime_variation9.phpt");
+        check("ext/date/strftime/strftime_variation10.phpt");
+        check("ext/date/strftime/strftime_variation11.phpt");
+        check("ext/date/strftime/strftime_variation12.phpt");
+        check("ext/date/strftime/strftime_variation13.phpt");
+        check("ext/date/strftime/strftime_variation14.phpt");
+        check("ext/date/strftime/strftime_variation15.phpt");
+        check("ext/date/strftime/strftime_variation16.phpt");
+        check("ext/date/strftime/strftime_variation17.phpt");
+        check("ext/date/strftime/strftime_variation18.phpt");
+        check("ext/date/strftime/strftime_variation19.phpt");
+        check("ext/date/strftime/strftime_variation20.phpt");
+        check("ext/date/strftime/strftime_variation21.phpt");
+        check("ext/date/strftime/strftime_variation22.phpt");
+    }
+
+    @Test
+    public void testGmStrftime() {
+        check("ext/date/strftime/gmstrftime_basic.phpt");
+        check("ext/date/strftime/gmstrftime_variation3.phpt");
+        check("ext/date/strftime/gmstrftime_variation4.phpt");
+        check("ext/date/strftime/gmstrftime_variation5.phpt");
+        check("ext/date/strftime/gmstrftime_variation6.phpt");
+        check("ext/date/strftime/gmstrftime_variation7.phpt");
+        check("ext/date/strftime/gmstrftime_variation8.phpt");
+        check("ext/date/strftime/gmstrftime_variation9.phpt");
+        check("ext/date/strftime/gmstrftime_variation10.phpt");
+        check("ext/date/strftime/gmstrftime_variation11.phpt");
+        check("ext/date/strftime/gmstrftime_variation12.phpt");
+        check("ext/date/strftime/gmstrftime_variation13.phpt");
+        check("ext/date/strftime/gmstrftime_variation14.phpt");
+        check("ext/date/strftime/gmstrftime_variation15.phpt");
+        check("ext/date/strftime/gmstrftime_variation16.phpt");
+        check("ext/date/strftime/gmstrftime_variation17.phpt");
+        check("ext/date/strftime/gmstrftime_variation18.phpt");
+        check("ext/date/strftime/gmstrftime_variation19.phpt");
+        check("ext/date/strftime/gmstrftime_variation20.phpt");
+        check("ext/date/strftime/gmstrftime_variation21.phpt");
+        check("ext/date/strftime/gmstrftime_variation22.phpt");
     }
 }

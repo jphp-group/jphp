@@ -24,7 +24,8 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      var_dump( gmstrftime($value) );
+      print_r( gmstrftime($value) );
+      echo PHP_EOL;
       var_dump( gmstrftime($value, $timestamp) );
 };
 
@@ -34,14 +35,14 @@ foreach($inputs as $key =>$value) {
 *** Testing gmstrftime() : usage variation ***
 
 --Abbreviated month name--
-string(%d) "%s"
+%s
 string(3) "Aug"
 
 --Full month name--
-string(%d) "%s"
+%s
 string(6) "August"
 
 --Month as decimal--
-string(%d) "%d"
+%02d
 string(2) "08"
 ===DONE===

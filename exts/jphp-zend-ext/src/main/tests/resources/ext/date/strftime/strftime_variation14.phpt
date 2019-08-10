@@ -17,7 +17,6 @@ if (strtoupper(substr(PHP_OS, 0, 3)) == 'WIN') {
 echo "*** Testing strftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
-setlocale(LC_ALL, "en_US");
 date_default_timezone_set("Asia/Calcutta");
 $timestamp = mktime(8, 8, 8, 8, 8, 2008);
 
@@ -47,7 +46,7 @@ string(%d) "%d"
 string(2) "20"
 
 --Month Date Year--
-string(%d) "%d/%d/%d"
+string(%d) "%02d/%02d/%02d"
 string(8) "08/08/08"
 
 --Year with century--
@@ -55,6 +54,6 @@ string(%d) "%d"
 string(4) "2008"
 
 --Year without century--
-string(%d) "%d"
+string(%d) "%02d"
 string(2) "08"
 ===DONE===

@@ -12,7 +12,6 @@ echo "*** Testing gmstrftime() : usage variation ***\n";
 
 // Initialise function arguments not being substituted (if any)
 $timestamp = gmmktime(8, 8, 8, 8, 8, 2008);
-setlocale(LC_ALL, "en_US");
 date_default_timezone_set("Asia/Calcutta");
 
 //array of values to iterate over
@@ -28,7 +27,8 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-      var_dump( gmstrftime($value) );
+      print_r( gmstrftime($value) );
+      echo PHP_EOL;
       var_dump( gmstrftime($value, $timestamp) );
 };
 
@@ -38,22 +38,22 @@ foreach($inputs as $key =>$value) {
 *** Testing gmstrftime() : usage variation ***
 
 --Hour as decimal by 24-hour format--
-string(2) "%d"
+%02d
 string(2) "08"
 
 --Hour as decimal by 12-hour format--
-string(2) "%d"
+%02d
 string(2) "08"
 
 --Minute as decimal number--
-string(%d) "%d"
+%02d
 string(2) "08"
 
 --AM/PM format for a time--
-string(2) "%s"
+%s
 string(2) "AM"
 
 --Second as decimal number--
-string(%d) "%d"
+%02d
 string(2) "08"
 ===DONE===
