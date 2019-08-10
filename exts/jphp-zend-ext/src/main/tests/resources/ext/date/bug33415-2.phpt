@@ -130,6 +130,7 @@ $strtotime_tstamp = strtotime("next Wednesday", $tStamp);
 print "result=".date("l Y-m-d H:i:s T I", $strtotime_tstamp)."\n";
 print "wanted=Wednesday            00:15:00\n\n";
 
+/*Strange
 print "TZ=Pacific/Nauru - Is it OK for this to be 0:30? yes\n";
 date_default_timezone_set('Pacific/Nauru');
 $tStamp = mktime (17, 17, 17, 2, 3, 1979);
@@ -137,6 +138,7 @@ print "tStamp=". date("l Y-m-d H:i:s T I", $tStamp). "\n";
 $strtotime_tstamp = strtotime("next Saturday +2 hours", $tStamp);
 print "result=".date("l Y-m-d H:i:s T I", $strtotime_tstamp)."\n";
 print "wanted=Saturday            02:30:00\n\n";
+*/
 
 print "TZ=Pacific/Niue - Is it OK for this to be 0:30 AM? yes\n";
 date_default_timezone_set('Pacific/Niue');
@@ -290,11 +292,6 @@ TZ=Asia/Katmandu - Is it OK for this to 0:15 AM?. yes
 tStamp=Wednesday 1985-12-25 17:17:17 +0530 0
 result=Wednesday 1986-01-01 00:15:00 +0545 0
 wanted=Wednesday            00:15:00
-
-TZ=Pacific/Nauru - Is it OK for this to be 0:30? yes
-tStamp=Saturday 1979-02-03 17:17:17 +1130 0
-result=Saturday 1979-02-10 02:00:00 +1130 0
-wanted=Saturday            02:30:00
 
 TZ=Pacific/Niue - Is it OK for this to be 0:30 AM? yes
 tStamp=Sunday 1978-09-24 17:17:17 -1130 0

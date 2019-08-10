@@ -376,233 +376,21 @@ public class DateFunctions extends FunctionsContainer {
         return ret;
     }
 
-    public static Memory strftime(Environment env, TraceInfo traceInfo, String format) {
-        return strftime(env, traceInfo, format, epochSeconds());
-    }
-
-    public static Memory strftime(Environment env, TraceInfo traceInfo, String format, long time) {
-        if (format.isEmpty()) {
-            return Memory.FALSE;
-        }
-
-        StringBuilder buff = __strftime(zonedDateTime(env, traceInfo, time), env.getLocale(), format, new StringBuilder());
-
-        return StringMemory.valueOf(buff.toString());
-    }
-
-    private static StringBuilder __strftime(ZonedDateTime date, Locale l, String format, StringBuilder buff) {
-        for (int i = 0, n = format.length(); i < n; i++) {
-            char c = format.charAt(i);
-
-            if (c == '%' && ++i < n) {
-                c = format.charAt(i);
-
-                switch (c) {
-                    // Days
-                    case 'a': {
-                        buff.append(date.getDayOfWeek().getDisplayName(TextStyle.SHORT, l));
-                        break;
-                    }
-                    case 'A': {
-                        buff.append(date.getDayOfWeek().getDisplayName(TextStyle.FULL, l));
-                        break;
-                    }
-                    case 'd': {
-                        buff.append(String.format(l, "%02d", date.getDayOfMonth()));
-                        break;
-                    }
-                    case 'e': {
-                        int dayOfMonth = date.getDayOfMonth();
-                        if (dayOfMonth < 10) {
-                            buff.append(' ');
-                        }
-
-                        buff.append(dayOfMonth);
-                        break;
-                    }
-                    case 'j': {
-                        buff.append(String.format(l, "%03d", date.getDayOfYear()));
-                        break;
-                    }
-                    case 'u': {
-                        buff.append(date.getDayOfWeek().getValue());
-                        break;
-                    }
-                    case 'w': {
-                        buff.append(date.getDayOfWeek().getValue());
-                        break;
-                    }
-                    // Week
-                    case 'U': {
-                        buff.append(date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
-                        break;
-                    }
-                    case 'V': {
-                        buff.append(String.format(l, TWO_DIGIT_INT, date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)));
-                        break;
-                    }
-                    case 'W': {
-                        buff.append(date.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR));
-                        break;
-                    }
-                    // Month
-                    case 'h':
-                    case 'b': {
-                        buff.append(date.getMonth().getDisplayName(TextStyle.SHORT, l));
-                        break;
-                    }
-                    case 'B': {
-                        buff.append(date.getMonth().getDisplayName(TextStyle.FULL, l));
-                        break;
-                    }
-                    case 'm': {
-                        buff.append(String.format(l, TWO_DIGIT_INT, date.getMonth().getValue()));
-                        break;
-                    }
-                    // Year
-                    case 'C': {
-                        buff.append(date.getYear() / 100);
-                        break;
-                    }
-                    case 'y':
-                    case 'g': {
-                        buff.append(String.format(l, TWO_DIGIT_INT, date.getYear() % 100));
-                        break;
-                    }
-                    case 'G':
-                    case 'Y': {
-                        buff.append(String.format(l, "%04d", date.getYear()));
-                        break;
-                    }
-                    // Time
-                    case 'H': {
-                        buff.append(String.format(l, TWO_DIGIT_INT, date.getHour()));
-                        break;
-                    }
-                    case 'k': {
-                        buff.append(String.format(l, "% 4d", date.getHour()));
-                        break;
-                    }
-                    case 'I': {
-                        int hRem = date.getHour() % 12;
-                        buff.append(String.format(l, TWO_DIGIT_INT, hRem > 0 ? hRem : 12));
-                        break;
-                    }
-                    case 'L': {
-                        int hRem = date.getHour() % 12;
-                        buff.append(String.format(l, "% 2d", hRem > 0 ? hRem : 12));
-                        break;
-                    }
-                    case 'M': {
-                        buff.append(String.format(l, "%02d", date.getMinute()));
-                        break;
-                    }
-                    case 'p': {
-                        buff.append(date.getHour() >= 12 ? "PM" : "AM");
-                        break;
-                    }
-                    case 'P': {
-                        buff.append(date.getHour() >= 12 ? "pm" : "am");
-                        break;
-                    }
-                    case 'r': {
-                        __strftime(date, l, "%I:%M:%S %p", buff);
-                        break;
-                    }
-                    case 'R': {
-                        __strftime(date, l, "%H:%M", buff);
-                        break;
-                    }
-                    case 'S': {
-                        buff.append(String.format(l, TWO_DIGIT_INT, date.getSecond()));
-                        break;
-                    }
-                    case 'X':
-                    case 'T': {
-                        __strftime(date, l, "%H:%M:%S", buff);
-                        break;
-                    }
-                    case 'z': {
-                        long hours = Duration.ofSeconds(date.getOffset().getTotalSeconds()).toHours();
-                        String offset = ((hours < 0) ? "-" : "+") + String.format(l, "%02d00", Math.abs(hours));
-                        buff.append(offset);
-                        break;
-                    }
-                    case 'Z': {
-                        ZoneId zone = date.getZone();
-                        if (zone instanceof ZoneOffset) {
-                            buff.append("GMT");
-                            __strftime(date, l, "%z", buff);
-                        } else {
-                            String str = ZoneIdFactory.aliasFor(date);
-                            if (str == null) {
-                                long hours = Duration.ofSeconds(date.getOffset().getTotalSeconds()).toHours();
-                                buff.append(hours < 0 ? '-' : '+').append(String.format(l, "%02d", Math.abs(hours)));
-                            } else {
-                                buff.append(str);
-                            }
-                        }
-                        break;
-                    }
-                    // Timestamps
-                    case 'c': {
-                        __strftime(date, l, "%a %b %e %H:%M:%S %Y", buff);
-                        break;
-                    }
-                    case 'x':
-                    case 'D': {
-                        __strftime(date, l, "%m/%d/%y", buff);
-                        break;
-                    }
-                    case 'F': {
-                        __strftime(date, l, "%Y-%m-%d", buff);
-                        break;
-                    }
-                    case 's': {
-                        buff.append(date.toEpochSecond());
-                        break;
-                    }
-                    case 'n': {
-                        buff.append('\n');
-                        break;
-                    }
-                    case 't': {
-                        buff.append('\t');
-                        break;
-                    }
-                    case '%': {
-                        buff.append(c);
-                        break;
-                    }
-                    default: {
-                        buff.append('%').append(c);
-                        break;
-                    }
-                }
-            } else {
-                buff.append(c);
-            }
-        }
-
-        return buff;
-    }
-
     public static Memory gmstrftime(Environment env, TraceInfo traceInfo, String format, long time) {
         if (format.isEmpty()) {
             return Memory.FALSE;
         }
 
-        StringBuilder buff = __strftime(Instant.ofEpochSecond(time).atZone(ZONE_GMT), env.getLocale(), format, new StringBuilder());
+        StringBuilder buff = new StringBuilder();
 
-        return StringMemory.valueOf(buff.toString());
+        return StringMemory.valueOf(
+                strftimeImpl(Instant.ofEpochSecond(time).atZone(ZONE_GMT), env.getLocale(), format, buff)
+                .toString()
+        );
     }
 
     public static Memory gmstrftime(Environment env, TraceInfo traceInfo, String format) {
         return gmstrftime(env, traceInfo, format, epochSeconds());
-    }
-
-    private static ZonedDateTime zonedDateTime(Environment env, TraceInfo traceInfo, long time) {
-        return Instant.ofEpochSecond(time).atZone(zoneId(date_default_timezone_get(env, traceInfo)));
     }
 
     public static Memory date_create(Environment env, TraceInfo traceInfo, Memory... args) {
@@ -1080,19 +868,6 @@ public class DateFunctions extends FunctionsContainer {
         }
 
         return buff;
-    }
-
-    public static Memory gmstrftime(Environment env, TraceInfo traceInfo, String format, long time) {
-        if (format.isEmpty())
-            return Memory.FALSE;
-
-        StringBuilder buff = strftimeImpl(Instant.ofEpochSecond(time).atZone(ZONE_GMT), env.getLocale(), format, new StringBuilder());
-
-        return StringMemory.valueOf(buff.toString());
-    }
-
-    public static Memory gmstrftime(Environment env, TraceInfo traceInfo, String format) {
-        return gmstrftime(env, traceInfo, format, epochSeconds());
     }
 
     private static ZonedDateTime zonedDateTime(Environment env, TraceInfo traceInfo, long time) {
