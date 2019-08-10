@@ -106,7 +106,7 @@ public class DateTimeParserTest {
         assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.0030+08:00"), parseWithMicro("2008-07-01T22:35:17.003+08:00"));
 
         // without timezone
-        assertEquals(ZonedDateTime.parse("2008-07-01T22:35:17.300+04:00[Asia/Yerevan]"), parseWithMicro("2008-07-01T22:35:17.3"));
+        assertThat(parseLocal("2008-07-01T22:35:17.3")).isEqualTo("2008-07-01T22:35:17.300");
     }
 
     @Test
@@ -345,9 +345,9 @@ public class DateTimeParserTest {
 
     @Test
     public void ordinalWithSuffix() {
-        assertThat(parse("26th Nov 2005 18:18"))
-                .isEqualTo(parse("Sat 26th Nov 2005 18:18"))
-                .isEqualTo("2005-11-26T18:18:00+04:00");
+        assertThat(parseLocal("26th Nov 2005 18:18"))
+                .isEqualTo(parseLocal("Sat 26th Nov 2005 18:18"))
+                .isEqualTo("2005-11-26T18:18:00");
 
         assertThat(parse("26th Nov")).isEqualTo(parse("26 Nov"));
     }
@@ -765,8 +765,8 @@ public class DateTimeParserTest {
 
     @Test
     public void rfc850() {
-        assertThat(parse("21-Apr-19"))
-                .isEqualTo("2019-04-21T00:00:00+04:00");
+        assertThat(parseLocal("21-Apr-19"))
+                .isEqualTo("2019-04-21T00:00:00");
 
         assertThat(parse("Sunday, 21-Apr-19 22:17:16 +0200"))
                 .isEqualTo("2019-04-21T22:17:16+02:00");
@@ -774,8 +774,8 @@ public class DateTimeParserTest {
 
     @Test
     public void mysqlTimestamp() {
-        assertThat(parse("20800410101010")).isEqualTo("2080-04-10T10:10:10+04:00");
-        assertThat(parse("20800410101010")).isEqualTo("2080-04-10T10:10:10+04:00");
+        assertThat(parseLocal("20800410101010")).isEqualTo("2080-04-10T10:10:10");
+        assertThat(parseLocal("20800410101010")).isEqualTo("2080-04-10T10:10:10");
     }
 
     @Test
@@ -834,9 +834,9 @@ public class DateTimeParserTest {
 
     @Test
     public void decimalInRelativeTime() {
-        assertThat(parse("+1.61538461538 day"))
-                .isEqualTo(parse("+1 61538461538 day"))
-                .isEqualToIgnoringNanos(now().plusDays(61538461538L).withZoneSameLocal(ZoneId.of("+01:00")));
+        assertThat(parseLocal("+1.61538461538 day"))
+                .isEqualTo(parseLocal("+1 61538461538 day"))
+                .isEqualToIgnoringNanos(LocalDateTime.now().plusDays(61538461538L));
     }
 
     @Test
