@@ -3,6 +3,7 @@
 namespace packager\cli;
 
 use DefaultPlugin;
+use TemplatePlugin;
 use function flow;
 use function is_array;
 use const JPHP_VERSION;
@@ -89,7 +90,16 @@ class ConsoleApp
                 Console::log("args = " . var_export($args, true));
             }
 
-            $this->loadPlugin(DefaultPlugin::class);
+            if ($this->isTemplateManager())
+            {
+                if (fs::exists(Package::FILENAME)) {
+                    Console::error(Package::FILENAME . " already exists");
+                }
+
+                $this->loadPlugin(TemplatePlugin::class);
+            } else {
+                $this->loadPlugin(DefaultPlugin::class);
+            }
 
             if ($this->getPackage()) {
                 $this->loadPlugins();
@@ -156,6 +166,11 @@ class ConsoleApp
     public function isDebug(): bool
     {
         return $this->debug;
+    }
+
+    public function isTemplateManager(): bool
+    {
+        return boolval(System::getProperty("templateManager", false));
     }
 
     function invokeTask(string $task, array $args, ...$flags)
