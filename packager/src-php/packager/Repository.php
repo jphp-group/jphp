@@ -84,6 +84,14 @@ class Repository
     }
 
     /**
+     * @return string
+     */
+    public function getDirectory(): string
+    {
+        return $this->dir;
+    }
+
+    /**
      *
      */
     protected function saveCache()

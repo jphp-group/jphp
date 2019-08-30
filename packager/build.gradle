@@ -135,6 +135,7 @@ task publish(type: Exec, dependsOn: ['dist']) {
                 "mkdir -p /opt/jppm-$jppmVersion && tar -xzf ~/jppm-${jppmVersion}.tar.gz -C /opt/jppm-$jppmVersion/",
                 "export PATH=/opt/jppm-${jppmVersion}/:\$PATH",
                 "sudo ln -sfn /opt/jppm-${jppmVersion}/jppm /usr/local/bin/jppm && chmod +x /opt/jppm-${jppmVersion}/jppm",
+                "sudo ln -sfn /opt/jppm-${jppmVersion}/jppt /usr/local/bin/jppt && chmod +x /opt/jppm-${jppmVersion}/jppt",
                 "echo \"----------------------------------------------\"",
                 "echo \"JPPM $jppmVersion has been installed.\"",
                 "echo \"-> try 'jppm version' to check it.\"",

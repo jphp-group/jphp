@@ -94,6 +94,7 @@ class ConsoleApp
             {
                 if (fs::exists(Package::FILENAME)) {
                     Console::error(Package::FILENAME . " already exists");
+                    exit(1);
                 }
 
                 $this->loadPlugin(TemplatePlugin::class);
