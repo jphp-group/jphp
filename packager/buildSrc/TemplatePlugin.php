@@ -6,6 +6,7 @@ use php\io\Stream;
 use php\lib\arr;
 use php\lib\fs;
 use php\lib\str;
+use php\util\Regex;
 
 /**
  * jppt - tool to easily creating custom projects with templates (jppm packages)
@@ -49,8 +50,8 @@ class TemplatePlugin
                         if ($template["variables"]) {
                             Console::log("-> setting variables ...");
 
-                            foreach ($template["variables"] as $variable => $message) {
-                                $variables[$variable] = Console::read(" -> " . $message . ":");
+                            foreach ($template["variables"] as $variable => $data) {
+                                $variables[$variable] = $this->getVariable($data);
                             }
                         }
 
@@ -83,6 +84,42 @@ class TemplatePlugin
     }
 
     /**
+     * @param $data
+     * @return string|null
+     */
+    public function getVariable($data) {
+        if (is_string($data)) {
+            return Console::read(" -> " . $this->getVariableName($data) . ":");
+        } else if (is_array($data)) {
+            $res = Console::read(" -> " . $this->getVariableName($data) . ":");
+
+            if ($data["regex"]) {
+                if (Regex::match($data["regex"], $res))
+                    return $res;
+                else {
+                    if ($data["regex-error-message"]) {
+                        Console::log("  -> " . $data["regex-error-message"]);
+                    } else {
+                        Console::log("  -> argument mismatch with regular expression `{$data['regex']}`");
+                    }
+
+                    return $this->getVariable($data);
+                }
+            } else {
+                return $res;
+            }
+        } else return null;
+    }
+
+    public function getVariableName($data) {
+        if (is_string($data)) {
+            return $data;
+        } else if (is_array($data)) {
+            return $data["message"];
+        } else return null;
+    }
+
+    /**
      * @param string $templateSource
      * @param array $variables
      */
@@ -96,6 +133,13 @@ class TemplatePlugin
         });
     }
 
+    /**
+     * @param string $templateSource
+     * @param string $file
+     * @param string|null $newName
+     * @param array $variables
+     * @throws \php\io\IOException
+     */
     private function copyTemplateFile(string $templateSource, string $file, string $newName = null, array $variables = []) {
         $name = fs::abs("./") . "/" . fs::relativize($file, $templateSource);
 
