@@ -1,0 +1,14 @@
+name: template
+version: 1.0.0
+description: Test Template for jppm
+type: template
+
+template:
+   variables:
+      name: "Project name"
+      version: "Project version"
+      description: "Project description"
+   sources:
+      - src-template
+   tasks:
+      - update

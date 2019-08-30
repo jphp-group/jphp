@@ -1,0 +1,16 @@
+name: {{name}}
+version: {{version}}
+description: {{description}}
+
+plugins:
+  - App
+
+deps:
+  jphp-core: "*"
+  jphp-zend-ext: "*"
+
+sources:
+  - src
+
+includes:
+  - index.php
