@@ -9,22 +9,10 @@ use php\lib\str;
 use php\util\Regex;
 
 /**
- * jppt - tool to easily creating custom projects with templates (jppm packages)
- *
- * @jppm-task tasks
  * @jppm-task init
  */
 class TemplatePlugin
 {
-    /**
-     * @jppm-description show all tasks
-     * @param Event $event
-     */
-    function tasks(Event $event)
-    {
-        $defaultPlugin = new DefaultPlugin();
-        $defaultPlugin->tasks($event);
-    }
 
     /**
      * @jppm-description init project with template
@@ -32,53 +20,48 @@ class TemplatePlugin
      */
     function init(Event $event)
     {
-        if (arr::count($event->args()) >= 1) {
-            $templateName = $event->arg(0);
-            $version = "*";
-            $package = $event->packager()->getRepo()->findPackage($templateName, $version);
+        $templateName = $event->arg(0);
+        $version = "*";
+        $package = $event->packager()->getRepo()->findPackage($templateName, $version);
 
-            if ($package) {
-                $version = $package->getVersion("*");
+        if ($package) {
+            $version = $package->getVersion("*");
 
-                if ($package->getType() == "template") {
-                    $directory = $event->packager()->getRepo()->getDirectory() . "/$templateName/$version";
+            if ($package->getType() == "template") {
+                $directory = $event->packager()->getRepo()->getDirectory() . "/$templateName/$version";
 
-                    if (fs::isDir($directory)) {
-                        $template = $package->getAny("template");
-                        $variables = [];
+                if (fs::isDir($directory)) {
+                    $template = $package->getAny("template");
+                    $variables = [];
 
-                        if ($template["variables"]) {
-                            Console::log("-> setting variables ...");
+                    if ($template["variables"]) {
+                        Console::log("-> setting variables ...");
 
-                            foreach ($template["variables"] as $variable => $data) {
-                                $variables[$variable] = $this->getVariable($data);
-                            }
+                        foreach ($template["variables"] as $variable => $data) {
+                            $variables[$variable] = $this->getVariable($data);
                         }
+                    }
 
-                        foreach ($template["sources"] as $source) {
-                            Console::log("-> copy sources from `$source`");
-                            $this->copyTemplate(fs::abs($directory . "/$source/"), $variables);
-                        }
+                    foreach ($template["sources"] as $source) {
+                        Console::log("-> copy sources from `$source`");
+                        $this->copyTemplate(fs::abs($directory . "/$source/"), $variables);
+                    }
 
-                        if ($template["tasks"]) {
-                            foreach ($template["tasks"] as $task) {
-                                Console::log("-> executing task `$task`");
-                                Tasks::runExternal("./", $task);
-                            }
+                    if ($template["tasks"]) {
+                        foreach ($template["tasks"] as $task) {
+                            Console::log("-> executing task `$task`");
+                            Tasks::runExternal("./", $task);
                         }
-                    } else {
-                        Console::error("Package version `$version` not found!");
                     }
                 } else {
-                    Console::error("Package `$templateName` not template!");
-                    exit(1);
+                    Console::error("Package version `$version` not found!");
                 }
             } else {
-                Console::error("Package `$templateName` not found!");
+                Console::error("Package `$templateName` not template!");
                 exit(1);
             }
         } else {
-            Console::error("Usage: jppt init <package>");
+            Console::error("Package `$templateName` not found!");
             exit(1);
         }
     }
@@ -87,7 +70,8 @@ class TemplatePlugin
      * @param $data
      * @return string|null
      */
-    public function getVariable($data) {
+    public function getVariable($data)
+    {
         if (is_string($data)) {
             return Console::read(" -> " . $this->getVariableName($data) . ":");
         } else if (is_array($data)) {
@@ -111,7 +95,8 @@ class TemplatePlugin
         } else return null;
     }
 
-    public function getVariableName($data) {
+    public function getVariableName($data)
+    {
         if (is_string($data)) {
             return $data;
         } else if (is_array($data)) {
@@ -123,7 +108,8 @@ class TemplatePlugin
      * @param string $templateSource
      * @param array $variables
      */
-    private function copyTemplate(string $templateSource, array $variables) {
+    private function copyTemplate(string $templateSource, array $variables)
+    {
         fs::scan($templateSource . "/", function (string $file) use ($templateSource, $variables) {
             if (fs::ext($file) == "template") {
                 $this->copyTemplateFile($templateSource, $file, "/" . fs::nameNoExt($file), $variables);
@@ -140,7 +126,8 @@ class TemplatePlugin
      * @param array $variables
      * @throws \php\io\IOException
      */
-    private function copyTemplateFile(string $templateSource, string $file, string $newName = null, array $variables = []) {
+    private function copyTemplateFile(string $templateSource, string $file, string $newName = null, array $variables = [])
+    {
         $name = fs::abs("./") . "/" . fs::relativize($file, $templateSource);
 
         if (fs::isDir($file)) {

@@ -81,60 +81,59 @@ class DefaultPlugin
      */
     function init(Event $event)
     {
-        $dir = fs::abs("./");
-
-        if ($name = $event->args()[0]) {
-            $dir = "$dir/$name";
-        }
-
-        if (fs::exists($dir . '/' . Package::FILENAME)) {
-            Console::error("Failed to init, package '{0}' already exists", $dir . '/' . Package::FILENAME);
-            exit(-1);
-        }
-
-        Console::log("Init new package in dir '$dir'':");
-
-        if (!$name) {
-            $name = fs::name(fs::parent($dir . "/foo"));
-        }
-
-        $version = "1.0.0";
-
-        if ($event->isFlag('y', 'yes')) {
-            $addAppPlugin = true;
+        if (arr::count($event->args()) >= 1) {
+            $template = new TemplatePlugin();
+            $template->init($event);
         } else {
-            $name = Console::read("Enter name ($name):", $name);
-            $version = Console::read("Enter version ($version):", $version);
-            $description = Console::read("Enter description:", '');
-            $addAppPlugin = Console::readYesNo("Add 'jphp app' plugin? (default = Yes)", 'yes');
+            $dir = fs::abs("./");
+
+            if (fs::exists($dir . '/' . Package::FILENAME)) {
+                Console::error("Failed to init, package '{0}' already exists", $dir . '/' . Package::FILENAME);
+                exit(-1);
+            }
+
+            Console::log("Init new package in dir '$dir'':");
+
+            $name = fs::name(fs::parent($dir . "/foo"));
+            $version = "1.0.0";
+
+            if ($event->isFlag('y', 'yes')) {
+                $addAppPlugin = true;
+            } else {
+                $name = Console::read("Enter name ($name):", $name);
+                $version = Console::read("Enter version ($version):", $version);
+                $description = Console::read("Enter description:", '');
+                $addAppPlugin = Console::readYesNo("Add 'jphp app' plugin? (default = Yes)", 'yes');
+            }
+
+            $data = [
+                'name' => $name,
+                'version' => $version,
+            ];
+
+            if ($description) {
+                $data['description'] = $description;
+            }
+
+            if ($addAppPlugin) {
+                $data['deps']['jphp-core'] = '*';
+                $data['deps']['jphp-zend-ext'] = '*';
+
+                $data['plugins'] = ['App'];
+
+                $data['sources'] = ['src'];
+                $data['includes'] = ['index.php'];
+
+                Tasks::createDir("$dir/src");
+                Tasks::createFile("$dir/src/index.php", "<?php \r\necho \"Hello World\\n\";\r\n");
+            }
+
+            $package = new Package($data, []);
+            $event->packager()->writePackage($package, $dir);
+
+            Console::log("Success, {0} has been created.", Package::FILENAME);
         }
 
-        $data = [
-            'name' => $name,
-            'version' => $version,
-        ];
-
-        if ($description) {
-            $data['description'] = $description;
-        }
-
-        if ($addAppPlugin) {
-            $data['deps']['jphp-core'] = '*';
-            $data['deps']['jphp-zend-ext'] = '*';
-
-            $data['plugins'] = ['App'];
-
-            $data['sources'] = ['src'];
-            $data['includes'] = ['index.php'];
-
-            Tasks::createDir("$dir/src");
-            Tasks::createFile("$dir/src/index.php", "<?php \r\necho \"Hello World\\n\";\r\n");
-        }
-
-        $package = new Package($data, []);
-        $event->packager()->writePackage($package, $dir);
-
-        Console::log("Success, {0} has been created.", Package::FILENAME);
         Console::log("Done.");
     }
 

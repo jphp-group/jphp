@@ -14,7 +14,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + jppt - tool to easily creating custom projects with templates
+    + Add template system for jppm packages
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

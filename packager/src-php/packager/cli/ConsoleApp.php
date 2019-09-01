@@ -90,17 +90,7 @@ class ConsoleApp
                 Console::log("args = " . var_export($args, true));
             }
 
-            if ($this->isTemplateManager())
-            {
-                if (fs::exists(Package::FILENAME)) {
-                    Console::error(Package::FILENAME . " already exists");
-                    exit(1);
-                }
-
-                $this->loadPlugin(TemplatePlugin::class);
-            } else {
-                $this->loadPlugin(DefaultPlugin::class);
-            }
+            $this->loadPlugin(DefaultPlugin::class);
 
             if ($this->getPackage()) {
                 $this->loadPlugins();
@@ -167,11 +157,6 @@ class ConsoleApp
     public function isDebug(): bool
     {
         return $this->debug;
-    }
-
-    public function isTemplateManager(): bool
-    {
-        return boolval(System::getProperty("templateManager", false));
     }
 
     function invokeTask(string $task, array $args, ...$flags)
