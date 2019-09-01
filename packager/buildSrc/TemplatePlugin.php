@@ -73,11 +73,15 @@ class TemplatePlugin
     public function getVariable($data)
     {
         if (is_string($data)) {
-            return Console::read(" -> " . $this->getVariableName($data) . ":");
+            return Console::read(" -> " . $data . ":");
         } else if (is_array($data)) {
-            $res = Console::read(" -> " . $this->getVariableName($data) . ":");
+            if (isset($data["default"])) {
+                $res = Console::read(" -> " . $data["message"] . ":", $data["default"]);
+            } else {
+                $res = Console::read(" -> " . $data["message"]. ":");
+            }
 
-            if ($data["regex"]) {
+            if (isset($data["regex"])) {
                 if (Regex::match($data["regex"], $res))
                     return $res;
                 else {
@@ -92,15 +96,6 @@ class TemplatePlugin
             } else {
                 return $res;
             }
-        } else return null;
-    }
-
-    public function getVariableName($data)
-    {
-        if (is_string($data)) {
-            return $data;
-        } else if (is_array($data)) {
-            return $data["message"];
         } else return null;
     }
 
