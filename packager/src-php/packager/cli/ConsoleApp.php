@@ -3,6 +3,7 @@
 namespace packager\cli;
 
 use DefaultPlugin;
+use TemplatePlugin;
 use function flow;
 use function is_array;
 use const JPHP_VERSION;

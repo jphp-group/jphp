@@ -1,0 +1,18 @@
+name: template
+version: 1.0.0
+description: Test Template for jppm
+type: template
+
+template:
+   variables:
+      name: "Project name"
+      version:
+         message: "Project version"
+         default: 1.0.0
+         regex: ^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$ # http://regexr.com/3er1i
+         regex-error-message: "semver version like 1.0.0 or 1.2.3-alpha.something+meta-data"
+      description: "Project description"
+   sources:
+      - src-template
+   tasks:
+      - update
