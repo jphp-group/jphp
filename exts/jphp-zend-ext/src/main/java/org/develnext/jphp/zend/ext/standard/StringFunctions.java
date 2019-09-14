@@ -2980,6 +2980,10 @@ public class StringFunctions extends FunctionsContainer {
         // nop.
     }
 
+    public static void setLocale(int category, Memory locale) {
+        // nop.
+    }
+
     public static void dl(String extension) {
         // ... nop
     }

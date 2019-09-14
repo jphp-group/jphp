@@ -81,7 +81,7 @@ public class ClassEntity extends Entity implements Cloneable {
     protected final Map<String, ClassEntity> interfaces;
     protected final Map<String, ClassEntity> traits;
 
-    public final Map<String, ConstantEntity> constants;
+    private final Map<String, ConstantEntity> constants;
     public final Map<String, PropertyEntity> properties;
     public final Map<String, PropertyEntity> staticProperties;
     public final Set<String> instanceOfList = new HashSet<String>();
@@ -100,12 +100,12 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public ClassEntity(Context context) {
         super(context);
-        this.methods = new LinkedHashMap<String, MethodEntity>();
-        this.interfaces = new LinkedHashMap<String, ClassEntity>();
-        this.traits = new LinkedHashMap<String, ClassEntity>();
-        this.properties = new LinkedHashMap<String, PropertyEntity>();
-        this.staticProperties = new LinkedHashMap<String, PropertyEntity>();
-        this.constants = new LinkedHashMap<String, ConstantEntity>();
+        this.methods = new LinkedHashMap<>();
+        this.interfaces = new LinkedHashMap<>();
+        this.traits = new LinkedHashMap<>();
+        this.properties = new LinkedHashMap<>();
+        this.staticProperties = new LinkedHashMap<>();
+        this.constants = new LinkedHashMap<>();
         this.isInternal = false;
     }
 
@@ -198,23 +198,6 @@ public class ClassEntity extends Entity implements Cloneable {
         }
     }
 
-    /*
-ClassReader classReader;
-            if (data != null)
-                classReader = new ClassReader(data);
-            else {
-                try {
-                    classReader = new ClassReader(nativeClazz.getName());
-                } catch (IOException e) {
-                    throw new CriticalException(e);
-                }
-            }
-            ClassNode classNode = new ClassNode();
-            classReader.accept(classNode, 0);
-
-            return cachedClassNode = classNode;
-     */
-
     public Extension getExtension() {
         return extension;
     }
@@ -272,7 +255,7 @@ ClassReader classReader;
     }
 
     public List<MethodEntity> getOwnedMethods() {
-        List<MethodEntity> result = new ArrayList<MethodEntity>();
+        List<MethodEntity> result = new ArrayList<>();
         for (MethodEntity el : methods.values()) {
             if (el.isOwned(this))
                 result.add(el);
@@ -475,7 +458,7 @@ ClassReader classReader;
     public ExtendsResult setParent(ClassEntity parent) {
         return setParent(parent, true);
     }
-
+/*
     public ExtendsResult resetParent(ClassEntity parent, boolean updateParentMethods) {
         ExtendsResult result = new ExtendsResult(parent);
 
@@ -528,7 +511,7 @@ ClassReader classReader;
 
         return result;
     }
-
+*/
     public ExtendsResult setParent(ClassEntity parent, boolean updateParentMethods) {
         ExtendsResult result = new ExtendsResult(parent);
 

@@ -9,6 +9,10 @@ public class Pair<A, B> {
         this.sideB = b;
     }
 
+    public static <A, B> Pair<A, B> of(A a, B b) {
+        return new Pair<>(a, b);
+    }
+
     public boolean hasA() {
         return sideA != null;
     }

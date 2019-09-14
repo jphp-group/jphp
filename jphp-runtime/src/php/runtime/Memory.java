@@ -115,6 +115,7 @@ abstract public class Memory implements Comparable<Memory> {
     public static final Memory CONST_INT_5 = new LongMemory(5);
 
     public static final Memory CONST_DOUBLE_0 = new DoubleMemory(0.0);
+    public static final Memory CONST_DOUBLE_M1 = new DoubleMemory(-1.0);
     public static final Memory CONST_DOUBLE_1 = new DoubleMemory(1.0);
     public static final Memory CONST_DOUBLE_NAN = new DoubleMemory(Double.NaN);
 
@@ -255,7 +256,7 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean isTraversable() { return isArray() || instanceOf("Traversable", "traversable"); }
     public boolean isString() { return type == Type.STRING; }
     public boolean isNumber() { return type == Type.INT || type == Type.DOUBLE; }
-    public boolean isBool() { return type == Type.BOOL; }
+    public boolean isBoolean() { return type == Type.BOOL; }
     public boolean isReference() { return false; }
     // <value>[index]
 

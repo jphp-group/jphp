@@ -30,6 +30,14 @@ public class StringConstants extends ConstantsContainer {
     public final static int PHP_URL_QUERY = 6;
     public final static int PHP_URL_FRAGMENT = 7;
 
+    public final static int LC_CTYPE = 0;
+    public final static int LC_NUMERIC = 1;
+    public final static int LC_TIME = 2;
+    public final static int LC_COLLATE = 3;
+    public final static int LC_MONETARY = 4;
+    public final static int LC_MESSAGES = 5;
+    public final static int LC_ALL = 6;
+
     public final static int PHP_QUERY_RFC1738 = 1;
     public final static int PHP_QUERY_RFC3986 = 2;
 }

@@ -175,7 +175,7 @@ final class HttpQueryBuilder {
                 buff.append(k.toString());
             }
 
-            buff.append('=').append(v.isBool() ? v.toInteger() : encoder.apply(v)).append(argSeparator);
+            buff.append('=').append(v.isBoolean() ? v.toInteger() : encoder.apply(v)).append(argSeparator);
         }
 
         if (pollNested) {

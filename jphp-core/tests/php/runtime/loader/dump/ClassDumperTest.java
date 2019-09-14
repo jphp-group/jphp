@@ -86,7 +86,7 @@ public class ClassDumperTest {
         Assert.assertEquals("Foobar", copyEntity.getName());
         Assert.assertArrayEquals(new byte[]{1}, copyEntity.getData());
 
-        Assert.assertEquals(3, copyEntity.constants.size());
+        Assert.assertEquals(3, copyEntity.getConstants().size());
         Assert.assertEquals(1, copyEntity.staticProperties.size());
         Assert.assertEquals(1, copyEntity.properties.size());
         Assert.assertEquals(1, copyEntity.getMethods().size());

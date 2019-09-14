@@ -1894,7 +1894,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
     }
 
-    public static ArrayMemory ofCollection(Collection<Memory> list) {
+    public static ArrayMemory ofCollection(Collection<? extends Memory> list) {
         ArrayMemory result = new ArrayMemory();
 
         for (Memory el : list) {

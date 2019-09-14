@@ -20,11 +20,13 @@ public class StandardExtension extends Extension {
         registerConstants(new ArrayConstants());
         registerConstants(new FileConstants());
         registerConstants(new JsonConstants());
+        registerConstants(new DateConstants());
 
         registerFunctions(new LangFunctions());
         registerFunctions(new StringFunctions());
         registerFunctions(new ArrayFunctions());
         registerFunctions(new FileFunctions());
         registerFunctions(new JsonFunctions());
+        registerFunctions(new DateFunctions());
     }
 }

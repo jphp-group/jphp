@@ -1030,6 +1030,11 @@ public class Environment {
         exception(trace, e, message, args);
     }
 
+    public void exception(TraceInfo trace, Messages.Item message, Object... args) {
+        BaseException e = new BaseException(this);
+        exception(trace, e, message.fetch(args));
+    }
+
     public void exception(String message, Object... args) {
         exception(trace(), message, args);
     }
