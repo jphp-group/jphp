@@ -16,8 +16,6 @@ date_default_timezone_set("Asia/Calcutta");
 
 echo "\n-- Testing gmstrftime() function with Day of the month as decimal single digit format --\n";
 $format = "%e";
-print_r( gmstrftime($format) );
-echo PHP_EOL;
 var_dump( gmstrftime($format, $timestamp) );
 
 ?>
@@ -26,6 +24,5 @@ var_dump( gmstrftime($format, $timestamp) );
 *** Testing gmstrftime() : usage variation ***
 
 -- Testing gmstrftime() function with Day of the month as decimal single digit format --
-%s
 string(2) " 8"
 ===DONE===

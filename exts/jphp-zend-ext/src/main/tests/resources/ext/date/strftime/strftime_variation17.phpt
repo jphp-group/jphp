@@ -16,8 +16,6 @@ $timestamp = mktime(8, 8, 8, 8, 8, 2008);
 
 echo "\n-- Testing strftime() function with Day of the month as decimal single digit format --\n";
 $format = "%e";
-print_r( strftime($format) );
-echo PHP_EOL;
 var_dump( strftime($format, $timestamp) );
 ?>
 ===DONE===
@@ -25,6 +23,5 @@ var_dump( strftime($format, $timestamp) );
 *** Testing strftime() : usage variation ***
 
 -- Testing strftime() function with Day of the month as decimal single digit format --
-%s
 string(2) " 8"
 ===DONE===

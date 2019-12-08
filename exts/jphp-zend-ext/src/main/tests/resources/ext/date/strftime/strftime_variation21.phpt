@@ -25,7 +25,6 @@ $inputs = array(
 
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
-	  var_dump( strftime($value) );
 	  var_dump( strftime($value, $timestamp) );
 }
 
@@ -35,14 +34,11 @@ foreach($inputs as $key =>$value) {
 *** Testing strftime() : usage variation ***
 
 --Preferred date and time representation--
-string(%d) "%s %s %d %02d:%02d:%02d %d"
 string(24) "Fri Aug  8 08:08:08 2008"
 
 --Preferred date representation--
-string(%d) "%02d/%02d/%02d"
 string(8) "08/08/08"
 
 --Preferred time representation--
-string(%d) "%02d:%02d:%02d"
 string(8) "08:08:08"
 ===DONE===
