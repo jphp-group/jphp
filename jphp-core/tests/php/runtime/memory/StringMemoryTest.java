@@ -1,5 +1,8 @@
 package php.runtime.memory;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static php.runtime.env.TraceInfo.UNKNOWN;
+
 import org.junit.Assert;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -348,5 +351,30 @@ public class StringMemoryTest {
         Assert.assertTrue(memory.greaterEq("foobar"));
         Assert.assertTrue(memory.greater(new StringMemory("foobar")));
         Assert.assertTrue(memory.greaterEq(new StringMemory("foobar")));
+    }
+
+    @Test
+    public void testIssetOfIndexEmptyString() {
+        StringMemory memory = new StringMemory("");
+
+        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_1)).isEqualTo(Memory.FALSE);
+        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_0)).isEqualTo(Memory.FALSE);
+        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_M1)).isEqualTo(Memory.FALSE);
+    }
+
+    @Test
+    public void testIssetOfIndexNegative() {
+        StringMemory memory = new StringMemory("abc");
+
+        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_3)).isEqualTo(Memory.FALSE);
+    }
+
+    @Test
+    public void testIssetOfIndexPositive() {
+        StringMemory memory = new StringMemory("abc");
+
+        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_0)).isEqualTo(Memory.TRUE);
+        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_1)).isEqualTo(Memory.TRUE);
+        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_2)).isEqualTo(Memory.TRUE);
     }
 }
