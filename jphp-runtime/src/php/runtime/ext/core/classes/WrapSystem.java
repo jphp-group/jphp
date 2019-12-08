@@ -158,7 +158,7 @@ final public class WrapSystem extends BaseObject {
 
     @Signature
     public static String osVersion() {
-        return System.getProperty("os.name");
+        return System.getProperty("os.version");
     }
 
     @Signature
