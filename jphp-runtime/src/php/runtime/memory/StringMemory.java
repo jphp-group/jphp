@@ -66,6 +66,14 @@ public class StringMemory extends Memory {
         return toLong(value, false);
     }
 
+    @Override
+    public Memory issetOfIndex(TraceInfo trace, Memory index) {
+        int idx = index.toInteger();
+        int length = value.length();
+
+        return idx >= length || idx < 0 ? Memory.FALSE : Memory.TRUE;
+    }
+
     public static Memory toLong(String value, boolean bigNumbers){
         int len = value.length();
         if (len == 0)
