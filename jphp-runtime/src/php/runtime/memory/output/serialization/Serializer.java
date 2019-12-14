@@ -196,7 +196,7 @@ public class Serializer {
                             if (entity != null)
                                 only.put(entity.getSpecificName(), value);
                             else
-                                only.refOfIndex(iterator.getValue()).assign(value);
+                                only.refOfIndex(env, trace, iterator.getValue()).assign(value);
                         }
                     }
                 } catch (RuntimeException e) {

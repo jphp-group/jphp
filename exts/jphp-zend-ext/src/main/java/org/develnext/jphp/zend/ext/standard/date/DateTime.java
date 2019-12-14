@@ -118,10 +118,10 @@ public class DateTime extends BaseDateTime {
     @Signature(value = @Arg(value = "array", type = HintType.ARRAY),
             result = @Arg(type = HintType.OBJECT, nativeType = DateTime.class))
     public static Memory fromState(Environment env, TraceInfo traceInfo, ArrayMemory array) {
-        StringMemory date = array.refOfIndex(traceInfo, "date").toValue(StringMemory.class);
+        StringMemory date = array.refOfIndex(env, traceInfo, "date").toValue(StringMemory.class);
 
         DateTime dateTime = new DateTime(env);
-        ZoneId timezone = ZoneIdFactory.of(array.refOfIndex(traceInfo, "timezone").toString());
+        ZoneId timezone = ZoneIdFactory.of(array.refOfIndex(env, traceInfo, "timezone").toString());
         dateTime.nativeDateTime = LocalDateTime.parse(date.toString(), DEFAULT_FORMATTER).atZone(timezone);
         return dateTime.$this = new ObjectMemory(dateTime);
     }

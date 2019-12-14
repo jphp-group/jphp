@@ -15,7 +15,6 @@ import php.runtime.lang.spl.iterator.IteratorAggregate;
 import php.runtime.lang.support.ICloneableObject;
 import php.runtime.lang.support.IComparableObject;
 import php.runtime.lang.support.IManualDestructable;
-import php.runtime.memory.support.MemoryStringUtils;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.PropertyEntity;
 
@@ -524,6 +523,7 @@ public class ObjectMemory extends Memory {
             return new ArrayMemory().toConstant();
         }
 
+        Environment env = value.getEnvironment();
         ClassEntity reflection = value.getReflection();
 
         while (iterator.next()) {
@@ -538,13 +538,13 @@ public class ObjectMemory extends Memory {
                     result.refOfIndex(keyS).assign(iterator.getValue().toImmutable());
                 } else {
                     if (prop.getModifier() == Modifier.PROTECTED) {
-                        result.refOfIndex("\0*\0" + keyS).assign(value);
+                        result.refOfIndex(env, TraceInfo.UNKNOWN, "\0*\0" + keyS).assign(value);
                     } else {
-                        result.refOfIndex("\0" + prop.getClazz().getName() + "\0" + keyS).assign(value);
+                        result.refOfIndex(env, TraceInfo.UNKNOWN,"\0" + prop.getClazz().getName() + "\0" + keyS).assign(value);
                     }
                 }
             } else {
-                result.refOfIndex(null, iterator.getMemoryKey()).assign(value);
+                result.refOfIndex(env, TraceInfo.UNKNOWN, iterator.getMemoryKey()).assign(value);
             }
         }
 
@@ -587,7 +587,7 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public Memory refOfIndex(final TraceInfo trace, final Memory index) {
+    public Memory refOfIndex(Environment env, final TraceInfo trace, final Memory index) {
         if (value instanceof ArrayAccess) {
             return new ReferenceMemory() {
                 @Override
@@ -1014,7 +1014,8 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public Memory toValue() {
-                    return ObjectMemory.this.valueOfIndex(trace, index);
+                    Environment env = ObjectMemory.this.value.getEnvironment();
+                    return ObjectMemory.this.valueOfIndex(env, trace, index);
                 }
 
                 @Override
@@ -1042,78 +1043,78 @@ public class ObjectMemory extends Memory {
                 }
 
                 @Override
-                public Memory valueOfIndex(TraceInfo trace, Memory index) {
-                    return toValue().valueOfIndex(trace, index);
+                public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
+                    return toValue().valueOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory valueOfIndex(TraceInfo trace, long index) {
-                    return toValue().valueOfIndex(trace, index);
+                public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
+                    return toValue().valueOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory valueOfIndex(TraceInfo trace, double index) {
-                    return toValue().valueOfIndex(trace, index);
+                public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
+                    return toValue().valueOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory valueOfIndex(TraceInfo trace, String index) {
-                    return toValue().valueOfIndex(trace, index);
+                public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
+                    return toValue().valueOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory valueOfIndex(TraceInfo trace, boolean index) {
-                    return toValue().valueOfIndex(trace, index);
+                public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
+                    return toValue().valueOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory refOfPush(TraceInfo trace) {
-                    return toValue().refOfPush(trace);
+                public Memory refOfPush(Environment env, TraceInfo trace) {
+                    return toValue().refOfPush(env, trace);
                 }
 
                 @Override
-                public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) {
-                    return toValue().refOfIndexAsShortcut(trace, index);
+                public Memory refOfIndexAsShortcut(Environment env, TraceInfo trace, Memory index) {
+                    return toValue().refOfIndexAsShortcut(env, trace, index);
                 }
 
                 @Override
-                public Memory refOfIndex(TraceInfo trace, Memory index) {
-                    return toValue().refOfIndex(trace, index);
+                public Memory refOfIndex(Environment env, TraceInfo trace, Memory index) {
+                    return toValue().refOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory refOfIndex(TraceInfo trace, long index) {
-                    return toValue().refOfIndex(trace, index);
+                public Memory refOfIndex(Environment env, TraceInfo trace, long index) {
+                    return toValue().refOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory refOfIndex(TraceInfo trace, double index) {
-                    return toValue().refOfIndex(trace, index);
+                public Memory refOfIndex(Environment env, TraceInfo trace, double index) {
+                    return toValue().refOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory refOfIndex(TraceInfo trace, String index) {
-                    return toValue().refOfIndex(trace, index);
+                public Memory refOfIndex(Environment env, TraceInfo trace, String index) {
+                    return toValue().refOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory refOfIndex(TraceInfo trace, boolean index) {
-                    return toValue().refOfIndex(trace, index);
+                public Memory refOfIndex(Environment env, TraceInfo trace, boolean index) {
+                    return toValue().refOfIndex(env, trace, index);
                 }
 
                 @Override
-                public void unsetOfIndex(TraceInfo trace, Memory index) {
-                    toValue().unsetOfIndex(trace, index);
+                public void unsetOfIndex(Environment env, TraceInfo trace, Memory index) {
+                    toValue().unsetOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory issetOfIndex(TraceInfo trace, Memory index) {
-                    return toValue().issetOfIndex(trace, index);
+                public Memory issetOfIndex(Environment env, TraceInfo trace, Memory index) {
+                    return toValue().valueOfIndex(env, trace, index);
                 }
 
                 @Override
-                public Memory emptyOfIndex(TraceInfo trace, Memory index) {
-                    return toValue().emptyOfIndex(trace, index);
+                public Memory emptyOfIndex(Environment env, TraceInfo trace, Memory index) {
+                    return toValue().emptyOfIndex(env, trace, index);
                 }
             };
         } else {
@@ -1123,34 +1124,34 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) {
-        return refOfIndex(trace, index);
+    public Memory refOfIndexAsShortcut(Environment env, TraceInfo trace, Memory index) {
+        return refOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, long index) {
-        return refOfIndex(trace, LongMemory.valueOf(index));
+    public Memory refOfIndex(Environment env, TraceInfo trace, long index) {
+        return refOfIndex(env, trace, LongMemory.valueOf(index));
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, double index) {
-        return refOfIndex(trace, DoubleMemory.valueOf(index));
+    public Memory refOfIndex(Environment env, TraceInfo trace, double index) {
+        return refOfIndex(env, trace, DoubleMemory.valueOf(index));
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, String index) {
-        return refOfIndex(trace, StringMemory.valueOf(index));
+    public Memory refOfIndex(Environment env, TraceInfo trace, String index) {
+        return refOfIndex(env, trace, StringMemory.valueOf(index));
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, boolean index) {
-        return refOfIndex(trace, index ? TRUE : FALSE);
+    public Memory refOfIndex(Environment env, TraceInfo trace, boolean index) {
+        return refOfIndex(env, trace, index ? TRUE : FALSE);
     }
 
     @Override
-    public Memory refOfPush(TraceInfo trace) {
+    public Memory refOfPush(Environment env, TraceInfo trace) {
         if (value instanceof ArrayAccess) {
-            return refOfIndex(trace, NULL);
+            return refOfIndex(env, trace, NULL);
         } else {
             invalidUseAsArray(trace);
             return new ReferenceMemory();
@@ -1158,9 +1159,8 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, Memory index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
         if (value instanceof ArrayAccess) {
-            Environment env = value.getEnvironment();
             if (env != null && trace != null) {
                 Memory[] args = new Memory[]{index};
                 return value.callMethod(env, "offsetGet", args);
@@ -1176,29 +1176,28 @@ public class ObjectMemory extends Memory {
 
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, boolean index) {
-        return valueOfIndex(trace, TrueMemory.valueOf(index));
+    public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
+        return valueOfIndex(env, trace, TrueMemory.valueOf(index));
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, long index) {
-        return valueOfIndex(trace, LongMemory.valueOf(index));
+    public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
+        return valueOfIndex(env, trace, LongMemory.valueOf(index));
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, double index) {
-        return valueOfIndex(trace, DoubleMemory.valueOf(index));
+    public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
+        return valueOfIndex(env, trace, DoubleMemory.valueOf(index));
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, String index) {
-        return valueOfIndex(trace, StringMemory.valueOf(index));
+    public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
+        return valueOfIndex(env, trace, StringMemory.valueOf(index));
     }
 
     @Override
-    public void unsetOfIndex(TraceInfo trace, Memory index) {
+    public void unsetOfIndex(Environment env, TraceInfo trace, Memory index) {
         if (value instanceof ArrayAccess) {
-            Environment env = value.getEnvironment();
             if (env != null && trace != null) {
                 Memory[] args = new Memory[]{index};
                 value.callMethod(env, "offsetUnset", args);
@@ -1209,23 +1208,22 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
-    public Memory emptyOfIndex(TraceInfo trace, Memory index) {
-        return issetOfIndex(trace, index, true);
+    public Memory emptyOfIndex(Environment env, TraceInfo trace, Memory index) {
+        return issetOfIndex(env, trace, index, true);
     }
 
     @Override
-    public Memory issetOfIndex(TraceInfo trace, Memory index) {
-        return issetOfIndex(trace, index, false);
+    public Memory issetOfIndex(Environment env, TraceInfo trace, Memory index) {
+        return issetOfIndex(env, trace, index, false);
     }
 
-    private Memory issetOfIndex(TraceInfo trace, Memory index, boolean asEmpty) {
+    private Memory issetOfIndex(Environment env, TraceInfo trace, Memory index, boolean asEmpty) {
         if (value instanceof ArrayAccess) {
-            Environment env = value.getEnvironment();
             if (env != null && trace != null) {
                 Memory[] args = new Memory[]{index};
 
                 if (value.callMethod(env, "offsetExists", args).toBoolean())
-                    return asEmpty ? valueOfIndex(trace, index) : TRUE;
+                    return asEmpty ? valueOfIndex(env, trace, index) : TRUE;
                 else
                     return NULL;
 

@@ -252,7 +252,7 @@ public class OutputFunctions extends FunctionsContainer {
         }
 
         for(OutputBuffer e : list){
-            result.refOfPush().assign(e.getName());
+            result.refOfPush(env, TraceInfo.UNKNOWN).assign(e.getName());
         }
 
         return result.toConstant();

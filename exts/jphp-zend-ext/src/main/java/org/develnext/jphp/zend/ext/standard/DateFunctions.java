@@ -13,8 +13,6 @@ import java.time.format.TextStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.IsoFields;
 import java.util.Collections;
-import java.time.format.TextStyle;
-import java.time.temporal.IsoFields;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -496,7 +494,7 @@ public class DateFunctions extends FunctionsContainer {
         try {
             DateTimeParseResult result = DateTime.parse(env, traceInfo, date, Memory.NULL, ZonedDateTime.now());
 
-            return result.toArrayMemory();
+            return result.toArrayMemory(env, traceInfo);
         } catch (DateTimeParserException e) {
             return Memory.FALSE;
         }
@@ -508,10 +506,10 @@ public class DateFunctions extends FunctionsContainer {
             DateTimeParseResult result = DateFormat.createParseResultFromFormat(format.toString(), date.toString(),
                 ZonedDateTime.now(zoneId));
 
-            return result.toArrayMemory();
+            return result.toArrayMemory(env, traceInfo);
         } catch (DateTimeException | NoSuchElementException | IllegalArgumentException e) {
             return new DateTimeParseResult(null, Collections.emptySet(), null, null)
-                .toArrayMemory();
+                .toArrayMemory(env, traceInfo);
         }
     }
 

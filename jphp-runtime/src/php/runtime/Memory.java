@@ -1,26 +1,33 @@
 package php.runtime;
 
+import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
+
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
-import php.runtime.invoke.DynamicMethodInvoker;
 import php.runtime.invoke.Invoker;
-import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.StdClass;
 import php.runtime.lang.exception.BaseArithmeticError;
 import php.runtime.lang.exception.BaseDivisionByZeroError;
-import php.runtime.lang.spl.Traversable;
-import php.runtime.memory.*;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.BinaryMemory;
+import php.runtime.memory.DoubleMemory;
+import php.runtime.memory.FalseMemory;
+import php.runtime.memory.KeyValueMemory;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.NullMemory;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.ReferenceMemory;
+import php.runtime.memory.StringMemory;
+import php.runtime.memory.TrueMemory;
 import php.runtime.memory.helper.UndefinedMemory;
 import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.support.ReflectionUtils;
-
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.Map;
 
 abstract public class Memory implements Comparable<Memory> {
 
@@ -165,7 +172,7 @@ abstract public class Memory implements Comparable<Memory> {
 
     public Memory toObject(Environment env) {
         StdClass stdClass = new StdClass(env);
-        stdClass.getProperties().refOfIndex("scalar").assign(toImmutable());
+        stdClass.getProperties().refOfIndex(env, TraceInfo.UNKNOWN, "scalar").assign(toImmutable());
         return new ObjectMemory(stdClass);
     }
 
@@ -260,48 +267,96 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean isReference() { return false; }
     // <value>[index]
 
-    final public Memory valueOfIndex(Memory index) { return valueOfIndex(null, index); }
+    final public Memory valueOfIndex(Memory index) { return valueOfIndex(null, null, index); }
+    @Deprecated
     public Memory valueOfIndex(TraceInfo trace, Memory index) { return NULL; }
-
-    public Memory valueOfIndex(TraceInfo trace, long index) { return NULL; }
-    final public Memory valueOfIndex(long index) { return valueOfIndex(null, index); }
-
-    public Memory valueOfIndex(TraceInfo trace, double index) { return NULL; }
-    final public Memory valueOfIndex(double index) { return valueOfIndex(null, index); }
-
-    public Memory valueOfIndex(TraceInfo trace, String index) { return NULL; }
-    final public Memory valueOfIndex(String index) { return valueOfIndex(null, index); }
-
-    public Memory valueOfIndex(TraceInfo trace, boolean index) { return NULL; }
-    final public Memory valueOfIndex(boolean index) { return valueOfIndex(null, index); }
-
-    final public Memory refOfIndex(Memory index){
-        return refOfIndex(null, index);
+    public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
+        return NULL;
     }
 
+    public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
+        return NULL;
+    }
+    @Deprecated
+    public Memory valueOfIndex(TraceInfo trace, long index) { return NULL; }
+    final public Memory valueOfIndex(long index) { return valueOfIndex(null, null, index); }
+
+    public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
+        return NULL;
+    }
+    @Deprecated
+    public Memory valueOfIndex(TraceInfo trace, double index) { return NULL; }
+    final public Memory valueOfIndex(double index) { return valueOfIndex(null, null, index); }
+
+    public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
+        return NULL;
+    }
+    @Deprecated
+    public Memory valueOfIndex(TraceInfo trace, String index) {
+        return NULL;
+    }
+    final public Memory valueOfIndex(String index) { return valueOfIndex(null, null, index); }
+
+    @Deprecated
+    public Memory valueOfIndex(TraceInfo trace, boolean index) { return NULL; }
+    public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
+        return NULL;
+    }
+    final public Memory valueOfIndex(boolean index) { return valueOfIndex(null, null, index); }
+
+    @Deprecated
+    final public Memory refOfIndex(Memory index){
+        return refOfIndex(null, null, index);
+    }
+    @Deprecated
     public Memory refOfIndex(TraceInfo trace, Memory index) {
         return NULL;
     }
-    public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) { return refOfIndex(trace, index); }
 
+    public Memory refOfIndex(Environment env, TraceInfo trace, Memory index) {
+        return NULL;
+    }
+    @Deprecated
+    public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) { return refOfIndex(null, trace, index); }
+    public Memory refOfIndexAsShortcut(Environment env, TraceInfo trace, Memory index) { return refOfIndex(env, trace, index); }
+
+    @Deprecated
     public Memory refOfIndex(TraceInfo trace, long index) { return NULL; }
-    final public Memory refOfIndex(long index) { return refOfIndex(null, index); }
+    public Memory refOfIndex(Environment env, TraceInfo trace, long index) { return NULL; }
+    final public Memory refOfIndex(long index) { return refOfIndex(null, null, index); }
 
+    @Deprecated
     public Memory refOfIndex(TraceInfo trace, double index) { return NULL; }
-    final public Memory refOfIndex(double index) { return refOfIndex(null, index); }
+    public Memory refOfIndex(Environment env, TraceInfo trace, double index) { return NULL; }
+    final public Memory refOfIndex(double index) { return refOfIndex(null, null, index); }
 
+    @Deprecated
     public Memory refOfIndex(TraceInfo trace, String index) { return NULL; }
-    final public Memory refOfIndex(String index) { return refOfIndex(null, index); }
+    public Memory refOfIndex(Environment env, TraceInfo trace, String index) { return NULL; }
+    final public Memory refOfIndex(String index) { return refOfIndex(null, null, index); }
 
+    @Deprecated
     public Memory refOfIndex(TraceInfo trace, boolean index) { return NULL; }
-    final public Memory refOfIndex(boolean index) { return refOfIndex(null, index); }
+    public Memory refOfIndex(Environment env, TraceInfo trace, boolean index) { return NULL; }
+    final public Memory refOfIndex(boolean index) { return refOfIndex(null, null, index); }
 
+    /*
+    @Deprecated
     public Memory refOfPush(TraceInfo trace) { return new ReferenceMemory(); }
-    final public Memory refOfPush() { return refOfPush(null); }
-    public void unsetOfIndex(TraceInfo trace, Memory index) { }
-    public Memory issetOfIndex(TraceInfo trace, Memory index) { return NULL; }
-    public Memory emptyOfIndex(TraceInfo trace, Memory index) { return issetOfIndex(trace, index); }
+     */
 
+    public Memory refOfPush(Environment env, TraceInfo trace) { return new ReferenceMemory(); }
+    @Deprecated
+    final public Memory refOfPush() { return refOfPush(null, null); }
+    @Deprecated
+    public void unsetOfIndex(TraceInfo trace, Memory index) { }
+    public void unsetOfIndex(Environment env, TraceInfo trace, Memory index) { }
+    @Deprecated
+    public Memory issetOfIndex(TraceInfo trace, Memory index) { return NULL; }
+    public Memory issetOfIndex(Environment env, TraceInfo trace, Memory index) { return NULL; }
+    @Deprecated
+    public Memory emptyOfIndex(TraceInfo trace, Memory index) { return NULL; }
+    public Memory emptyOfIndex(Environment env, TraceInfo trace, Memory index) { return issetOfIndex(env, trace, index); }
     // INC DEC
     abstract public Memory inc();
     abstract public Memory dec();
@@ -535,7 +590,6 @@ abstract public class Memory implements Comparable<Memory> {
         long l = StringMemory.toNumeric(memory).toLong();
         return l < 0 ? FALSE : LongMemory.valueOf( toLong() << l);
     }
-
 
     // ASSIGN
     public Memory assign(Memory memory){ throw new RuntimeException("Invalid assign `memory` to " + type); }

@@ -60,7 +60,7 @@ public class ClosureDumper extends Dumper<ClosureEntity> {
 
     @Override
     public ClosureEntity load(InputStream input) throws IOException {
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
         ClosureEntity entity = new ClosureEntity(context);
         entity.setParent(env.scope.fetchUserClass(Closure.class));
 

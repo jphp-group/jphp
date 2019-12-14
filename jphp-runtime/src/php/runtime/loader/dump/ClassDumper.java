@@ -136,7 +136,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
     }
 
     public <T extends ClassEntity> T load(InputStream input, Class<T> clazz) throws IOException {
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
         T entity   = null;
         try {
             entity = clazz.getConstructor(Context.class).newInstance(context);

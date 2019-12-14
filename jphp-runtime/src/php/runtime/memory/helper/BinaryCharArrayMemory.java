@@ -1,6 +1,7 @@
 package php.runtime.memory.helper;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.StringMemory;
@@ -42,7 +43,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, boolean index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
         int _index = index ? 1 : 0;
         if (_index >= 0 && _index < buffer.length())
             return new BinaryMemory(buffer.charAt(_index));

@@ -72,7 +72,7 @@ public class MapMemoryOperation extends GenericMemoryOperation<Map> {
                     ? operations[1].unconvert(env, trace, entry.getValue())
                     : Memory.wrap(env, entry.getValue());
 
-            result.refOfIndex(key).assign(value);
+            result.refOfIndex(env, trace, key).assign(value);
         }
 
         return result.toConstant();

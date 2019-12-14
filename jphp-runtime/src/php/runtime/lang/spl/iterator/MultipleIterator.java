@@ -2,6 +2,7 @@ package php.runtime.lang.spl.iterator;
 
 import php.runtime.Memory;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.exception.InvalidArgumentException;
@@ -54,7 +55,7 @@ public class MultipleIterator extends BaseObject implements Iterator {
                 env.exception(InvalidArgumentException.class, "Iterator '" + args[1] + "' already exists");
             }
 
-            iterators.refOfIndex(args[1]).assign(args[0]);
+            iterators.refOfIndex(env, TraceInfo.UNKNOWN, args[1]).assign(args[0]);
         }
 
         return Memory.NULL;

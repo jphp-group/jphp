@@ -190,11 +190,11 @@ final public class SScanF {
     public abstract static class Segment {
         abstract public boolean isAssigned();
 
-        abstract public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray);
+        abstract public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray);
 
-        void sscanfPut(Memory var, Memory val, boolean isReturnArray) {
+        void sscanfPut(Environment env, TraceInfo trace, Memory var, Memory val, boolean isReturnArray) {
             if (isReturnArray)
-                var.refOfPush().assign(val);
+                var.refOfPush(env, trace).assign(val);
             else
                 var.assign(val);
         }
@@ -224,7 +224,7 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
             int fStrlen = _strlen;
             String fString = _string;
 
@@ -260,7 +260,7 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
             for (;
                  sIndex < strlen && isWhitespace(string.charAt(sIndex));
                  sIndex++) {
@@ -287,8 +287,8 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
-            sscanfPut(var, LongMemory.valueOf(sIndex), isReturnArray);
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+            sscanfPut(env, trace, var, LongMemory.valueOf(sIndex), isReturnArray);
             return sIndex;
         }
     }
@@ -306,7 +306,7 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
             StringBuilder sb = new StringBuilder();
 
             for (; sIndex < strlen; sIndex++) {
@@ -320,9 +320,9 @@ final public class SScanF {
             }
 
             if (sb.length() > 0)
-                sscanfPut(var, new StringMemory(sb.toString()), isReturnArray);
+                sscanfPut(env, trace, var, new StringMemory(sb.toString()), isReturnArray);
             else if (isReturnArray)
-                var.refOfPush().assign(Memory.NULL);
+                var.refOfPush(env, trace).assign(Memory.NULL);
 
             return sIndex;
         }
@@ -341,7 +341,7 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
             StringBuilder sb = new StringBuilder();
 
             for (; sIndex < strlen; sIndex++) {
@@ -355,9 +355,9 @@ final public class SScanF {
             }
 
             if (sb.length() > 0)
-                sscanfPut(var, new StringMemory(sb.toString()), isReturnArray);
+                sscanfPut(env, trace, var, new StringMemory(sb.toString()), isReturnArray);
             else if (isReturnArray)
-                var.refOfPush().assign(Memory.NULL);
+                var.refOfPush(env, trace).assign(Memory.NULL);
 
             return sIndex;
         }
@@ -386,10 +386,10 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String s, int strlen, int i, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String s, int strlen, int i, ReferenceMemory var, boolean isReturnArray) {
             if (i == strlen) {
                 if (isReturnArray)
-                    var.refOfPush().assign(Memory.NULL);
+                    var.refOfPush(env, trace).assign(Memory.NULL);
 
                 return i;
             }
@@ -425,7 +425,7 @@ final public class SScanF {
                 int e = i++;
 
                 if (start == e) {
-                    sscanfPut(var, Memory.NULL, isReturnArray);
+                    sscanfPut(env, trace, var, Memory.NULL, isReturnArray);
                     return start;
                 }
 
@@ -450,7 +450,7 @@ final public class SScanF {
             else
                 val = Double.parseDouble(s.substring(start, i));
 
-            sscanfPut(var, new DoubleMemory(val), isReturnArray);
+            sscanfPut(env, trace, var, new DoubleMemory(val), isReturnArray);
             return i;
         }
     }
@@ -476,10 +476,10 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
             if (sIndex == strlen) {
                 if (isReturnArray)
-                    var.refOfPush().assign(Memory.NULL);
+                    var.refOfPush(env, trace).assign(Memory.NULL);
 
                 return sIndex;
             }
@@ -517,13 +517,13 @@ final public class SScanF {
                     val = val * 16 + ch - 'A' + 10;
                     isMatched = true;
                 } else if (!isMatched) {
-                    sscanfPut(var, Memory.NULL, isReturnArray);
+                    sscanfPut(env, trace, var, Memory.NULL, isReturnArray);
                     return sIndex;
                 } else
                     break;
             }
 
-            sscanfPut(var, LongMemory.valueOf(val * sign), isReturnArray);
+            sscanfPut(env, trace, var, LongMemory.valueOf(val * sign), isReturnArray);
             return sIndex;
         }
     }
@@ -559,10 +559,10 @@ final public class SScanF {
         }
 
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
             if (sIndex == strlen) {
                 if (isReturnArray)
-                    var.refOfPush().assign(Memory.NULL);
+                    var.refOfPush(env, trace).assign(Memory.NULL);
 
                 return sIndex;
             }
@@ -600,7 +600,7 @@ final public class SScanF {
                     val = val * base + ch - '0';
                     isNotMatched = false;
                 } else if (isNotMatched) {
-                    sscanfPut(var, Memory.NULL, isReturnArray);
+                    sscanfPut(env, trace, var, Memory.NULL, isReturnArray);
                     return sIndex;
                 } else
                     break;
@@ -608,11 +608,11 @@ final public class SScanF {
 
             if (_isUnsigned) {
                 if (sign == -1 && val != 0)
-                    sscanfPut(var, new StringMemory((char) (0xffffffffL - val + 1)), isReturnArray);
+                    sscanfPut(env, trace, var, new StringMemory((char) (0xffffffffL - val + 1)), isReturnArray);
                 else
-                    sscanfPut(var, LongMemory.valueOf(val), isReturnArray);
+                    sscanfPut(env, trace, var, LongMemory.valueOf(val), isReturnArray);
             } else
-                sscanfPut(var, LongMemory.valueOf(val * sign), isReturnArray);
+                sscanfPut(env, trace, var, LongMemory.valueOf(val * sign), isReturnArray);
 
             return sIndex;
         }
@@ -644,10 +644,10 @@ final public class SScanF {
          * Scans a string with a given length.
          */
         @Override
-        public int apply(String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
+        public int apply(Environment env, TraceInfo trace, String string, int strlen, int sIndex, ReferenceMemory var, boolean isReturnArray) {
             if (sIndex == strlen) {
                 if (isReturnArray)
-                    var.refOfPush().assign(Memory.NULL);
+                    var.refOfPush(env, trace).assign(Memory.NULL);
 
                 return sIndex;
             }
@@ -664,7 +664,7 @@ final public class SScanF {
                 sb.append(ch);
             }
 
-            sscanfPut(var, new StringMemory(sb.toString()), isReturnArray);
+            sscanfPut(env, trace, var, new StringMemory(sb.toString()), isReturnArray);
             return sIndex;
         }
     }

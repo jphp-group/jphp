@@ -56,12 +56,12 @@ public class DatePeriod extends BaseObject implements Traversable {
     @Signature(value = @Arg(type = HintType.ARRAY))
     public static Memory __set_state(Environment env, TraceInfo traceInfo, Memory array) {
         DatePeriod datePeriod = new DatePeriod(env);
-        datePeriod.recurrences = array.refOfIndex(traceInfo, "recurrences");
-        datePeriod.include_start_date = array.refOfIndex(traceInfo, "include_start_date").toBoolean();
-        datePeriod.start = array.refOfIndex(traceInfo, "start");
-        datePeriod.interval = array.refOfIndex(traceInfo, "interval");
-        datePeriod.end = array.refOfIndex(traceInfo, "end");
-        datePeriod.current = array.refOfIndex(traceInfo, "current");
+        datePeriod.recurrences = array.refOfIndex(env, traceInfo, "recurrences");
+        datePeriod.include_start_date = array.refOfIndex(env, traceInfo, "include_start_date").toBoolean();
+        datePeriod.start = array.refOfIndex(env, traceInfo, "start");
+        datePeriod.interval = array.refOfIndex(env, traceInfo, "interval");
+        datePeriod.end = array.refOfIndex(env, traceInfo, "end");
+        datePeriod.current = array.refOfIndex(env, traceInfo, "current");
 
 
         return new ObjectMemory(datePeriod);

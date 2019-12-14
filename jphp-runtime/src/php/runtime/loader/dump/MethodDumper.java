@@ -1,12 +1,10 @@
 package php.runtime.loader.dump;
 
-import php.runtime.Memory;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.loader.dump.io.DumpException;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
-import php.runtime.memory.StringMemory;
 import php.runtime.reflection.DocumentComment;
 import php.runtime.reflection.MethodEntity;
 import php.runtime.reflection.ParameterEntity;
@@ -91,7 +89,7 @@ public class MethodDumper extends Dumper<MethodEntity> {
 
     @Override
     public MethodEntity load(InputStream input) throws IOException {
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
         MethodEntity entity = new MethodEntity(context);
 
         String docComment = data.readUTF();

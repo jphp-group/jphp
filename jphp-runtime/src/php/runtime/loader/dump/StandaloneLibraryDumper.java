@@ -1,6 +1,7 @@
 package php.runtime.loader.dump;
 
 import php.runtime.Information;
+import php.runtime.env.Environment;
 import php.runtime.loader.dump.io.DumpException;
 import php.runtime.loader.dump.io.DumpInputStream;
 import php.runtime.loader.dump.io.DumpOutputStream;
@@ -14,10 +15,12 @@ import java.util.*;
 public class StandaloneLibraryDumper {
     private static final String HASH = "\1\7\4\3\3";
 
+    private final Environment env;
     private StandaloneLibrary library;
 
-    public StandaloneLibraryDumper() {
+    public StandaloneLibraryDumper(Environment env) {
         library = new StandaloneLibrary();
+        this.env = env;
     }
 
     public void addModule(ModuleEntity entity) {
@@ -77,7 +80,7 @@ public class StandaloneLibraryDumper {
     public StandaloneLibrary load(InputStream input) throws IOException {
         StandaloneLibrary library = new StandaloneLibrary();
 
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
 
         String hash = data.readName();
 

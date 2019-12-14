@@ -1,14 +1,27 @@
 package org.develnext.jphp.core.compiler.jvm;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.Optional;
+
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
 import org.develnext.jphp.core.tester.Test;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.zend.ext.standard.StringFunctions;
 import org.junit.Assert;
+
 import php.runtime.Memory;
 import php.runtime.common.LangMode;
-import php.runtime.env.*;
+import php.runtime.env.CompileScope;
+import php.runtime.env.ConcurrentEnvironment;
+import php.runtime.env.Context;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CustomErrorException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
@@ -22,18 +35,18 @@ import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.util.PrintF;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.Optional;
-
 abstract public class JvmCompilerCase {
     protected Environment environment = new Environment();
     protected int runIndex = 0;
     protected String lastOutput;
+
+    public static String rtrim(String s) {
+        int i = s.length() - 1;
+        while (i >= 0 && Character.isWhitespace(s.charAt(i))) {
+            i--;
+        }
+        return s.substring(0, i + 1);
+    }
 
     public boolean isConcurrent() {
         String jphpTestConcurrent = System.getenv("JPHP_TEST_CONCURRENT");
@@ -47,7 +60,7 @@ abstract public class JvmCompilerCase {
         return jphpTestCompiled != null;
     }
 
-    protected CompileScope newScope(){
+    protected CompileScope newScope() {
         CompileScope compileScope = new CompileScope();
         compileScope.setDebugMode(true);
         compileScope.setLangMode(LangMode.DEFAULT);
@@ -58,7 +71,7 @@ abstract public class JvmCompilerCase {
         return compileScope;
     }
 
-    protected List<Token> getSyntaxTree(Context context){
+    protected List<Token> getSyntaxTree(Context context) {
         Tokenizer tokenizer = null;
         try {
             tokenizer = new Tokenizer(context);
@@ -69,7 +82,7 @@ abstract public class JvmCompilerCase {
         return analyzer.getTree();
     }
 
-    protected SyntaxAnalyzer getSyntax(Context context){
+    protected SyntaxAnalyzer getSyntax(Context context) {
         Tokenizer tokenizer = null;
         try {
             tokenizer = new Tokenizer(context);
@@ -81,11 +94,11 @@ abstract public class JvmCompilerCase {
         return new SyntaxAnalyzer(environment, tokenizer);
     }
 
-    protected List<Token> getSyntaxTree(String code){
+    protected List<Token> getSyntaxTree(String code) {
         return getSyntaxTree(new Context(code));
     }
 
-    protected Memory run(String code, boolean returned){
+    protected Memory run(String code, boolean returned) {
         runIndex += 1;
         Environment environment = new Environment(newScope());
         code = "class TestClass { static function test(){ " + (returned ? "return " : "") + code + "; } }";
@@ -103,7 +116,7 @@ abstract public class JvmCompilerCase {
         }
     }
 
-    protected Memory runDynamic(String code, boolean returned){
+    protected Memory runDynamic(String code, boolean returned) {
         runIndex += 1;
         Environment environment = new Environment(newScope());
         code = (returned ? "return " : "") + code + ";";
@@ -121,10 +134,8 @@ abstract public class JvmCompilerCase {
         return module.includeNoThrow(environment);
     }
 
-
-
     @SuppressWarnings("unchecked")
-    protected Memory includeResource(String name, ArrayMemory globals){
+    protected Memory includeResource(String name, ArrayMemory globals) {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
 
         Environment environment;
@@ -160,24 +171,15 @@ abstract public class JvmCompilerCase {
         return memory;
     }
 
-    protected String getOutput(){
+    protected String getOutput() {
         return lastOutput;
     }
 
-    protected Memory includeResource(String name){
+    protected Memory includeResource(String name) {
         return includeResource(name, null);
     }
 
-
-    public static String rtrim(String s) {
-        int i = s.length() - 1;
-        while (i >= 0 && Character.isWhitespace(s.charAt(i))) {
-            i--;
-        }
-        return s.substring(0, i + 1);
-    }
-
-    public void check(String name){
+    public void check(String name) {
         check(name, false, -1);
     }
 
@@ -189,7 +191,7 @@ abstract public class JvmCompilerCase {
         check(name, false, errorFlags);
     }
 
-    public void check(String name, boolean withErrors, int errorFlags){
+    public void check(String name, boolean withErrors, int errorFlags) {
         File file;
         ByteArrayOutputStream outputR = new ByteArrayOutputStream();
 
@@ -240,7 +242,7 @@ abstract public class JvmCompilerCase {
 
             Memory memory = module.includeNoThrow(environment, environment.getGlobals());
         } catch (ErrorException e) {
-            if (withErrors){
+            if (withErrors) {
                 environment.getErrorReportHandler().onFatal(e);
             } else {
                 throw new CustomErrorException(e.getType(), e.getMessage()
@@ -249,7 +251,7 @@ abstract public class JvmCompilerCase {
                         + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
                         e.getTraceInfo());
             }
-        } catch (UncaughtException | BaseBaseException e){
+        } catch (UncaughtException | BaseBaseException e) {
             environment.catchUncaught(e);
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
@@ -257,7 +259,7 @@ abstract public class JvmCompilerCase {
 
         try {
             environment.doFinal();
-        } catch (ErrorException e){
+        } catch (ErrorException e) {
             if (withErrors) {
                 environment.getErrorReportHandler().onFatal(e);
                 try {
@@ -267,7 +269,7 @@ abstract public class JvmCompilerCase {
                 }
             } else
                 throw e;
-        } catch (RuntimeException e){
+        } catch (RuntimeException e) {
             throw e;
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
@@ -277,26 +279,26 @@ abstract public class JvmCompilerCase {
         if (test.getExpect() != null)
             Assert.assertEquals(test.getTest() + " (" + name + ")", test.getExpect(), rtrim(lastOutput));
 
-        if (test.getExpectF() != null){
+        if (test.getExpectF() != null) {
 
             Memory result = StringFunctions.sscanf(
-                    environment, TraceInfo.valueOf(file.getName(), 0, 0), rtrim(lastOutput), test.getExpectF()
+                environment, TraceInfo.valueOf(file.getName(), 0, 0), rtrim(lastOutput), test.getExpectF()
             );
             if (result.isNull())
                 result = new ArrayMemory();
 
-            PrintF printF = new PrintF(environment.getLocale(), test.getExpectF(), ((ArrayMemory)result).values());
+            PrintF printF = new PrintF(environment.getLocale(), test.getExpectF(), ((ArrayMemory) result).values());
             String out = printF.toString();
 
             Assert.assertEquals(out, rtrim(lastOutput));
         }
     }
 
-    protected Memory run(String code){
+    protected Memory run(String code) {
         return run(code, true);
     }
 
-    protected Memory runDynamic(String code){
+    protected Memory runDynamic(String code) {
         return runDynamic(code, true);
     }
 }

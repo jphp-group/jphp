@@ -87,17 +87,17 @@ public class LangFunctions extends FunctionsContainer {
         }
     }
 
-    public static Memory compact(@Runtime.GetLocals ArrayMemory locals, Memory varName, Memory... varNames) {
+    public static Memory compact(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals, Memory varName, Memory... varNames) {
         ArrayMemory result = new ArrayMemory();
         Memory value = locals.valueOfIndex(varName).toValue();
         if (value != Memory.UNDEFINED)
-            result.refOfIndex(varName).assign(value.toImmutable());
+            result.refOfIndex(env, trace, varName).assign(value.toImmutable());
 
         if (varNames != null) {
             for (Memory el : varNames) {
-                value = locals.valueOfIndex(el).toValue();
+                value = locals.valueOfIndex(env, trace, el).toValue();
                 if (value != Memory.UNDEFINED)
-                    result.refOfIndex(el).assign(value.toImmutable());
+                    result.refOfIndex(env, trace, el).assign(value.toImmutable());
             }
         }
 
@@ -859,7 +859,7 @@ public class LangFunctions extends FunctionsContainer {
         ArrayMemory result = new ArrayMemory();
         for (MethodEntity el : entity.getMethods().values()) {
             if (el.canAccess(env, context) == 0)
-                result.refOfPush().assign(el.getName());
+                result.refOfPush(env, trace).assign(el.getName());
         }
 
         return result.toConstant();

@@ -95,7 +95,7 @@ public class DateInterval extends BaseObject {
     public static Memory createFromDateString(Environment env, TraceInfo traceInfo, Memory arg) {
         try {
             DateTimeParseResult result = new DateTimeParser(arg.toString()).parseResult();
-            ArrayMemory referenceMemories = result.toArrayMemory();
+            ArrayMemory referenceMemories = result.toArrayMemory(env, traceInfo);
             DateInterval dateInterval = new DateInterval(env);
             Memory relative = referenceMemories.refOfIndex("relative");
 

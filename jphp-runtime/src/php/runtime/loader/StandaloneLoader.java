@@ -288,7 +288,7 @@ public class StandaloneLoader {
     }
 
     protected void loadLibraryDump(InputStream input) throws IOException {
-        StandaloneLibraryDumper dumper = new StandaloneLibraryDumper();
+        StandaloneLibraryDumper dumper = new StandaloneLibraryDumper(env);
         library = dumper.load(input);
     }
 

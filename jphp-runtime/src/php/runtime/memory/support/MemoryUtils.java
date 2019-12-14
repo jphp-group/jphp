@@ -290,7 +290,7 @@ public class MemoryUtils {
                 } else if (value instanceof Map){
                     ArrayMemory result = new ArrayMemory();
                     for (Map.Entry el : ((Map<?, ?>)value).entrySet())
-                        result.refOfIndex(valueOf(el.getKey())).assign(valueOf(el.getValue()));
+                        result.refOfIndex(env, TraceInfo.UNKNOWN, valueOf(el.getKey())).assign(valueOf(el.getValue()));
 
                     return result;
                 } else if (value.getClass().isArray()){

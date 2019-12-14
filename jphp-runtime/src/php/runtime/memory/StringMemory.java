@@ -2,6 +2,8 @@ package php.runtime.memory;
 
 import php.runtime.Memory;
 import php.runtime.OperatorUtils;
+import php.runtime.common.Messages;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 
 import java.nio.charset.Charset;
@@ -23,7 +25,7 @@ public class StringMemory extends Memory {
         this(String.valueOf(ch));
     }
 
-    public static Memory valueOf(String value){
+    public static Memory valueOf(String value) {
         if (value == null)
             return NULL;
 
@@ -67,7 +69,7 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory issetOfIndex(TraceInfo trace, Memory index) {
+    public Memory issetOfIndex(Environment env, TraceInfo trace, Memory index) {
         int idx = index.toInteger();
         int length = value.length();
 
@@ -543,10 +545,10 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, Memory index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
         int _index = -1;
 
-        switch (index.type){
+        switch (index.type) {
             case STRING:
                 Memory tmp = StringMemory.toLong(index.toString());
                 if (tmp != null)
@@ -557,67 +559,63 @@ public class StringMemory extends Memory {
                 _index = index.toInteger();
         }
 
-        String toString = toString();
-
-        if (_index < toString.length() && _index >= 0)
-            return getChar(toString.charAt(_index));
-        else if (_index < 0 && Math.abs(_index) <= toString.length())
-            return getChar(toString.charAt(toString.length() + _index));
-        else
-            return CONST_EMPTY_STRING;
+        return valueOfIndex(null, trace, _index);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, long index) {
-        int _index = (int)index;
-        String string = toString();
-        if (_index >= 0 && _index < string.length())
-            return getChar(string.charAt(_index));
-        else if (_index < 0 && Math.abs(_index) <= string.length())
-            return getChar(string.charAt(string.length() + _index));
-        else
-            return CONST_EMPTY_STRING;
+        throw new RuntimeException("Used without env!");
+    }
+
+    @Override
+    public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
+        return valueOfIndex(env, trace, (int) index);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, double index) {
-        int _index = (int)index;
-        String string = toString();
-        if (_index >= 0 && _index < string.length())
-            return getChar(string.charAt(_index));
-        else if (_index < 0 && Math.abs(_index) <= string.length())
-            return getChar(string.charAt(string.length() + _index));
-        else
-            return CONST_EMPTY_STRING;
+        throw new RuntimeException("Used without env!");
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, boolean index) {
-        int _index = index ? 1 : 0;
-        String string = toString();
-        if (_index >= 0 && _index < string.length())
-            return getChar(string.charAt(_index));
-        else if (_index < 0 && Math.abs(_index) <= string.length())
-            return getChar(string.charAt(string.length() + _index));
-        else
-            return CONST_EMPTY_STRING;
+    public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
+        env.notice(trace, Messages.ERR_STRING_OFFSET_CAST);
+        return valueOfIndex(env, trace, (int)index);
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, String index) {
-        int _index = -1;
+    public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
+        env.notice(trace, Messages.ERR_STRING_OFFSET_CAST);
+        return valueOfIndex(env, trace, index ? 1 : 0);
+    }
+
+    @Override
+    public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
+        int _index;
 
         Memory tmp = StringMemory.toLong(index);
-        if (tmp != null)
-            _index = tmp.toInteger();
+        String value = toString();
 
-        String string = toString();
-        if (_index >= 0 && _index < string.length())
-            return getChar(string.charAt(_index));
-        else if (_index < 0 && Math.abs(_index) <= string.length())
-            return getChar(string.charAt(string.length() + _index));
-        else
+        if (tmp != null) {
+            _index = tmp.toInteger();
+        } else {
+            env.warning(trace, Messages.ERR_ILLEGAL_STRING_OFFSET, index);
+
+            return value.isEmpty() ? CONST_EMPTY_STRING : getChar(toString().charAt(0));
+        }
+
+        return valueOfIndex(env, trace, _index);
+    }
+
+    private Memory valueOfIndex(Environment env, TraceInfo trace, int index) {
+        if (index >= 0 && index < value.length()) {
+            return getChar(value.charAt(index));
+        } else if (index < 0 && Math.abs(index) <= value.length()) {
+            return getChar(value.charAt(value.length() + index));
+        } else {
+            env.notice(trace, Messages.ERR_UNINITIALIZED_STRING_OFFSET, index);
             return CONST_EMPTY_STRING;
+        }
     }
 
     @Override

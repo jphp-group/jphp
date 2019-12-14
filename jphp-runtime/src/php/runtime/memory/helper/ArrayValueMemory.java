@@ -1,6 +1,7 @@
 package php.runtime.memory.helper;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
@@ -58,45 +59,45 @@ public class ArrayValueMemory extends ReferenceMemory {
     }
 
     @Override
-    public Memory refOfPush(TraceInfo trace) {
+    public Memory refOfPush(Environment env, TraceInfo trace) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfPush();
-        return super.refOfPush(trace);
+        if (dup != null) return dup.get(key).refOfPush(env, trace);
+        return super.refOfPush(env, trace);
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, Memory index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, Memory index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(index);
-        return super.refOfIndex(trace, index);
+        if (dup != null) return dup.get(key).refOfIndex(env, trace, index);
+        return super.refOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, long index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, long index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(trace, index);
-        return super.refOfIndex(trace, index);
+        if (dup != null) return dup.get(key).refOfIndex(env, trace, index);
+        return super.refOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, double index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, double index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(trace, index);
-        return super.refOfIndex(trace, index);
+        if (dup != null) return dup.get(key).refOfIndex(env, trace, index);
+        return super.refOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, String index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, String index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(trace, index);
-        return super.refOfIndex(trace, index);
+        if (dup != null) return dup.get(key).refOfIndex(env, trace, index);
+        return super.refOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, boolean index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, boolean index) {
         ArrayMemory dup = array.checkCopied();
-        if (dup != null) return dup.get(key).refOfIndex(trace, index);
-        return super.refOfIndex(trace, index);
+        if (dup != null) return dup.get(key).refOfIndex(env, trace, index);
+        return super.refOfIndex(env, trace, index);
     }
 
     @Override

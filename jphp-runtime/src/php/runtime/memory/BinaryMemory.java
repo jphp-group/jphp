@@ -1,6 +1,7 @@
 package php.runtime.memory;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 
 import java.nio.charset.Charset;
@@ -52,7 +53,7 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, Memory index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
         int i = index.toInteger();
         if (i < 0 || i >= bytes.length)
             return FALSE;
@@ -61,7 +62,7 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, long index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
         int i = (int)index;
         if (i < 0 || i >= bytes.length)
             return FALSE;
@@ -70,7 +71,7 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, double index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
         int i = (int)index;
         if (i < 0 || i >= bytes.length)
             return FALSE;
@@ -79,7 +80,7 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, boolean index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
         int i = index ? 1 : 0;
         if (i < 0 || i >= bytes.length)
             return FALSE;
@@ -88,7 +89,7 @@ public class BinaryMemory extends StringMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, String index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
         Memory i = StringMemory.toLong(index);
         if (i == null)
             return FALSE;

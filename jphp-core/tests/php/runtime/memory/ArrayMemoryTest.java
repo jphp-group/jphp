@@ -6,6 +6,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.memory.support.MemoryUtils;
 
 import java.util.Set;
@@ -63,7 +65,7 @@ public class ArrayMemoryTest {
         assertEquals(Memory.UNDEFINED, memory.valueOfIndex(0));
         assertEquals(0, memory.size());
 
-        memory.refOfIndex(new DoubleMemory(2)).assign(2);
+        memory.refOfIndex(new Environment(), TraceInfo.UNKNOWN, new DoubleMemory(2)).assign(2);
         assertEquals(2, memory.valueOfIndex(2.0).toLong());
     }
 

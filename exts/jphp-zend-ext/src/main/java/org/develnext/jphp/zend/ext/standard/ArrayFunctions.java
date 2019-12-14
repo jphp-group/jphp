@@ -707,9 +707,9 @@ public class ArrayFunctions extends FunctionsContainer {
                     result.add(value.valueOfIndex(columnKey).toImmutable());
                 } else {
                     if (columnKey.isNull())
-                        result.refOfIndex(value.valueOfIndex(indexKey)).assign(value.toImmutable());
+                        result.refOfIndex(env, trace, value.valueOfIndex(indexKey)).assign(value.toImmutable());
                     else
-                        result.refOfIndex(value.valueOfIndex(indexKey)).assign(value.valueOfIndex(columnKey));
+                        result.refOfIndex(env, trace, value.valueOfIndex(indexKey)).assign(value.valueOfIndex(columnKey));
                 }
             }
             return result.toConstant();
@@ -741,7 +741,7 @@ public class ArrayFunctions extends FunctionsContainer {
             ForeachIterator iteratorValues = _values.getNewIterator(env, false, false);
             while (iteratorKeys.next()) {
                 iteratorValues.next();
-                result.refOfIndex(iteratorKeys.getValue())
+                result.refOfIndex(env, trace, iteratorKeys.getValue())
                         .assign(iteratorValues.getValue().toImmutable());
             }
             return result.toConstant();
@@ -908,7 +908,7 @@ public class ArrayFunctions extends FunctionsContainer {
             ArrayMemory result = new ArrayMemory();
 
             while (iterator.next()) {
-                result.refOfIndex(iterator.getValue()).assign(value.toImmutable());
+                result.refOfIndex(env, trace, iterator.getValue()).assign(value.toImmutable());
             }
 
             return result.toConstant();
@@ -1318,7 +1318,7 @@ public class ArrayFunctions extends FunctionsContainer {
             ArrayMemory newArray = new ArrayMemory();
 
             for (Memory value : values) {
-                newArray.refOfIndex(value).assign(arrayMemory.valueOfIndex(value).toImmutable());
+                newArray.refOfIndex(env, trace, value).assign(arrayMemory.valueOfIndex(value).toImmutable());
                 arrayMemory.remove(value);
             }
 
