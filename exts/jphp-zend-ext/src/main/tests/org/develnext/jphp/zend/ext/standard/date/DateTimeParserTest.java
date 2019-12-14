@@ -637,40 +637,47 @@ public class DateTimeParserTest {
         for (int i = 0; i < ordinals.length; i++) {
             String ordinal = ordinals[i];
             assertThat(parse(ordinal + " sec"))
-                    .isEqualTo(parse(ordinal + " secs"))
-                    .isEqualTo(parse(ordinal + " second"))
-                    .isEqualTo(parse(ordinal + " seconds"))
+                    .isEqualToIgnoringNanos(parse(ordinal + " secs"))
+                    .isEqualToIgnoringNanos(parse(ordinal + " second"))
+                    .isEqualToIgnoringNanos(parse(ordinal + " seconds"))
                     .isEqualToIgnoringNanos(now().plusSeconds(i));
 
             assertThat(parse(ordinal + " min"))
-                    .isEqualTo(parse(ordinal + " mins"))
-                    .isEqualTo(parse(ordinal + " minute"))
-                    .isEqualTo(parse(ordinal + " minutes"))
-                    .isEqualToIgnoringNanos(now().plusMinutes(i));
+                    .isEqualToIgnoringSeconds(parse(ordinal + " mins"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " minute"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " minutes"))
+                    .isEqualToIgnoringSeconds(now().plusMinutes(i));
 
-            assertThat(parse(ordinal + " hour")).isEqualTo(parse(ordinal + " hours"))
-                    .isEqualToIgnoringNanos(now().plusHours(i));
+            assertThat(parse(ordinal + " hour"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " hours"))
+                    .isEqualToIgnoringSeconds(now().plusHours(i));
 
-            assertThat(parse(ordinal + " day")).isEqualTo(parse(ordinal + " days"))
-                    .isEqualToIgnoringNanos(now().plusDays(i));
+            assertThat(parse(ordinal + " day"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " days"))
+                    .isEqualToIgnoringSeconds(now().plusDays(i));
 
-            assertThat(parse(ordinal + " fortnight")).isEqualTo(parse(ordinal + " fortnights"))
-                    .isEqualToIgnoringNanos(now().plusDays(i * 14));
+            assertThat(parse(ordinal + " fortnight"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " fortnights"))
+                    .isEqualToIgnoringSeconds(now().plusDays(i * 14));
 
-            assertThat(parse(ordinal + " forthnight")).isEqualTo(parse(ordinal + " forthnights"))
-                    .isEqualToIgnoringNanos(now().plusDays(i * 14));
+            assertThat(parse(ordinal + " forthnight"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " forthnights"))
+                    .isEqualToIgnoringSeconds(now().plusDays(i * 14));
 
-            assertThat(parse(ordinal + " month")).isEqualTo(parse(ordinal + " months"))
-                    .isEqualToIgnoringNanos(now().plusMonths(i));
+            assertThat(parse(ordinal + " month"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " months"))
+                    .isEqualToIgnoringSeconds(now().plusMonths(i));
 
-            assertThat(parse(ordinal + " year")).isEqualTo(parse(ordinal + " years"))
-                    .isEqualToIgnoringNanos(now().plusYears(i));
+            assertThat(parse(ordinal + " year"))
+                    .isEqualToIgnoringSeconds(parse(ordinal + " years"))
+                    .isEqualToIgnoringSeconds(now().plusYears(i));
         }
 
-        assertThat(parse("this month")).isEqualToIgnoringNanos(now());
-        assertThat(parse("next month")).isEqualToIgnoringNanos(now().plusMonths(1));
-        assertThat(parse("previous month")).isEqualTo(parse("last month"))
-                .isEqualToIgnoringNanos(now().minusMonths(1));
+        assertThat(parse("this month")).isEqualToIgnoringSeconds(now());
+        assertThat(parse("next month")).isEqualToIgnoringSeconds(now().plusMonths(1));
+        assertThat(parse("previous month"))
+                .isEqualToIgnoringSeconds(parse("last month"))
+                .isEqualToIgnoringSeconds(now().minusMonths(1));
     }
 
     @Test

@@ -1,9 +1,11 @@
+dist: trusty # xenial fail to install oraclejdk8
 language: java
 
 jdk:
   - openjdk11
   - oraclejdk9
-  #- oraclejdk8
+  - openjdk8
+  - oraclejdk8
 
 services:
   - mongodb
