@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import org.develnext.jphp.zend.ext.crypto.csprng.CSPRNGFunctions;
 import org.develnext.jphp.zend.ext.json.JsonConstants;
 import org.develnext.jphp.zend.ext.json.JsonFunctions;
 import php.runtime.Startup;
@@ -28,5 +29,6 @@ public class StandardExtension extends Extension {
         registerFunctions(new FileFunctions());
         registerFunctions(new JsonFunctions());
         registerFunctions(new DateFunctions());
+        registerFunctions(new CSPRNGFunctions());
     }
 }
