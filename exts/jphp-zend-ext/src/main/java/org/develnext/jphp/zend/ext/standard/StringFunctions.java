@@ -3013,8 +3013,7 @@ public class StringFunctions extends FunctionsContainer {
         return URLDecoder.decode(url, "UTF-8")
                 // OAuth encodes some characters differently:
                 .replace("%20", "+")
-                .replace("%2A", "*")
-                .replace("~", "%7E");
+                .replace("%2A", "*");
     }
 
     public static void setLocale() {

@@ -1,8 +1,11 @@
 package org.develnext.jphp.zend.ext.standard;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.develnext.jphp.zend.ext.standard.StringFunctions.rawurldecode;
 import static org.develnext.jphp.zend.ext.standard.StringFunctions.rawurlencode;
 import static org.develnext.jphp.zend.ext.standard.StringFunctions.strtr;
+
+import java.io.UnsupportedEncodingException;
 
 import org.assertj.core.api.Assertions;
 import org.develnext.jphp.zend.ext.standard.StringFunctions;
@@ -159,5 +162,20 @@ public class StringFunctionsTest {
         + "%00";
 
     assertThat(rawurlencode(raw)).isEqualTo(expected);
+  }
+
+  @Test
+  public void testRawurldecode() throws UnsupportedEncodingException {
+    String encoded = "%20%21%22%23%24%25%26%27%28%29%2A%2B%2C-.%2F0123456789%3A%3B%3C%3D%3E%3F"
+        + "%40ABCDEFGHIJKLMNOPQRSTUVWXYZ%5B%5C%5D%5E_"
+        + "%60abcdefghijklmnopqrstuvwxyz%7B%7C%7D~"
+        + "%00";
+
+    String expected = " !\"#$%&'()*+,-./0123456789:;<=>?"
+        + "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
+        + "`abcdefghijklmnopqrstuvwxyz{|}~"
+        + "\0";
+
+    assertThat(rawurldecode(encoded)).isEqualTo(expected);
   }
 }
