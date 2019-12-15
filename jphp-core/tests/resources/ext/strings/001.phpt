@@ -109,8 +109,6 @@ if ($decoded == $raw) {
 	echo("passed\n");
 } else {
 	echo("failed!\n");
-	var_dump($decoded);
-	var_dump($raw);
 }
 
 echo "Testing urlencode: ";

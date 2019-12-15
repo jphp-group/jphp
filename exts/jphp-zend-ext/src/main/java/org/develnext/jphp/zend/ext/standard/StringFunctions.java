@@ -2991,7 +2991,8 @@ public class StringFunctions extends FunctionsContainer {
 
     public static String urlencode(String url) {
         try {
-            return URLEncoder.encode(url, "UTF-8");
+            return URLEncoder.encode(url, "UTF-8")
+                .replace("*", "%2A");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
