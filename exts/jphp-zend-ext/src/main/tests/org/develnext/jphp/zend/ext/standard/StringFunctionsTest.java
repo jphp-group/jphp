@@ -1,5 +1,10 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.develnext.jphp.zend.ext.standard.StringFunctions.rawurlencode;
+import static org.develnext.jphp.zend.ext.standard.StringFunctions.strtr;
+
+import org.assertj.core.api.Assertions;
 import org.develnext.jphp.zend.ext.standard.StringFunctions;
 import org.junit.Assert;
 import org.junit.Test;
@@ -77,7 +82,7 @@ public class StringFunctionsTest {
   @Test
   public void testStrcoll() {
     Assert.assertEquals(-1, StringFunctions.strcoll(",", "bar"));
-    Assert.assertEquals(1, StringFunctions.strcoll("foo", "bar")); 
+    Assert.assertEquals(1, StringFunctions.strcoll("foo", "bar"));
     Assert.assertEquals(0, StringFunctions.strcoll("foo", "foo"));
   }
 
@@ -95,5 +100,64 @@ public class StringFunctionsTest {
         StringFunctions._substr_replace("foobar", "bar", 0, -1));
     Assert.assertEquals("bar",
         StringFunctions._substr_replace("foobar", "bar", 0, 7));
+  }
+
+  @Test
+  public void testStrtrNulls() {
+    assertThat(strtr(null, null, null))
+        .isEqualTo("");
+
+    assertThat(strtr("a", null, null))
+        .isEqualTo("a");
+
+    assertThat(strtr("a", "b", null))
+        .isEqualTo("a");
+
+    assertThat(strtr("a", null, "b"))
+        .isEqualTo("a");
+  }
+
+  @Test
+  public void testStrtr() {
+    assertThat(strtr("aaa", "aa", "b"))
+        .isEqualTo("bbb");
+
+    assertThat(strtr("aaa", "aa", "ba"))
+        .isEqualTo("aaa");
+
+    assertThat(strtr("aaada", "ac", "bc"))
+        .isEqualTo("bbbdb");
+
+    assertThat(strtr("aaada", "ac", "bc"))
+        .isEqualTo("bbbdb");
+
+    assertThat(strtr("aaada", "ac", "bc"))
+        .isEqualTo("bbbdb");
+
+    assertThat(strtr("baab", "ab", "01"))
+        .isEqualTo("1001");
+  }
+
+  @Test
+  public void testStrtrNegative() {
+    String input = "abc";
+    String str = strtr(input, "123", "1");
+
+    assertThat(str).isSameAs(input);
+  }
+
+  @Test
+  public void testRawurlencode() {
+    String raw = " !\"#$%&'()*+,-./0123456789:;<=>?"
+        + "@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
+        + "`abcdefghijklmnopqrstuvwxyz{|}~"
+        + "\0";
+
+    String expected = "%20%21%22%23%24%25%26%27%28%29%2A%2B%2C-.%2F0123456789%3A%3B%3C%3D%3E%3F"
+        + "%40ABCDEFGHIJKLMNOPQRSTUVWXYZ%5B%5C%5D%5E_"
+        + "%60abcdefghijklmnopqrstuvwxyz%7B%7C%7D~"
+        + "%00";
+
+    assertThat(rawurlencode(raw)).isEqualTo(expected);
   }
 }

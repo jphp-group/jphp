@@ -63,4 +63,10 @@ public class StringsTest extends ZendJvmTestCase {
         check("ext/strings/http_build_query_variation2.phpt");
         check("ext/strings/http_build_query_variation3.phpt");
     }
+
+    @Test
+    public void testPhpCompat() {
+        check("ext/strings/001.phpt");
+        //check("ext/strings/002.phpt");
+    }
 }

@@ -1,7 +1,32 @@
 package org.develnext.jphp.zend.ext.standard;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.zip.CRC32;
+import java.util.zip.GZIPOutputStream;
+
 import org.develnext.jphp.zend.ext.support.NaturalOrderComparator;
+
 import php.runtime.Memory;
+import php.runtime.annotation.Reflection.Nullable;
 import php.runtime.annotation.Runtime.Immutable;
 import php.runtime.annotation.Runtime.Reference;
 import php.runtime.common.DigestUtils;
@@ -13,28 +38,47 @@ import php.runtime.exceptions.TodoException;
 import php.runtime.ext.core.MathFunctions;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.lang.ForeachIterator;
-import php.runtime.memory.*;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.BinaryMemory;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.ReferenceMemory;
+import php.runtime.memory.StringBuilderMemory;
+import php.runtime.memory.StringMemory;
 import php.runtime.util.PrintF;
 import php.runtime.util.SScanF;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.zip.CRC32;
-import java.util.zip.GZIPOutputStream;
-
 public class StringFunctions extends FunctionsContainer {
     private static final DecimalFormatSymbols DEFAULT_DECIMAL_FORMAT_SYMBOLS;
-
+    private static final char[] SOUNDEX_VALUES = "01230120022455012623010202".toCharArray();
+    private static final ThreadLocal<MessageDigest> md5Digest = new ThreadLocal<MessageDigest>() {
+        @Override
+        protected MessageDigest initialValue() {
+            try {
+                return MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    };
+    private static final ThreadLocal<MessageDigest> sha1Digest = new ThreadLocal<MessageDigest>() {
+        @Override
+        protected MessageDigest initialValue() {
+            try {
+                return MessageDigest.getInstance("SHA1");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    };
     private static ArrayMemory HTML_ENTITIES;
     private static ArrayMemory HTML_SPECIALCHARS;
+
+    static {
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols();
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setDecimalSeparator('.');
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setGroupingSeparator(',');
+        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setZeroDigit('0');
+    }
 
     protected static char toUUChar(int d) {
         if (d == 0)
@@ -168,7 +212,6 @@ public class StringFunctions extends FunctionsContainer {
         return array;
     }
 
-
     public static Memory sprintf(Environment env, TraceInfo trace, Memory formatMemory, Memory... args) {
         if (formatMemory.isArray()) {
             env.notice(trace, "Array to string conversion");
@@ -216,6 +259,7 @@ public class StringFunctions extends FunctionsContainer {
      * Parses the cslashes bitmap returning an actual bitmap.
      *
      * @param charset the bitmap string
+     *
      * @return the actual bitmap
      */
     private static boolean[] parseCharsetBitmap(Environment env, TraceInfo trace, String charset) {
@@ -408,7 +452,7 @@ public class StringFunctions extends FunctionsContainer {
         int i = 0;
 
         for (; i + chunkLen <= body.length(); i += chunkLen) {
-            sb.append(body.substring(i, i + chunkLen));
+            sb.append(body, i, i + chunkLen);
             sb.append(end);
         }
 
@@ -515,8 +559,6 @@ public class StringFunctions extends FunctionsContainer {
         }
         return sb.toString();
     }
-
-    private static final char[] SOUNDEX_VALUES = "01230120022455012623010202".toCharArray();
 
     @Immutable
     public static Memory soundex(String string) {
@@ -659,31 +701,6 @@ public class StringFunctions extends FunctionsContainer {
             return 1;
     }
 
-    @Immutable
-    public static int strncmp(String value1, String value2, int len) {
-        int len1 = value1.length();
-        int len2 = value2.length();
-        String _value1 = len1 <= len ? value1 : value1.substring(0, len);
-        String _value2 = len2 <= len ? value2 : value2.substring(0, len);
-
-        return _value1.compareTo(_value2);
-    }
-
-    @Immutable
-    public static int strcasecmp(String value1, String value2) {
-        return value1.compareToIgnoreCase(value2);
-    }
-
-    @Immutable
-    public static int strncasecmp(String value1, String value2, int len) {
-        int len1 = value1.length();
-        int len2 = value2.length();
-        String _value1 = len1 <= len ? value1 : value1.substring(0, len);
-        String _value2 = len2 <= len ? value2 : value2.substring(0, len);
-
-        return _value1.compareToIgnoreCase(_value2);
-    }
-
     /*@Runtime.Immutable
     public static String nl2br(String value, boolean isXhtml){
         StringBuilder sb = new StringBuilder();
@@ -708,6 +725,31 @@ public class StringFunctions extends FunctionsContainer {
         }
         return sb.toString();
     }*/
+
+    @Immutable
+    public static int strncmp(String value1, String value2, int len) {
+        int len1 = value1.length();
+        int len2 = value2.length();
+        String _value1 = len1 <= len ? value1 : value1.substring(0, len);
+        String _value2 = len2 <= len ? value2 : value2.substring(0, len);
+
+        return _value1.compareTo(_value2);
+    }
+
+    @Immutable
+    public static int strcasecmp(String value1, String value2) {
+        return value1.compareToIgnoreCase(value2);
+    }
+
+    @Immutable
+    public static int strncasecmp(String value1, String value2, int len) {
+        int len1 = value1.length();
+        int len2 = value2.length();
+        String _value1 = len1 <= len ? value1 : value1.substring(0, len);
+        String _value2 = len2 <= len ? value2 : value2.substring(0, len);
+
+        return _value1.compareToIgnoreCase(_value2);
+    }
 
     @Immutable
     public static String nl2br(String value) {
@@ -779,14 +821,14 @@ public class StringFunctions extends FunctionsContainer {
         if (value.isEmpty())
             return "";
 
-        return String.valueOf(Character.toLowerCase(value.charAt(0))) + value.substring(1);
+        return Character.toLowerCase(value.charAt(0)) + value.substring(1);
     }
 
     @Immutable
     public static String ucfirst(String value) {
         if (value.isEmpty())
             return "";
-        return String.valueOf(Character.toUpperCase(value.charAt(0))) + value.substring(1);
+        return Character.toUpperCase(value.charAt(0)) + value.substring(1);
     }
 
     @Immutable
@@ -807,28 +849,6 @@ public class StringFunctions extends FunctionsContainer {
         }
         return new String(buffer);
     }
-
-    private static final ThreadLocal<MessageDigest> md5Digest = new ThreadLocal<MessageDigest>() {
-        @Override
-        protected MessageDigest initialValue() {
-            try {
-                return MessageDigest.getInstance("MD5");
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    };
-
-    private static final ThreadLocal<MessageDigest> sha1Digest = new ThreadLocal<MessageDigest>() {
-        @Override
-        protected MessageDigest initialValue() {
-            try {
-                return MessageDigest.getInstance("SHA1");
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException(e);
-            }
-        }
-    };
 
     public static Memory md5(Environment env, Memory value, boolean rawOutput) {
         MessageDigest md = md5Digest.get();
@@ -1090,6 +1110,30 @@ public class StringFunctions extends FunctionsContainer {
     }
 
     @Immutable
+    public static String strtr(@Nullable String string, @Nullable String from, @Nullable String to) {
+        if (string == null || string.isEmpty()) {
+            return "";
+        }
+
+        if ((from == null || from.isEmpty()) || (to == null || to.isEmpty())) {
+            return string;
+        }
+
+        char[] chars = string.toCharArray();
+        boolean replaced = false;
+
+        // If from and to have different lengths, the extra characters in the longer of the two are ignored.
+        for (int i = 0, idx = 0, length = Math.min(from.length(), to.length()); i < length; i++) {
+            while ((idx = string.indexOf(from.charAt(i), idx)) > -1) {
+                replaced = true;
+                chars[idx++] = to.charAt(i);
+            }
+        }
+
+        return replaced ? String.valueOf(chars) : string;
+    }
+
+    @Immutable
     public static String strrev(String string) {
         return StringUtils.reverse(string);
     }
@@ -1329,7 +1373,6 @@ public class StringFunctions extends FunctionsContainer {
         return LongMemory.valueOf(string.toString().length());
     }
 
-
     protected static String _substr_replace(String string, String replacement, int start, int length) {
         int strLength = string.length();
         if (start > strLength)
@@ -1348,7 +1391,7 @@ public class StringFunctions extends FunctionsContainer {
 
         StringBuilder result = new StringBuilder();
 
-        result.append(string.substring(0, start));
+        result.append(string, 0, start);
         result.append(replacement);
         result.append(string.substring(end));
 
@@ -1411,8 +1454,8 @@ public class StringFunctions extends FunctionsContainer {
                     result.refOfIndex(key).assign(value.toImmutable());
                 } else {
                     Memory ret = _str_replace(
-                            env, trace, search, replace,
-                            StringMemory.valueOf(value.toString()), count, isInsensitive
+                        env, trace, search, replace,
+                        StringMemory.valueOf(value.toString()), count, isInsensitive
                     );
 
                     result.refOfIndex(key).assign(ret);
@@ -1433,11 +1476,11 @@ public class StringFunctions extends FunctionsContainer {
                 }
 
                 string = _str_replace_impl(env, trace,
-                        StringMemory.valueOf(searchStr),
-                        StringMemory.valueOf(replace.toString()),
-                        string,
-                        count,
-                        isInsensitive);
+                    StringMemory.valueOf(searchStr),
+                    StringMemory.valueOf(replace.toString()),
+                    string,
+                    count,
+                    isInsensitive);
             } else if (replace.isArray()) {
                 ForeachIterator searchIterator = search.getNewIterator(env);
                 ForeachIterator replaceIterator = replace.getNewIterator(env);
@@ -1453,23 +1496,23 @@ public class StringFunctions extends FunctionsContainer {
                     }
 
                     string = _str_replace(env, trace,
-                            StringMemory.valueOf(searchValue.toString()),
-                            StringMemory.valueOf(replaceValue.toString()),
-                            string,
-                            count,
-                            isInsensitive);
+                        StringMemory.valueOf(searchValue.toString()),
+                        StringMemory.valueOf(replaceValue.toString()),
+                        string,
+                        count,
+                        isInsensitive);
                 }
             } else {
                 ForeachIterator searchIterator = search.getNewIterator(env);
 
                 while (searchIterator.next()) {
                     string = _str_replace(
-                            env, trace,
-                            StringMemory.valueOf(searchIterator.getValue().toString()),
-                            replace,
-                            string,
-                            count,
-                            isInsensitive
+                        env, trace,
+                        StringMemory.valueOf(searchIterator.getValue().toString()),
+                        replace,
+                        string,
+                        count,
+                        isInsensitive
                     );
                 }
             }
@@ -1543,7 +1586,6 @@ public class StringFunctions extends FunctionsContainer {
                                         Memory string, Memory replacementM, Memory startM) {
         return substr_replace(env, trace, string, replacementM, startM, LongMemory.valueOf(Integer.MAX_VALUE / 2));
     }
-
 
     @Immutable
     public static Memory wordwrap(String str, int width, String _break, boolean cut) {
@@ -1647,7 +1689,7 @@ public class StringFunctions extends FunctionsContainer {
             // no way to get DecimalFormat to output nothing for the point,
             // so remove it here
             int i = result.lastIndexOf(decPoint);
-            return result.substring(0, i) + result.substring(i + 1, result.length());
+            return result.substring(0, i) + result.substring(i + 1);
         } else {
             return result;
         }
@@ -1772,20 +1814,20 @@ public class StringFunctions extends FunctionsContainer {
                 case 'a':
                     sb.append('&');
                     if (i + 4 < len
-                            && string.charAt(i + 2) == 'm'
-                            && string.charAt(i + 3) == 'p'
-                            && string.charAt(i + 4) == ';') {
+                        && string.charAt(i + 2) == 'm'
+                        && string.charAt(i + 3) == 'p'
+                        && string.charAt(i + 4) == ';') {
                         i += 4;
                     }
                     break;
 
                 case 'q':
                     if ((quoteStyle & StringConstants.ENT_HTML_QUOTE_DOUBLE) != 0
-                            && i + 5 < len
-                            && string.charAt(i + 2) == 'u'
-                            && string.charAt(i + 3) == 'o'
-                            && string.charAt(i + 4) == 't'
-                            && string.charAt(i + 5) == ';') {
+                        && i + 5 < len
+                        && string.charAt(i + 2) == 'u'
+                        && string.charAt(i + 3) == 'o'
+                        && string.charAt(i + 4) == 't'
+                        && string.charAt(i + 5) == ';') {
                         i += 5;
                         sb.append('"');
                     } else {
@@ -1795,11 +1837,11 @@ public class StringFunctions extends FunctionsContainer {
 
                 case '#':
                     if ((quoteStyle & StringConstants.ENT_HTML_QUOTE_SINGLE) != 0
-                            && i + 5 < len
-                            && string.charAt(i + 2) == '0'
-                            && string.charAt(i + 3) == '3'
-                            && string.charAt(i + 4) == '9'
-                            && string.charAt(i + 5) == ';') {
+                        && i + 5 < len
+                        && string.charAt(i + 2) == '0'
+                        && string.charAt(i + 3) == '3'
+                        && string.charAt(i + 4) == '9'
+                        && string.charAt(i + 5) == ';') {
                         i += 5;
                         sb.append('\'');
                     } else {
@@ -1810,8 +1852,8 @@ public class StringFunctions extends FunctionsContainer {
 
                 case 'l':
                     if (i + 3 < len
-                            && string.charAt(i + 2) == 't'
-                            && string.charAt(i + 3) == ';') {
+                        && string.charAt(i + 2) == 't'
+                        && string.charAt(i + 3) == ';') {
                         i += 3;
 
                         sb.append('<');
@@ -1822,8 +1864,8 @@ public class StringFunctions extends FunctionsContainer {
 
                 case 'g':
                     if (i + 3 < len
-                            && string.charAt(i + 2) == 't'
-                            && string.charAt(i + 3) == ';') {
+                        && string.charAt(i + 2) == 't'
+                        && string.charAt(i + 3) == ';') {
                         i += 3;
 
                         sb.append('>');
@@ -2143,8 +2185,8 @@ public class StringFunctions extends FunctionsContainer {
         StringBuilder result = new StringBuilder(length);
 
         char nextCh = index < lastIndex
-                ? toUpperCase(string.charAt(index + 1))
-                : 0;
+            ? toUpperCase(string.charAt(index + 1))
+            : 0;
 
         switch (ch) {
             case 'A':
@@ -2238,7 +2280,6 @@ public class StringFunctions extends FunctionsContainer {
             } else {
                 nextnextCh = 0;
             }
-
 
             switch (ch) {
                 case 'B':
@@ -2732,9 +2773,9 @@ public class StringFunctions extends FunctionsContainer {
 
             int j = tagNameStart;
             while (j < len
-                    && (ch = string.charAt(j)) != '>'
-                    // && ch != '/'
-                    && !Character.isWhitespace(ch)) {
+                && (ch = string.charAt(j)) != '>'
+                // && ch != '/'
+                && !Character.isWhitespace(ch)) {
                 j++;
             }
 
@@ -2771,14 +2812,14 @@ public class StringFunctions extends FunctionsContainer {
                 case '<':
                     int j = i + 1;
                     while (j < len
-                            && (ch = str.charAt(j)) != '>'
-                            //&& ch != '/'
-                            && !Character.isWhitespace(ch)) {
+                        && (ch = str.charAt(j)) != '>'
+                        //&& ch != '/'
+                        && !Character.isWhitespace(ch)) {
                         j++;
                     }
                     if (ch == '>'
-                            && i + 1 < j
-                            && j < len) {
+                        && i + 1 < j
+                        && j < len) {
                         set.add(str.substring(i + 1, j));
                     }
 
@@ -2790,7 +2831,6 @@ public class StringFunctions extends FunctionsContainer {
         }
         return set;
     }
-
 
     public static Memory str_word_count(String string, int format, String additionalWordCharacters) {
         if (format < 0 || format > 2) {
@@ -2821,10 +2861,10 @@ public class StringFunctions extends FunctionsContainer {
                 int ch = string.charAt(i);
 
                 isWordCharacter = Character.isLetter(ch)
-                        || ch == '-'
-                        || ch == '\''
-                        || (isAdditionalWordCharacters
-                        && additionalWordCharacters.indexOf(ch) > -1);
+                    || ch == '-'
+                    || ch == '\''
+                    || (isAdditionalWordCharacters
+                    && additionalWordCharacters.indexOf(ch) > -1);
             } else {
                 isWordCharacter = false;
             }
@@ -2972,7 +3012,8 @@ public class StringFunctions extends FunctionsContainer {
     public static String rawurldecode(String url) throws UnsupportedEncodingException {
         return URLDecoder.decode(url, "UTF-8")
                 // OAuth encodes some characters differently:
-                .replace("%20", "+").replace("%2A", "*")
+                .replace("%20", "+")
+                .replace("%2A", "*")
                 .replace("~", "%7E");
     }
 
@@ -3011,18 +3052,6 @@ public class StringFunctions extends FunctionsContainer {
 
     public static String http_build_query(Environment env, Memory queryData) {
         return http_build_query(env, queryData, null);
-    }
-
-    static class MyGZIPOutputStream
-            extends GZIPOutputStream {
-
-        public MyGZIPOutputStream( OutputStream out ) throws IOException {
-            super( out );
-        }
-
-        public void setLevel( int level ) {
-            def.setLevel(level);
-        }
     }
 
     /*protected static byte[] gzencodeImpl(String str, int level) throws IOException
@@ -3355,10 +3384,15 @@ public class StringFunctions extends FunctionsContainer {
         return HTML_SPECIALCHARS;
     }
 
-    static {
-        DEFAULT_DECIMAL_FORMAT_SYMBOLS = new DecimalFormatSymbols();
-        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setDecimalSeparator('.');
-        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setGroupingSeparator(',');
-        DEFAULT_DECIMAL_FORMAT_SYMBOLS.setZeroDigit('0');
+    static class MyGZIPOutputStream
+        extends GZIPOutputStream {
+
+        public MyGZIPOutputStream(OutputStream out) throws IOException {
+            super(out);
+        }
+
+        public void setLevel(int level) {
+            def.setLevel(level);
+        }
     }
 }
