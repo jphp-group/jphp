@@ -276,7 +276,7 @@ abstract public class Memory implements Comparable<Memory> {
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, Memory)}
      */
     @Deprecated
-    public Memory valueOfIndex(TraceInfo trace, Memory index) { return NULL; }
+    public Memory valueOfIndex(TraceInfo trace, Memory index) { return valueOfIndex(null, trace, index); }
     public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
         return NULL;
     }
@@ -291,7 +291,7 @@ abstract public class Memory implements Comparable<Memory> {
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, long)}
      */
     @Deprecated
-    public Memory valueOfIndex(TraceInfo trace, long index) { return NULL; }
+    public Memory valueOfIndex(TraceInfo trace, long index) { return valueOfIndex(null, trace, index); }
     /**
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, long)}
      */
@@ -305,7 +305,7 @@ abstract public class Memory implements Comparable<Memory> {
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, double)}
      */
     @Deprecated
-    public Memory valueOfIndex(TraceInfo trace, double index) { return NULL; }
+    public Memory valueOfIndex(TraceInfo trace, double index) { return valueOfIndex(null, trace, index); }
     /**
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, double)}
      */
@@ -323,7 +323,7 @@ abstract public class Memory implements Comparable<Memory> {
      */
     @Deprecated
     public Memory valueOfIndex(TraceInfo trace, String index) {
-        return NULL;
+        return valueOfIndex(null, trace, index);
     }
     /**
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, String)}
@@ -335,7 +335,7 @@ abstract public class Memory implements Comparable<Memory> {
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, boolean)}
      */
     @Deprecated
-    public Memory valueOfIndex(TraceInfo trace, boolean index) { return NULL; }
+    public Memory valueOfIndex(TraceInfo trace, boolean index) { return valueOfIndex(null, trace, index); }
     /**
      * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, boolean)}
      */

@@ -1,6 +1,7 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import php.runtime.Memory;
@@ -15,7 +16,7 @@ public final class DateTimeMessageContainer {
     private static final ArrayMemory messages;
 
     static {
-        Map<String, Memory> tmp = new HashMap<>();
+        Map<String, Memory> tmp = new LinkedHashMap<>();
         tmp.put("warning_count", Memory.CONST_INT_0);
         tmp.put("warnings", ArrayMemory.createListed(0));
         tmp.put("error_count", Memory.CONST_INT_0);
