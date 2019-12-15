@@ -4,7 +4,6 @@ import org.develnext.jphp.zend.ext.support.NaturalOrderComparator;
 import php.runtime.Memory;
 import php.runtime.annotation.Runtime;
 import php.runtime.annotation.Runtime.Reference;
-import php.runtime.common.Callback;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.RecursiveException;
@@ -16,7 +15,6 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.KeyValueMemory;
 import php.runtime.memory.LongMemory;
-import php.runtime.memory.ReferenceMemory;
 
 import java.util.*;
 
@@ -151,10 +149,10 @@ public class ArrayFunctions extends FunctionsContainer {
 
                     ArrayMemory result = new ArrayMemory();
 
-                    result.refOfIndex(1).assign(value);
-                    result.refOfIndex("value").assign(value);
-                    result.refOfIndex(0).assign(key);
-                    result.refOfIndex("key").assign(key);
+                    result.refOfIndex(env, trace, 1).assign(value);
+                    result.refOfIndex(env, trace, "value").assign(value);
+                    result.refOfIndex(env, trace, 0).assign(key);
+                    result.refOfIndex(env, trace, "key").assign(key);
 
                     return result.toConstant();
                 } else {
@@ -704,12 +702,12 @@ public class ArrayFunctions extends FunctionsContainer {
             while (iterator.next()) {
                 Memory value = iterator.getValue();
                 if (indexKey.isNull()) {
-                    result.add(value.valueOfIndex(columnKey).toImmutable());
+                    result.add(value.valueOfIndex(env, trace, columnKey).toImmutable());
                 } else {
                     if (columnKey.isNull())
-                        result.refOfIndex(env, trace, value.valueOfIndex(indexKey)).assign(value.toImmutable());
+                        result.refOfIndex(env, trace, value.valueOfIndex(env, trace, indexKey)).assign(value.toImmutable());
                     else
-                        result.refOfIndex(env, trace, value.valueOfIndex(indexKey)).assign(value.valueOfIndex(columnKey));
+                        result.refOfIndex(env, trace, value.valueOfIndex(env, trace, indexKey)).assign(value.valueOfIndex(env, trace, columnKey));
                 }
             }
             return result.toConstant();
@@ -880,7 +878,7 @@ public class ArrayFunctions extends FunctionsContainer {
         return range(env, trace, low, high, Memory.CONST_INT_1);
     }
 
-    public static Memory array_fill(int start, int num, Memory value) {
+    public static Memory array_fill(Environment env, TraceInfo trace, int start, int num, Memory value) {
         ArrayMemory result = new ArrayMemory();
 
         if (start >= 0) {
@@ -888,14 +886,14 @@ public class ArrayFunctions extends FunctionsContainer {
                 if (start == 0) {
                     result.add(value);
                 } else {
-                    result.refOfIndex(i).assign(value);
+                    result.refOfIndex(env, trace, i).assign(value);
                 }
             }
         } else {
-            result.refOfIndex(start).assign(value);
+            result.refOfIndex(env, trace, start).assign(value);
 
             for (int i = 0; i < num - 1; i++) {
-                result.refOfIndex(i).assign(value);
+                result.refOfIndex(env, trace, i).assign(value);
             }
         }
 
@@ -1106,8 +1104,8 @@ public class ArrayFunctions extends FunctionsContainer {
 
             try {
                 return (length.isNull()
-                        ? arrayMemory.slice(offset, preserveKeys)
-                        : arrayMemory.slice(offset, length.toInteger(), preserveKeys)).toConstant();
+                        ? arrayMemory.slice(env, trace, offset, preserveKeys)
+                        : arrayMemory.slice(env, trace, offset, length.toInteger(), preserveKeys)).toConstant();
             } catch (IndexOutOfBoundsException e) {
                 return new ArrayMemory().toConstant();
             }
@@ -1318,7 +1316,7 @@ public class ArrayFunctions extends FunctionsContainer {
             ArrayMemory newArray = new ArrayMemory();
 
             for (Memory value : values) {
-                newArray.refOfIndex(env, trace, value).assign(arrayMemory.valueOfIndex(value).toImmutable());
+                newArray.refOfIndex(env, trace, value).assign(arrayMemory.valueOfIndex(env, trace, value).toImmutable());
                 arrayMemory.remove(value);
             }
 

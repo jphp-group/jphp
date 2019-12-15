@@ -3,6 +3,7 @@ package php.runtime.ext.core.classes.time;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.ext.core.classes.util.WrapLocale;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.support.IComparableObject;
@@ -334,22 +335,22 @@ public class WrapTime extends BaseObject implements IComparableObject<WrapTime> 
 
         Calendar calendar = Calendar.getInstance(WrapTimeZone.getTimeZone(env, args[1]), aLocale);
         Memory arg = args[0];
-        int year  = arg.valueOfIndex("year").toInteger();
+        int year  = arg.valueOfIndex(env, TraceInfo.UNKNOWN, "year").toInteger();
         Memory m = arg.toValue(ArrayMemory.class).getByScalar("month");
         int month = 1;
         if (m != null)
             month = m.toInteger();
 
-        int day   = arg.valueOfIndex("day").toInteger();
+        int day   = arg.valueOfIndex(env, TraceInfo.UNKNOWN, "day").toInteger();
         if (day < 1)
             day = 1;
 
-        int hour  = arg.valueOfIndex("hour").toInteger();
-        int min   = arg.valueOfIndex("min").toInteger();
-        int sec   = arg.valueOfIndex("sec").toInteger();
+        int hour  = arg.valueOfIndex(env, TraceInfo.UNKNOWN,"hour").toInteger();
+        int min   = arg.valueOfIndex(env, TraceInfo.UNKNOWN,"min").toInteger();
+        int sec   = arg.valueOfIndex(env, TraceInfo.UNKNOWN,"sec").toInteger();
 
         calendar.set(year, month - 1, day, hour, min, sec);
-        calendar.set(Calendar.MILLISECOND, arg.valueOfIndex("millis").toInteger());
+        calendar.set(Calendar.MILLISECOND, arg.valueOfIndex(env, TraceInfo.UNKNOWN,"millis").toInteger());
 
         return new ObjectMemory(new WrapTime(env, calendar.getTime(), calendar.getTimeZone(), aLocale));
     }

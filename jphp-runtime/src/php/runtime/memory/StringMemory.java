@@ -554,7 +554,7 @@ public class StringMemory extends Memory {
                 if (tmp != null)
                     _index = tmp.toInteger();
                 break;
-            case REFERENCE: return valueOfIndex(index.toValue());
+            case REFERENCE: return valueOfIndex(env, trace, index.toValue());
             default:
                 _index = index.toInteger();
         }
@@ -563,18 +563,8 @@ public class StringMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, long index) {
-        throw new RuntimeException("Used without env!");
-    }
-
-    @Override
     public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
         return valueOfIndex(env, trace, (int) index);
-    }
-
-    @Override
-    public Memory valueOfIndex(TraceInfo trace, double index) {
-        throw new RuntimeException("Used without env!");
     }
 
     @Override

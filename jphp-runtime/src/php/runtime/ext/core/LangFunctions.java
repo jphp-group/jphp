@@ -89,7 +89,7 @@ public class LangFunctions extends FunctionsContainer {
 
     public static Memory compact(Environment env, TraceInfo trace, @Runtime.GetLocals ArrayMemory locals, Memory varName, Memory... varNames) {
         ArrayMemory result = new ArrayMemory();
-        Memory value = locals.valueOfIndex(varName).toValue();
+        Memory value = locals.valueOfIndex(env, trace, varName).toValue();
         if (value != Memory.UNDEFINED)
             result.refOfIndex(env, trace, varName).assign(value.toImmutable());
 
@@ -242,12 +242,12 @@ public class LangFunctions extends FunctionsContainer {
                         count++;
                     }
                 } else if (extractType == LangConstants.EXTR_SKIP.toInteger()) {
-                    if (GrammarUtils.isValidName(keyS) && locals.valueOfIndex(keyS).isUndefined()) {
+                    if (GrammarUtils.isValidName(keyS) && locals.valueOfIndex(env, trace, keyS).isUndefined()) {
                         locals.refOfIndex(keyS).assign(value);
                         count++;
                     }
                 } else if (extractType == LangConstants.EXTR_PREFIX_SAME.toInteger()) {
-                    if (!locals.valueOfIndex(keyS).isUndefined()) {
+                    if (!locals.valueOfIndex(env, trace, keyS).isUndefined()) {
                         var = prefix.concat(keyS);
                         if (GrammarUtils.isValidName(var)) {
                             locals.refOfIndex(var).assign(value);
@@ -276,12 +276,12 @@ public class LangFunctions extends FunctionsContainer {
                     }
                 } else if (extractType == LangConstants.EXTR_IF_EXISTS.toInteger()) {
                     if (GrammarUtils.isValidName(keyS))
-                        if (!locals.valueOfIndex(keyS).isUndefined()) {
+                        if (!locals.valueOfIndex(env, trace, keyS).isUndefined()) {
                             locals.refOfIndex(keyS).assign(value);
                             count++;
                         }
                 } else if (extractType == LangConstants.EXTR_PREFIX_IF_EXISTS.toInteger()) {
-                    if (!locals.valueOfIndex(keyS).isUndefined()) {
+                    if (!locals.valueOfIndex(env, trace, keyS).isUndefined()) {
                         var = prefix.concat(keyS);
                         if (GrammarUtils.isValidName(var)) {
                             locals.refOfIndex(var).assign(value);

@@ -25,7 +25,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, long index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
         int _index = (int)index;
         if (_index >= 0 && _index < buffer.length()) {
             return new BinaryMemory(buffer.charAt(_index));
@@ -34,7 +34,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, double index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
         int _index = (int)index;
         if (_index >= 0 && _index < buffer.length())
             return new BinaryMemory(buffer.charAt(_index));
@@ -52,7 +52,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, String index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
         int _index = -1;
 
         Memory tmp = StringMemory.toLong(index);

@@ -2134,15 +2134,15 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
     }
 
-    public ArrayMemory slice(int offset) {
-        return slice(offset, false);
+    public ArrayMemory slice(Environment env, TraceInfo trace, int offset) {
+        return slice(env, trace, offset, false);
     }
 
-    public ArrayMemory slice(int offset, int length) {
-        return slice(offset, length, false);
+    public ArrayMemory slice(Environment env, TraceInfo trace, int offset, int length) {
+        return slice(env, trace, offset, length, false);
     }
 
-    public ArrayMemory slice(int offset, boolean saveKeys) {
+    public ArrayMemory slice(Environment env, TraceInfo trace, int offset, boolean saveKeys) {
         ArrayMemory result = new ArrayMemory();
 
         if (offset < 0) {
@@ -2154,7 +2154,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             try {
                 for (ReferenceMemory referenceMemory : getList().subList(offset, getList().size())) {
                     if (saveKeys) {
-                        result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
+                        result.refOfIndex(env, trace, i + offset).assign(referenceMemory.toImmutable());
                     } else {
                         result.add(referenceMemory.toImmutable());
                     }
@@ -2185,7 +2185,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return result;
     }
 
-    public ArrayMemory slice(int offset, int length, boolean saveKeys) {
+    public ArrayMemory slice(Environment env, TraceInfo trace, int offset, int length, boolean saveKeys) {
         ArrayMemory result = new ArrayMemory();
 
         if (offset < 0) {
@@ -2201,7 +2201,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             try {
                 for (ReferenceMemory referenceMemory : getList().subList(offset, offset + length)) {
                     if (saveKeys) {
-                        result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
+                        result.refOfIndex(env, trace, i + offset).assign(referenceMemory.toImmutable());
                     } else {
                         result.add(referenceMemory.toImmutable());
                     }

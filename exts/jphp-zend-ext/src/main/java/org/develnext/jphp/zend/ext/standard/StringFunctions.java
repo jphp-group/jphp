@@ -2831,7 +2831,9 @@ public class StringFunctions extends FunctionsContainer {
         return set;
     }
 
-    public static Memory str_word_count(String string, int format, String additionalWordCharacters) {
+
+    public static Memory str_word_count(Environment env, TraceInfo trace, String string, int format,
+                                        String additionalWordCharacters) {
         if (format < 0 || format > 2) {
             return Memory.NULL;
         }
@@ -2887,7 +2889,7 @@ public class StringFunctions extends FunctionsContainer {
                         if (format == 1) {
                             resultArray.add(new StringMemory(word));
                         } else if (format == 2) {
-                            resultArray.refOfIndex(lastWordStart).assign(word);
+                            resultArray.refOfIndex(env, trace, lastWordStart).assign(word);
                         }
                     }
                 }

@@ -267,7 +267,14 @@ abstract public class Memory implements Comparable<Memory> {
     public boolean isReference() { return false; }
     // <value>[index]
 
-    final public Memory valueOfIndex(Memory index) { return valueOfIndex(null, null, index); }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, Memory)}
+     */
+    @Deprecated
+    final public Memory valueOfIndex(Memory index) { return valueOfIndex(null, TraceInfo.UNKNOWN, index); }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, Memory)}
+     */
     @Deprecated
     public Memory valueOfIndex(TraceInfo trace, Memory index) { return NULL; }
     public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
@@ -277,53 +284,104 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
         return NULL;
     }
+    public Memory valueOfIndex(Environment env, long index) {
+        return valueOfIndex(env, TraceInfo.UNKNOWN, index);
+    }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, long)}
+     */
     @Deprecated
     public Memory valueOfIndex(TraceInfo trace, long index) { return NULL; }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, long)}
+     */
+    @Deprecated
     final public Memory valueOfIndex(long index) { return valueOfIndex(null, null, index); }
 
     public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
         return NULL;
     }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, double)}
+     */
     @Deprecated
     public Memory valueOfIndex(TraceInfo trace, double index) { return NULL; }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, double)}
+     */
+    @Deprecated
     final public Memory valueOfIndex(double index) { return valueOfIndex(null, null, index); }
 
     public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
         return NULL;
     }
+    public Memory valueOfIndex(Environment env, String index) {
+        return valueOfIndex(env, TraceInfo.UNKNOWN, index);
+    }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, String)}
+     */
     @Deprecated
     public Memory valueOfIndex(TraceInfo trace, String index) {
         return NULL;
     }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, String)}
+     */
+    @Deprecated
     final public Memory valueOfIndex(String index) { return valueOfIndex(null, null, index); }
 
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, boolean)}
+     */
     @Deprecated
     public Memory valueOfIndex(TraceInfo trace, boolean index) { return NULL; }
+    /**
+     * @deprecated Please use {@link #valueOfIndex(Environment, TraceInfo, boolean)}
+     */
+    @Deprecated
+    final public Memory valueOfIndex(boolean index) { return valueOfIndex(null, null, index); }
     public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
         return NULL;
     }
-    final public Memory valueOfIndex(boolean index) { return valueOfIndex(null, null, index); }
 
+    /**
+     * @deprecated Please use {@link #refOfIndex(Environment, TraceInfo, Memory)}
+     */
     @Deprecated
     final public Memory refOfIndex(Memory index){
         return refOfIndex(null, null, index);
     }
+    /**
+     * @deprecated Please use {@link #refOfIndex(Environment, TraceInfo, Memory)}
+     */
     @Deprecated
     public Memory refOfIndex(TraceInfo trace, Memory index) {
         return NULL;
     }
-
     public Memory refOfIndex(Environment env, TraceInfo trace, Memory index) {
         return NULL;
     }
+
+    /**
+     * @deprecated Please use {@link #refOfIndexAsShortcut(Environment, TraceInfo, Memory)}
+     */
     @Deprecated
     public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index) { return refOfIndex(null, trace, index); }
     public Memory refOfIndexAsShortcut(Environment env, TraceInfo trace, Memory index) { return refOfIndex(env, trace, index); }
 
+    /**
+     * @deprecated Please use {@link #refOfIndex(Environment, TraceInfo, long)}
+     */
     @Deprecated
     public Memory refOfIndex(TraceInfo trace, long index) { return NULL; }
-    public Memory refOfIndex(Environment env, TraceInfo trace, long index) { return NULL; }
+    /**
+     * @deprecated Please use {@link #refOfIndex(Environment, TraceInfo, long)}
+     */
+    @Deprecated
     final public Memory refOfIndex(long index) { return refOfIndex(null, null, index); }
+    public Memory refOfIndex(Environment env, TraceInfo trace, long index) { return NULL; }
+    public Memory refOfIndex(Environment env, long index) { return refOfIndex(env, TraceInfo.UNKNOWN, index); }
 
     @Deprecated
     public Memory refOfIndex(TraceInfo trace, double index) { return NULL; }
@@ -333,6 +391,7 @@ abstract public class Memory implements Comparable<Memory> {
     @Deprecated
     public Memory refOfIndex(TraceInfo trace, String index) { return NULL; }
     public Memory refOfIndex(Environment env, TraceInfo trace, String index) { return NULL; }
+    @Deprecated
     final public Memory refOfIndex(String index) { return refOfIndex(null, null, index); }
 
     @Deprecated
@@ -340,14 +399,13 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory refOfIndex(Environment env, TraceInfo trace, boolean index) { return NULL; }
     final public Memory refOfIndex(boolean index) { return refOfIndex(null, null, index); }
 
-    /*
     @Deprecated
     public Memory refOfPush(TraceInfo trace) { return new ReferenceMemory(); }
-     */
-
-    public Memory refOfPush(Environment env, TraceInfo trace) { return new ReferenceMemory(); }
     @Deprecated
     final public Memory refOfPush() { return refOfPush(null, null); }
+
+    public Memory refOfPush(Environment env, TraceInfo trace) { return new ReferenceMemory(); }
+
     @Deprecated
     public void unsetOfIndex(TraceInfo trace, Memory index) { }
     public void unsetOfIndex(Environment env, TraceInfo trace, Memory index) { }

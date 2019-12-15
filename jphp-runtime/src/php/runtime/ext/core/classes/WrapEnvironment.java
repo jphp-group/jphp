@@ -314,7 +314,7 @@ public class WrapEnvironment extends BaseObject {
 
     @Signature(@Arg("name"))
     public Memory getGlobal(Environment env, Memory... args) {
-        return environment.getGlobals().valueOfIndex(args[0]).toImmutable();
+        return environment.getGlobals().valueOfIndex(env, TraceInfo.UNKNOWN, args[0]).toImmutable();
     }
 
     @Signature(@Arg("name"))

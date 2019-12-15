@@ -58,8 +58,8 @@ public class PHttpServer extends BaseObject {
     }
 
     @Signature
-    public void __construct(int port) {
-        __construct(port, null);
+    public void __construct(Environment env, int port) {
+        __construct(env, port, null);
     }
 
     private void initSessionManager() {
@@ -72,14 +72,14 @@ public class PHttpServer extends BaseObject {
     }
 
     @Signature
-    public void __construct(int port, String host) {
+    public void __construct(Environment env, int port, String host) {
         threadPool = new QueuedThreadPool();
         server = new Server(threadPool);
 
         if (host == null || host.isEmpty()) {
-            listen(LongMemory.valueOf(port));
+            listen(env, LongMemory.valueOf(port));
         } else {
-            listen(StringMemory.valueOf(host + ":" + port));
+            listen(env, StringMemory.valueOf(host + ":" + port));
         }
 
         initSessionManager();
@@ -247,12 +247,12 @@ public class PHttpServer extends BaseObject {
     }
 
     @Signature
-    public void listen(Memory value) {
-        listen(value, null);
+    public void listen(Environment env, Memory value) {
+        listen(env, value, null);
     }
 
     @Signature
-    public void listen(Memory value, ArrayMemory sslSettings) {
+    public void listen(Environment env, Memory value, ArrayMemory sslSettings) {
         ServerConnector connector;
 
         if (sslSettings != null) {
@@ -260,55 +260,55 @@ public class PHttpServer extends BaseObject {
 
             // key store
             if (sslSettings.containsKey("keyStorePath"))
-                contextFactory.setKeyStorePath(sslSettings.valueOfIndex("keyStorePath").toString());
+                contextFactory.setKeyStorePath(sslSettings.valueOfIndex(env, "keyStorePath").toString());
 
             if (sslSettings.containsKey("keyStorePassword"))
-                contextFactory.setKeyStoreType(sslSettings.valueOfIndex("keyStorePassword").toString());
+                contextFactory.setKeyStoreType(sslSettings.valueOfIndex(env, "keyStorePassword").toString());
 
             if (sslSettings.containsKey("keyStoreType"))
-                contextFactory.setKeyStoreType(sslSettings.valueOfIndex("keyStoreType").toString());
+                contextFactory.setKeyStoreType(sslSettings.valueOfIndex(env, "keyStoreType").toString());
 
             if (sslSettings.containsKey("keyStoreProvider"))
-                contextFactory.setKeyStoreProvider(sslSettings.valueOfIndex("keyStoreProvider").toString());
+                contextFactory.setKeyStoreProvider(sslSettings.valueOfIndex(env, "keyStoreProvider").toString());
 
             // trust store
             if (sslSettings.containsKey("trustStorePath"))
-                contextFactory.setTrustStorePath(sslSettings.valueOfIndex("trustStorePath").toString());
+                contextFactory.setTrustStorePath(sslSettings.valueOfIndex(env, "trustStorePath").toString());
 
             if (sslSettings.containsKey("trustStorePassword"))
-                contextFactory.setTrustStoreType(sslSettings.valueOfIndex("trustStorePassword").toString());
+                contextFactory.setTrustStoreType(sslSettings.valueOfIndex(env, "trustStorePassword").toString());
 
             if (sslSettings.containsKey("trustStoreType"))
-                contextFactory.setTrustStoreType(sslSettings.valueOfIndex("trustStoreType").toString());
+                contextFactory.setTrustStoreType(sslSettings.valueOfIndex(env, "trustStoreType").toString());
 
             if (sslSettings.containsKey("trustStoreProvider"))
-                contextFactory.setTrustStoreProvider(sslSettings.valueOfIndex("trustStoreProvider").toString());
+                contextFactory.setTrustStoreProvider(sslSettings.valueOfIndex(env, "trustStoreProvider").toString());
 
             if (sslSettings.containsKey("trustAll"))
-                contextFactory.setTrustAll(sslSettings.valueOfIndex("trustAll").toBoolean());
+                contextFactory.setTrustAll(sslSettings.valueOfIndex(env, "trustAll").toBoolean());
 
             if (sslSettings.containsKey("trustManagerFactoryAlgorithm"))
-                contextFactory.setTrustManagerFactoryAlgorithm(sslSettings.valueOfIndex("trustManagerFactoryAlgorithm").toString());
+                contextFactory.setTrustManagerFactoryAlgorithm(sslSettings.valueOfIndex(env, "trustManagerFactoryAlgorithm").toString());
 
             // key manager
             if (sslSettings.containsKey("keyManagerFactoryAlgorithm"))
-                contextFactory.setKeyManagerFactoryAlgorithm(sslSettings.valueOfIndex("keyManagerFactoryAlgorithm").toString());
+                contextFactory.setKeyManagerFactoryAlgorithm(sslSettings.valueOfIndex(env, "keyManagerFactoryAlgorithm").toString());
 
             if (sslSettings.containsKey("keyManagerPassword"))
-                contextFactory.setKeyManagerPassword(sslSettings.valueOfIndex("keyManagerPassword").toString());
+                contextFactory.setKeyManagerPassword(sslSettings.valueOfIndex(env, "keyManagerPassword").toString());
 
             // other
             if (sslSettings.containsKey("certAlias"))
-                contextFactory.setCertAlias(sslSettings.valueOfIndex("certAlias").toString());
+                contextFactory.setCertAlias(sslSettings.valueOfIndex(env, "certAlias").toString());
 
             if (sslSettings.containsKey("protocol"))
-                contextFactory.setProtocol(sslSettings.valueOfIndex("protocol").toString());
+                contextFactory.setProtocol(sslSettings.valueOfIndex(env, "protocol").toString());
 
             if (sslSettings.containsKey("provider"))
-                contextFactory.setProvider(sslSettings.valueOfIndex("provider").toString());
+                contextFactory.setProvider(sslSettings.valueOfIndex(env, "provider").toString());
 
             if (sslSettings.containsKey("validateCerts"))
-                contextFactory.setValidateCerts(sslSettings.valueOfIndex("validateCerts").toBoolean());
+                contextFactory.setValidateCerts(sslSettings.valueOfIndex(env, "validateCerts").toBoolean());
 
             connector = new ServerConnector(server, contextFactory);
         } else {

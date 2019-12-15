@@ -88,7 +88,7 @@ public class DateTime extends BaseDateTime {
                                           Memory time,
                                           Memory timezone) {
         try {
-            ZonedDateTime parse = DateFormat.createFromFormat(format.toString(), time.toString(),
+            ZonedDateTime parse = DateFormat.createFromFormat(env, traceInfo, format.toString(), time.toString(),
                     ZonedDateTime.now(toZoneId(env, traceInfo, timezone)));
             DateTime dateTime = new DateTime(env);
             dateTime.nativeDateTime = parse;

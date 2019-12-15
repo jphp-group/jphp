@@ -42,7 +42,7 @@ public class CharArrayMemory extends StringMemory {
                 if (tmp != null)
                     _index = tmp.toInteger();
                 break;
-            case REFERENCE: return valueOfIndex(index.toValue());
+            case REFERENCE: return valueOfIndex(env, trace, index.toValue());
             default:
                 _index = index.toInteger();
         }
@@ -75,7 +75,7 @@ public class CharArrayMemory extends StringMemory {
     @Override
     public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
         int _index = index ? 1 : 0;
-        if (_index >= 0 && _index < buffer.length())
+        if (_index < buffer.length())
             return getChar(buffer.charAt(_index));
         else
             return CONST_EMPTY_STRING;

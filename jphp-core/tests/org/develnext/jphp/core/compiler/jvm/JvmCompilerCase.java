@@ -207,7 +207,7 @@ abstract public class JvmCompilerCase {
 
         String resourceName = "resources/" + name;
         URL resource = Optional.ofNullable(Thread.currentThread().getContextClassLoader().getResource(resourceName))
-                .orElseThrow(() -> new RuntimeException("The file is not found: " + resourceName));
+            .orElseThrow(() -> new RuntimeException("The file is not found: " + resourceName));
 
         Test test = new Test(file = new File(resource.getFile()));
 
@@ -246,10 +246,10 @@ abstract public class JvmCompilerCase {
                 environment.getErrorReportHandler().onFatal(e);
             } else {
                 throw new CustomErrorException(e.getType(), e.getMessage()
-                        + " line: "
-                        + (e.getTraceInfo().getStartLine() + test.getSectionLine("FILE") + 2)
-                        + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
-                        e.getTraceInfo());
+                    + " line: "
+                    + (e.getTraceInfo().getStartLine() + test.getSectionLine("FILE") + 2)
+                    + ", pos: " + (e.getTraceInfo().getStartPosition() + 1),
+                    e.getTraceInfo());
             }
         } catch (UncaughtException | BaseBaseException e) {
             environment.catchUncaught(e);

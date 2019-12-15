@@ -57,31 +57,31 @@ public class DeserializerTest {
         value = unserialize("a:2:{i:0;i:100;i:1;i:500;}");
         Assert.assertTrue(value instanceof ArrayMemory);
         Assert.assertEquals(2, ((ArrayMemory) value).size());
-        Assert.assertEquals(100, value.valueOfIndex(0).toLong());
-        Assert.assertEquals(500, value.valueOfIndex(1).toLong());
+        Assert.assertEquals(100, value.valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(500, value.valueOfIndex(environment, 1).toLong());
 
         value = unserialize("a:2:{s:1:\"x\";i:100;s:1:\"y\";i:500;}");
         Assert.assertTrue(value instanceof ArrayMemory);
         Assert.assertEquals(2, ((ArrayMemory) value).size());
-        Assert.assertEquals(100, value.valueOfIndex("x").toLong());
-        Assert.assertEquals(500, value.valueOfIndex("y").toLong());
+        Assert.assertEquals(100, value.valueOfIndex(environment, "x").toLong());
+        Assert.assertEquals(500, value.valueOfIndex(environment, "y").toLong());
 
         value = unserialize("a:2:{i:0;a:2:{i:0;i:100;i:1;i:500;}i:1;a:2:{i:0;i:200;i:1;i:600;}}");
         Assert.assertTrue(value instanceof ArrayMemory);
         Assert.assertEquals(2, ((ArrayMemory) value).size());
-        Assert.assertTrue(value.valueOfIndex(0).toValue() instanceof ArrayMemory);
-        Assert.assertTrue(value.valueOfIndex(1).toValue() instanceof ArrayMemory);
+        Assert.assertTrue(value.valueOfIndex(environment, 0).toValue() instanceof ArrayMemory);
+        Assert.assertTrue(value.valueOfIndex(environment, 1).toValue() instanceof ArrayMemory);
 
-        Assert.assertEquals(100, value.valueOfIndex(0).toValue(ArrayMemory.class).valueOfIndex(0).toLong());
-        Assert.assertEquals(500, value.valueOfIndex(0).toValue(ArrayMemory.class).valueOfIndex(1).toLong());
-        Assert.assertEquals(200, value.valueOfIndex(1).toValue(ArrayMemory.class).valueOfIndex(0).toLong());
-        Assert.assertEquals(600, value.valueOfIndex(1).toValue(ArrayMemory.class).valueOfIndex(1).toLong());
+        Assert.assertEquals(100, value.valueOfIndex(environment, 0).toValue(ArrayMemory.class).valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(500, value.valueOfIndex(environment, 0).toValue(ArrayMemory.class).valueOfIndex(environment, 1).toLong());
+        Assert.assertEquals(200, value.valueOfIndex(environment, 1).toValue(ArrayMemory.class).valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(600, value.valueOfIndex(environment, 1).toValue(ArrayMemory.class).valueOfIndex(environment, 1).toLong());
 
         value = unserialize("a:2:{s:1:\"a\";s:4:\"test\";s:1:\"b\";N;}");
         Assert.assertTrue(value instanceof ArrayMemory);
         Assert.assertEquals(2, ((ArrayMemory) value).size());
-        Assert.assertEquals("test", value.valueOfIndex("a").toString());
-        Assert.assertEquals(Memory.NULL, value.valueOfIndex("b").toValue());
+        Assert.assertEquals("test", value.valueOfIndex(environment, "a").toString());
+        Assert.assertEquals(Memory.NULL, value.valueOfIndex(environment, "b").toValue());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class DeserializerTest {
         Assert.assertTrue(value instanceof ObjectMemory);
         Assert.assertTrue(value.toValue(ObjectMemory.class).value instanceof StdClass);
         Assert.assertEquals(2, value.toValue(ObjectMemory.class).getProperties().size());
-        Assert.assertEquals("foo", value.toValue(ObjectMemory.class).getProperties().valueOfIndex("x").toString());
-        Assert.assertEquals("bar", value.toValue(ObjectMemory.class).getProperties().valueOfIndex("y").toString());
+        Assert.assertEquals("foo", value.toValue(ObjectMemory.class).getProperties().valueOfIndex(environment, "x").toString());
+        Assert.assertEquals("bar", value.toValue(ObjectMemory.class).getProperties().valueOfIndex(environment, "y").toString());
     }
 }

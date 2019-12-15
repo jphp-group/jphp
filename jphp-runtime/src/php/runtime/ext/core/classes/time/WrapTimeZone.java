@@ -43,14 +43,14 @@ public class WrapTimeZone extends BaseObject implements IComparableObject<WrapTi
             timeZone = new SimpleTimeZone(args[0].toInteger(), args[1].toString());
         } else {
             ArrayMemory props = args[2].toValue(ArrayMemory.class);
-            int startMonth = props.valueOfIndex("start_month").toInteger();
-            int startDay   = props.valueOfIndex("start_day").toInteger();
-            int startDayOfWeek = props.valueOfIndex("start_day_of_week").toInteger();
-            int startTime  = props.valueOfIndex("start_time").toInteger();
-            int endMonth   = props.valueOfIndex("end_month").toInteger();
-            int endDay     = props.valueOfIndex("end_day").toInteger();
-            int endDayOfWeek = props.valueOfIndex("end_day_of_week").toInteger();
-            int endTime    = props.valueOfIndex("end_time").toInteger();
+            int startMonth = props.valueOfIndex(env, "start_month").toInteger();
+            int startDay   = props.valueOfIndex(env, "start_day").toInteger();
+            int startDayOfWeek = props.valueOfIndex(env, "start_day_of_week").toInteger();
+            int startTime  = props.valueOfIndex(env, "start_time").toInteger();
+            int endMonth   = props.valueOfIndex(env, "end_month").toInteger();
+            int endDay     = props.valueOfIndex(env, "end_day").toInteger();
+            int endDayOfWeek = props.valueOfIndex(env, "end_day_of_week").toInteger();
+            int endTime    = props.valueOfIndex(env, "end_time").toInteger();
 
             timeZone = new SimpleTimeZone(args[0].toInteger(), args[1].toString(),
                     startMonth,

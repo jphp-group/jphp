@@ -1,17 +1,25 @@
 package org.develnext.jphp.zend.ext.json;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.develnext.jphp.core.compiler.jvm.JvmCompilerCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+
 import php.runtime.Memory;
 import php.runtime.env.CompileScope;
 import php.runtime.env.Environment;
 import php.runtime.lang.StdClass;
-import php.runtime.memory.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.BinaryMemory;
+import php.runtime.memory.DoubleMemory;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.ReferenceMemory;
+import php.runtime.memory.StringBuilderMemory;
+import php.runtime.memory.StringMemory;
 
 @RunWith(JUnit4.class)
 public class JsonFunctionsTest extends JvmCompilerCase {
@@ -48,12 +56,12 @@ public class JsonFunctionsTest extends JvmCompilerCase {
     @Test
     public void testArrayJsonEncode() {
         // simple
-        assertEquals("[1,2,3,4]", JsonFunctions.json_encode(ArrayMemory.ofIntegers(1,2,3,4)));
-        assertEquals("[1,\"foo\",3.5,true]", JsonFunctions.json_encode(new ArrayMemory(1,"foo",3.5,true)));
+        assertEquals("[1,2,3,4]", JsonFunctions.json_encode(ArrayMemory.ofIntegers(1, 2, 3, 4)));
+        assertEquals("[1,\"foo\",3.5,true]", JsonFunctions.json_encode(new ArrayMemory(1, "foo", 3.5, true)));
 
         // nested
         assertEquals("[[1,2],[3,4],5]", JsonFunctions.json_encode(new ArrayMemory(
-            ArrayMemory.ofIntegers(1,2), ArrayMemory.ofIntegers(3,4), 5
+            ArrayMemory.ofIntegers(1, 2), ArrayMemory.ofIntegers(3, 4), 5
         )));
     }
 
@@ -90,21 +98,21 @@ public class JsonFunctionsTest extends JvmCompilerCase {
     public void testArrayJsonDecode() {
         Memory r = JsonFunctions.json_decode(env, "[1,2,3]");
         assertTrue(r.isArray());
-        assertEquals(1, r.valueOfIndex(0).toLong());
-        assertEquals(2, r.valueOfIndex(1).toLong());
-        assertEquals(3, r.valueOfIndex(2).toLong());
+        assertEquals(1, r.valueOfIndex(env, 0).toLong());
+        assertEquals(2, r.valueOfIndex(env, 1).toLong());
+        assertEquals(3, r.valueOfIndex(env, 2).toLong());
         assertEquals(3, r.toValue(ArrayMemory.class).size());
 
         // nested
         r = JsonFunctions.json_decode(env, "[1,[2,3],[4,5]]");
         assertTrue(r.isArray());
-        assertEquals(1, r.valueOfIndex(0).toLong());
-        assertTrue(r.valueOfIndex(1).isArray());
-            assertEquals(2, r.valueOfIndex(1).valueOfIndex(0).toLong());
-            assertEquals(3, r.valueOfIndex(1).valueOfIndex(1).toLong());
-        assertTrue(r.valueOfIndex(2).isArray());
-            assertEquals(4, r.valueOfIndex(2).valueOfIndex(0).toLong());
-            assertEquals(5, r.valueOfIndex(2).valueOfIndex(1).toLong());
+        assertEquals(1, r.valueOfIndex(env, 0).toLong());
+        assertTrue(r.valueOfIndex(env, 1).isArray());
+        assertEquals(2, r.valueOfIndex(env, 1).valueOfIndex(env, 0).toLong());
+        assertEquals(3, r.valueOfIndex(env, 1).valueOfIndex(env, 1).toLong());
+        assertTrue(r.valueOfIndex(env, 2).isArray());
+        assertEquals(4, r.valueOfIndex(env, 2).valueOfIndex(env, 0).toLong());
+        assertEquals(5, r.valueOfIndex(env, 2).valueOfIndex(env, 1).toLong());
         assertEquals(3, r.toValue(ArrayMemory.class).size());
     }
 
@@ -115,8 +123,8 @@ public class JsonFunctionsTest extends JvmCompilerCase {
 
         StdClass stdClass = r.toObject(StdClass.class);
         assertEquals(2, stdClass.getProperties().size());
-        assertEquals(100, stdClass.getProperties().valueOfIndex("x").toLong());
-        assertEquals(500, stdClass.getProperties().valueOfIndex("y").toLong());
+        assertEquals(100, stdClass.getProperties().valueOfIndex(environment, "x").toLong());
+        assertEquals(500, stdClass.getProperties().valueOfIndex(environment, "y").toLong());
     }
 
     @Test

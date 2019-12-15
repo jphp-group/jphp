@@ -72,8 +72,8 @@ public class SerializerTest {
         Assert.assertEquals("O:8:\"stdClass\":0:{}", serialize(new ObjectMemory(new StdClass(environment))));
 
         StdClass stdClass = new StdClass(environment);
-        stdClass.getProperties().refOfIndex("x").assign("foo");
-        stdClass.getProperties().refOfIndex("y").assign("bar");
+        stdClass.getProperties().refOfIndex(environment, TraceInfo.UNKNOWN,"x").assign("foo");
+        stdClass.getProperties().refOfIndex(environment, TraceInfo.UNKNOWN,"y").assign("bar");
 
         Assert.assertEquals("O:8:\"stdClass\":2:{s:1:\"x\";s:3:\"foo\";s:1:\"y\";s:3:\"bar\";}",
                 serialize(new ObjectMemory(stdClass)));

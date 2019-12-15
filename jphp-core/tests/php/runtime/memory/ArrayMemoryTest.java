@@ -33,16 +33,17 @@ public class ArrayMemoryTest {
 
     @Test
     public void testRefOfIndex(){
+        Environment env = new Environment();
         ArrayMemory memory = new ArrayMemory();
-        assertTrue(memory.refOfIndex(0) instanceof ReferenceMemory);
-        assertEquals(Memory.UNDEFINED, memory.refOfIndex(0).toImmutable());
-        memory.refOfIndex(0).assign(100500);
-        assertEquals(100500, memory.refOfIndex(0).toLong());
+        assertTrue(memory.refOfIndex(env, 0) instanceof ReferenceMemory);
+        assertEquals(Memory.UNDEFINED, memory.refOfIndex(env, 0).toImmutable());
+        memory.refOfIndex(env, 0).assign(100500);
+        assertEquals(100500, memory.refOfIndex(env, 0).toLong());
         assertEquals(1, memory.size());
 
-        memory.refOfIndex("0").assign(100);
+        memory.refOfIndex(env, TraceInfo.UNKNOWN, "0").assign(100);
         assertEquals(1, memory.size());
-        assertEquals(100, memory.refOfIndex(0).toLong());
+        assertEquals(100, memory.refOfIndex(env, 0).toLong());
 
         memory.refOfIndex(false).assign(100500);
         assertEquals(100500, memory.refOfIndex(false).toLong());
@@ -52,37 +53,39 @@ public class ArrayMemoryTest {
         assertEquals(100, memory.refOfIndex(true).toLong());
         assertEquals(2, memory.size());
 
-        memory.refOfIndex("foobar");
+        memory.refOfIndex(env, TraceInfo.UNKNOWN,"foobar");
         assertEquals(3, memory.size());
-        assertEquals(Memory.UNDEFINED, memory.refOfIndex("foobar").toImmutable());
-        memory.refOfIndex("foobar").assign("bar");
-        assertEquals("bar", memory.refOfIndex("foobar").toString());
+        assertEquals(Memory.UNDEFINED, memory.refOfIndex(env, TraceInfo.UNKNOWN,"foobar").toImmutable());
+        memory.refOfIndex(env, TraceInfo.UNKNOWN,"foobar").assign("bar");
+        assertEquals("bar", memory.refOfIndex(env, TraceInfo.UNKNOWN,"foobar").toString());
     }
 
     @Test
     public void testValueOfIndex(){
+        Environment env = new Environment();
         ArrayMemory memory = new ArrayMemory();
-        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(0));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(env, 0));
         assertEquals(0, memory.size());
 
-        memory.refOfIndex(new Environment(), TraceInfo.UNKNOWN, new DoubleMemory(2)).assign(2);
-        assertEquals(2, memory.valueOfIndex(2.0).toLong());
+        memory.refOfIndex(env, TraceInfo.UNKNOWN, new DoubleMemory(2)).assign(2);
+        assertEquals(2, memory.valueOfIndex(env, TraceInfo.UNKNOWN, 2.0).toLong());
     }
 
     @Test
     public void testRemoveInList(){
+        Environment env = new Environment();
         ArrayMemory memory = new ArrayMemory();
-        memory.refOfIndex(0).assign(1);
-        memory.refOfIndex(1).assign(2);
-        memory.refOfIndex(2).assign(3);
+        memory.refOfIndex(env, 0).assign(1);
+        memory.refOfIndex(env, 1).assign(2);
+        memory.refOfIndex(env, 2).assign(3);
 
         assertEquals(3, memory.size());
         memory.removeByScalar(1);
         assertEquals(2, memory.size());
-        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(1));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(env, 1));
 
-        memory.refOfIndex(1).assign(33);
-        assertEquals(33, memory.valueOfIndex(1).toLong());
+        memory.refOfIndex(env, 1).assign(33);
+        assertEquals(33, memory.valueOfIndex(env, 1).toLong());
         assertEquals(3, memory.size());
 
         memory.removeByScalar(0);
@@ -91,24 +94,25 @@ public class ArrayMemoryTest {
         memory.removeByScalar(100500);
         assertEquals(0, memory.size());
 
-        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(0));
-        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(2));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(env, 0));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(env, 2));
     }
 
     @Test
     public void testRemoveInMap(){
+        Environment env = new Environment();
         ArrayMemory memory = new ArrayMemory();
-        memory.refOfIndex("x1").assign("y1");
-        memory.refOfIndex("x2").assign("y2");
-        memory.refOfIndex("x3").assign("y3");
+        memory.refOfIndex(env, TraceInfo.UNKNOWN,"x1").assign("y1");
+        memory.refOfIndex(env, TraceInfo.UNKNOWN,"x2").assign("y2");
+        memory.refOfIndex(env, TraceInfo.UNKNOWN,"x3").assign("y3");
 
         assertEquals(3, memory.size());
         memory.removeByScalar("x1");
-        assertEquals(Memory.UNDEFINED, memory.valueOfIndex("x1"));
+        assertEquals(Memory.UNDEFINED, memory.valueOfIndex(env, "x1"));
         assertEquals(2, memory.size());
 
-        memory.refOfIndex("x1").assign("foobar");
-        assertEquals("foobar", memory.valueOfIndex("x1").toString());
+        memory.refOfIndex(env, TraceInfo.UNKNOWN,"x1").assign("foobar");
+        assertEquals("foobar", memory.valueOfIndex(env, "x1").toString());
         assertEquals(3, memory.size());
 
         memory.removeByScalar("x1");
@@ -118,9 +122,10 @@ public class ArrayMemoryTest {
 
     @Test
     public void testImmutable(){
+        Environment env = new Environment();
         ArrayMemory arr1 = new ArrayMemory();
-        arr1.refOfIndex("x1").assign(1);
-        arr1.refOfIndex("x2").assign(2);
+        arr1.refOfIndex(env, TraceInfo.UNKNOWN,"x1").assign(1);
+        arr1.refOfIndex(env, TraceInfo.UNKNOWN,"x2").assign(2);
 
         assertTrue(arr1.toImmutable() instanceof ArrayMemory);
         ArrayMemory arr2 = (ArrayMemory) arr1.toImmutable();
@@ -128,22 +133,22 @@ public class ArrayMemoryTest {
 
         assertNotEquals(arr1, arr2);
         assertEquals(2, arr2.size());
-        assertTrue(arr1.valueOfIndex("x1") == arr2.valueOfIndex("x1"));
-        assertTrue(arr1.valueOfIndex("x2") == arr2.valueOfIndex("x2"));
-        assertEquals(1, arr2.valueOfIndex("x1").toLong());
-        assertEquals(2, arr2.valueOfIndex("x2").toLong());
+        assertTrue(arr1.valueOfIndex(env, "x1") == arr2.valueOfIndex(env, "x1"));
+        assertTrue(arr1.valueOfIndex(env, "x2") == arr2.valueOfIndex(env, "x2"));
+        assertEquals(1, arr2.valueOfIndex(env, "x1").toLong());
+        assertEquals(2, arr2.valueOfIndex(env, "x2").toLong());
 
-        arr2.refOfIndex("x1").assign(100500);
-        assertEquals(100500, arr2.valueOfIndex("x1").toLong());
-        assertEquals(1, arr1.valueOfIndex("x1").toLong());
-        assertTrue(arr1.valueOfIndex("x2") != arr2.valueOfIndex("x2"));
+        arr2.refOfIndex(env, TraceInfo.UNKNOWN,"x1").assign(100500);
+        assertEquals(100500, arr2.valueOfIndex(env, "x1").toLong());
+        assertEquals(1, arr1.valueOfIndex(env, "x1").toLong());
+        assertTrue(arr1.valueOfIndex(env, "x2") != arr2.valueOfIndex(env, "x2"));
 
         assertEquals(1, arr1.copies);
 
         arr1 = (ArrayMemory) arr2.toImmutable();
-        arr2.refOfIndex("x1").assign(100);
-        assertEquals(100, arr2.valueOfIndex("x1").toLong());
-        assertEquals(100500, arr1.valueOfIndex("x1").toLong());
+        arr2.refOfIndex(env, TraceInfo.UNKNOWN,"x1").assign(100);
+        assertEquals(100, arr2.valueOfIndex(env, "x1").toLong());
+        assertEquals(100500, arr1.valueOfIndex(env, "x1").toLong());
 
         arr1 = (ArrayMemory) arr2.toImmutable();
         assertEquals(1, arr2.copies);
@@ -152,13 +157,13 @@ public class ArrayMemoryTest {
         arr1.unset();
         assertEquals(0, arr2.copies);
         assertEquals(2, arr2.size());
-        assertEquals(100, arr2.valueOfIndex("x1").toLong());
+        assertEquals(100, arr2.valueOfIndex(env, "x1").toLong());
 
         arr1 = (ArrayMemory) arr2.toImmutable();
         arr2.unset();
         assertEquals(0, arr2.size());
         assertEquals(2, arr1.size());
-        assertEquals(100, arr1.valueOfIndex("x1").toLong());
+        assertEquals(100, arr1.valueOfIndex(env, "x1").toLong());
 
         arr1.unset();
         assertEquals(0, arr1.size());
@@ -166,12 +171,13 @@ public class ArrayMemoryTest {
 
     @Test
     public void testMisc(){
+        Environment env = new Environment();
         ArrayMemory arr = new ArrayMemory();
         assertEquals(0, arr.toLong());
         assertFalse(arr.toBoolean());
 
-        arr.refOfIndex(1);
-        arr.refOfIndex(2);
+        arr.refOfIndex(env, 1);
+        arr.refOfIndex(env, 2);
         assertEquals(1, arr.toLong());
         assertTrue(arr.toBoolean());
     }

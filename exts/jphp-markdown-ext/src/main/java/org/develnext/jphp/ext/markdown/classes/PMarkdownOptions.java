@@ -115,47 +115,47 @@ public class PMarkdownOptions extends BaseObject {
     public PMarkdownOptions addWikiLinkExtension(@Arg(type = HintType.ARRAY) @Optional("null") Memory options) {
         parserExtensions.add(WikiLinkExtension.create());
 
-        Memory linkPrefix = options.valueOfIndex("linkPrefix");
+        Memory linkPrefix = options.valueOfIndex(getEnvironment(), "linkPrefix");
         if (linkPrefix.isNotNull()) {
             this.options.set(WikiLinkExtension.LINK_PREFIX, linkPrefix.toString());
         }
 
-        Memory linkPrefixAbsolute = options.valueOfIndex("linkPrefixAbsolute");
+        Memory linkPrefixAbsolute = options.valueOfIndex(getEnvironment(), "linkPrefixAbsolute");
         if (linkPrefixAbsolute.isNotNull()) {
             this.options.set(WikiLinkExtension.LINK_PREFIX_ABSOLUTE, linkPrefixAbsolute.toString());
         }
 
-        Memory imagePrefix = options.valueOfIndex("imagePrefix");
+        Memory imagePrefix = options.valueOfIndex(getEnvironment(), "imagePrefix");
         if (imagePrefix.isNotNull()) {
             this.options.set(WikiLinkExtension.IMAGE_PREFIX, imagePrefix.toString());
         }
 
-        Memory imagePrefixAbsolute = options.valueOfIndex("imagePrefixAbsolute");
+        Memory imagePrefixAbsolute = options.valueOfIndex(getEnvironment(), "imagePrefixAbsolute");
         if (imagePrefixAbsolute.isNotNull()) {
             this.options.set(WikiLinkExtension.IMAGE_PREFIX_ABSOLUTE, imagePrefixAbsolute.toString());
         }
 
-        Memory imageFileExtension = options.valueOfIndex("imageFileExtension");
+        Memory imageFileExtension = options.valueOfIndex(getEnvironment(), "imageFileExtension");
         if (imageFileExtension.isNotNull()) {
             this.options.set(WikiLinkExtension.IMAGE_FILE_EXTENSION, imageFileExtension.toString());
         }
 
-        Memory imageLinks = options.valueOfIndex("imageLinks");
+        Memory imageLinks = options.valueOfIndex(getEnvironment(), "imageLinks");
         if (imageLinks.isNotNull()) {
             this.options.set(WikiLinkExtension.IMAGE_LINKS, imageLinks.toBoolean());
         }
 
-        Memory disableRendering = options.valueOfIndex("disableRendering");
+        Memory disableRendering = options.valueOfIndex(getEnvironment(), "disableRendering");
         if (disableRendering.isNotNull()) {
             this.options.set(WikiLinkExtension.DISABLE_RENDERING, disableRendering.toBoolean());
         }
 
-        Memory allowAnchors = options.valueOfIndex("allowAnchors");
+        Memory allowAnchors = options.valueOfIndex(getEnvironment(), "allowAnchors");
         if (allowAnchors.isNotNull()) {
             this.options.set(WikiLinkExtension.ALLOW_ANCHORS, allowAnchors.toBoolean());
         }
 
-        Memory allowInlines = options.valueOfIndex("allowInlines");
+        Memory allowInlines = options.valueOfIndex(getEnvironment(), "allowInlines");
         if (allowInlines.isNotNull()) {
             this.options.set(WikiLinkExtension.ALLOW_INLINES, allowInlines.toBoolean());
         }
@@ -167,12 +167,12 @@ public class PMarkdownOptions extends BaseObject {
     public PMarkdownOptions addSubscriptExtension(@Arg(type = HintType.ARRAY) @Optional("null") Memory options) {
         parserExtensions.add(SubscriptExtension.create());
 
-        Memory htmlOpen = options.valueOfIndex("htmlOpen");
+        Memory htmlOpen = options.valueOfIndex(getEnvironment(), "htmlOpen");
         if (htmlOpen.isNotNull()) {
             this.options.set(SubscriptExtension.SUBSCRIPT_STYLE_HTML_OPEN, htmlOpen.toString());
         }
 
-        Memory htmlClose = options.valueOfIndex("htmlClose");
+        Memory htmlClose = options.valueOfIndex(getEnvironment(), "htmlClose");
         if (htmlOpen.isNotNull()) {
             this.options.set(SubscriptExtension.SUBSCRIPT_STYLE_HTML_CLOSE, htmlClose.toString());
         }
@@ -184,12 +184,12 @@ public class PMarkdownOptions extends BaseObject {
     public PMarkdownOptions addSuperscriptExtension(@Arg(type = HintType.ARRAY) @Optional("null") Memory options) {
         parserExtensions.add(SuperscriptExtension.create());
 
-        Memory htmlOpen = options.valueOfIndex("htmlOpen");
+        Memory htmlOpen = options.valueOfIndex(getEnvironment(), "htmlOpen");
         if (htmlOpen.isNotNull()) {
             this.options.set(SuperscriptExtension.SUPERSCRIPT_STYLE_HTML_OPEN, htmlOpen.toString());
         }
 
-        Memory htmlClose = options.valueOfIndex("htmlClose");
+        Memory htmlClose = options.valueOfIndex(getEnvironment(), "htmlClose");
         if (htmlOpen.isNotNull()) {
             this.options.set(SuperscriptExtension.SUPERSCRIPT_STYLE_HTML_CLOSE, htmlClose.toString());
         }
@@ -201,27 +201,27 @@ public class PMarkdownOptions extends BaseObject {
     public PMarkdownOptions addEmojiExtension(@Arg(type = HintType.ARRAY) @Optional("null") Memory options) {
         parserExtensions.add(EmojiExtension.create());
 
-        Memory imageType = options.valueOfIndex("imageType");
+        Memory imageType = options.valueOfIndex(getEnvironment(), "imageType");
         if (!imageType.isNull()) {
             this.options.set(EmojiExtension.USE_IMAGE_TYPE, EmojiImageType.valueOf(imageType.toString()));
         }
 
-        Memory shortcutType = options.valueOfIndex("shortcutType");
+        Memory shortcutType = options.valueOfIndex(getEnvironment(), "shortcutType");
         if (!shortcutType.isNull()) {
             this.options.set(EmojiExtension.USE_SHORTCUT_TYPE, EmojiShortcutType.valueOf(shortcutType.toString()));
         }
 
-        Memory imagePath = options.valueOfIndex("imagePath");
+        Memory imagePath = options.valueOfIndex(getEnvironment(), "imagePath");
         if (!shortcutType.isNull()) {
             this.options.set(EmojiExtension.ROOT_IMAGE_PATH, imagePath.toString());
         }
 
-        Memory imageClass = options.valueOfIndex("imageClass");
+        Memory imageClass = options.valueOfIndex(getEnvironment(), "imageClass");
         if (!shortcutType.isNull()) {
             this.options.set(EmojiExtension.ATTR_IMAGE_CLASS, imageClass.toString());
         }
 
-        Memory imageSize = options.valueOfIndex("imageSize");
+        Memory imageSize = options.valueOfIndex(getEnvironment(), "imageSize");
         if (!shortcutType.isNull()) {
             this.options.set(EmojiExtension.ATTR_IMAGE_SIZE, imageSize.toString());
         }

@@ -503,7 +503,7 @@ public class DateFunctions extends FunctionsContainer {
     public static Memory date_parse_from_format(Environment env, TraceInfo traceInfo, Memory format, Memory date) {
         try {
             ZoneId zoneId = zoneId(date_default_timezone_get(env, traceInfo));
-            DateTimeParseResult result = DateFormat.createParseResultFromFormat(format.toString(), date.toString(),
+            DateTimeParseResult result = DateFormat.createParseResultFromFormat(env, traceInfo, format.toString(), date.toString(),
                 ZonedDateTime.now(zoneId));
 
             return result.toArrayMemory(env, traceInfo);
