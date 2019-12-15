@@ -67,6 +67,6 @@ public class StringsTest extends ZendJvmTestCase {
     @Test
     public void testPhpCompat() {
         check("ext/strings/001.phpt");
-        //check("ext/strings/002.phpt");
+        check("ext/strings/002.phpt");
     }
 }

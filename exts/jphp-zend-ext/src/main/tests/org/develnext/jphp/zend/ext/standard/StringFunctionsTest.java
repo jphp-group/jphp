@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.develnext.jphp.zend.ext.standard.StringFunctions.rawurldecode;
 import static org.develnext.jphp.zend.ext.standard.StringFunctions.rawurlencode;
 import static org.develnext.jphp.zend.ext.standard.StringFunctions.strtr;
+import static org.develnext.jphp.zend.ext.standard.StringFunctions.uniqid;
 
 import java.io.UnsupportedEncodingException;
 
@@ -177,5 +178,17 @@ public class StringFunctionsTest {
         + "\0";
 
     assertThat(rawurldecode(encoded)).isEqualTo(expected);
+  }
+
+  @Test
+  public void testUniqueId() {
+      assertThat(uniqid())
+          .hasSize(13);
+
+    assertThat(uniqid("prefix"))
+        .startsWith("prefix");
+
+    assertThat(uniqid("", true))
+        .hasSize(23);
   }
 }

@@ -17,8 +17,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.CRC32;
 import java.util.zip.GZIPOutputStream;
@@ -35,6 +33,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.TodoException;
+import php.runtime.ext.core.LangFunctions;
 import php.runtime.ext.core.MathFunctions;
 import php.runtime.ext.support.compile.FunctionsContainer;
 import php.runtime.lang.ForeachIterator;
@@ -2977,8 +2976,25 @@ public class StringFunctions extends FunctionsContainer {
         return parse_url(url, -1);
     }
 
+    public static String uniqid(String prefix, boolean moreEntropy) {
+        try {
+            LangFunctions.usleep(1000);
+        } catch (InterruptedException ignored) {
+        }
+
+        long millis = System.currentTimeMillis();
+        final int seconds = (int) millis / 1000;
+        final int micros = (int) millis % 0x100000;
+
+        if (moreEntropy) {
+            return String.format("%s%08x%05x%.8f", prefix, seconds, micros, MathFunctions.RANDOM.nextDouble());
+        } else {
+            return String.format("%s%08x%05x", prefix, seconds, micros);
+        }
+    }
+
     public static String uniqid(String prefix) {
-        return prefix + UUID.fromString(String.valueOf(System.currentTimeMillis())).toString().replace("-", "");
+        return uniqid(prefix, false);
     }
 
     public static String uniqid() {
@@ -3001,10 +3017,10 @@ public class StringFunctions extends FunctionsContainer {
     public static String rawurlencode(String url) {
         try {
             return URLEncoder.encode(url, "UTF-8")
-                    // OAuth encodes some characters differently:
-                    .replace("+", "%20")
-                    .replace("*", "%2A")
-                    .replace("%7E", "~");
+                // OAuth encodes some characters differently:
+                .replace("+", "%20")
+                .replace("*", "%2A")
+                .replace("%7E", "~");
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -3012,9 +3028,9 @@ public class StringFunctions extends FunctionsContainer {
 
     public static String rawurldecode(String url) throws UnsupportedEncodingException {
         return URLDecoder.decode(url, "UTF-8")
-                // OAuth encodes some characters differently:
-                .replace("%20", "+")
-                .replace("%2A", "*");
+            // OAuth encodes some characters differently:
+            .replace("%20", "+")
+            .replace("%2A", "*");
     }
 
     public static void setLocale() {
