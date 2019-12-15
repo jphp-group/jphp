@@ -1,5 +1,6 @@
 package org.develnext.jphp.zend.ext;
 
+import org.develnext.jphp.zend.ext.crypto.csprng.CSPRNGExtenstion;
 import org.develnext.jphp.zend.ext.standard.BCMathExtension;
 import org.develnext.jphp.zend.ext.standard.CTypeExtension;
 import org.develnext.jphp.zend.ext.standard.DateExtension;
@@ -14,7 +15,8 @@ public class ZendExtension extends Extension {
                 StandardExtension.class.getName(),
                 BCMathExtension.class.getName(),
                 CTypeExtension.class.getName(),
-                DateExtension.class.getName()
+                DateExtension.class.getName(),
+                CSPRNGExtenstion.class.getName()
         };
     }
 
