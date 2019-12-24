@@ -12,12 +12,13 @@ import static java.time.temporal.ChronoField.YEAR;
 import java.time.ZonedDateTime;
 import java.time.temporal.TemporalField;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
@@ -61,20 +62,20 @@ public final class DateTimeParseResult {
         return modified;
     }
 
-    public ArrayMemory toArrayMemory() {
+    public ArrayMemory toArrayMemory(Environment env, TraceInfo traceInfo) {
         ArrayMemory array = ArrayMemory.createHashed(10);
 
-        array.refOfIndex("year").assign(getFieldMemory(YEAR));
-        array.refOfIndex("month").assign(getFieldMemory(MONTH_OF_YEAR));
-        array.refOfIndex("day").assign((modified.contains(DAY_OF_MONTH) || modified.contains(DAY_OF_YEAR)) ?
+        array.refOfIndex(env, traceInfo, "year").assign(getFieldMemory(YEAR));
+        array.refOfIndex(env, traceInfo, "month").assign(getFieldMemory(MONTH_OF_YEAR));
+        array.refOfIndex(env, traceInfo, "day").assign((modified.contains(DAY_OF_MONTH) || modified.contains(DAY_OF_YEAR)) ?
                 LongMemory.valueOf(dateTime.getDayOfMonth()) :
                 Memory.FALSE);
-        array.refOfIndex("hour").assign(getFieldMemory(HOUR_OF_DAY));
-        array.refOfIndex("minute").assign(getFieldMemory(MINUTE_OF_HOUR));
-        array.refOfIndex("second").assign(getFieldMemory(SECOND_OF_MINUTE));
+        array.refOfIndex(env, traceInfo, "hour").assign(getFieldMemory(HOUR_OF_DAY));
+        array.refOfIndex(env, traceInfo, "minute").assign(getFieldMemory(MINUTE_OF_HOUR));
+        array.refOfIndex(env, traceInfo, "second").assign(getFieldMemory(SECOND_OF_MINUTE));
 
         Memory fraction = getFieldMemory(MICRO_OF_SECOND);
-        Memory fractionRef = array.refOfIndex("fraction");
+        Memory fractionRef = array.refOfIndex(env, traceInfo, "fraction");
         if (fraction.isBoolean()) {
             fractionRef.assign(fraction);
         } else {
@@ -85,7 +86,7 @@ public final class DateTimeParseResult {
                 .foreachIterator(false, false);
 
         while (memories.next()) {
-            array.refOfIndex(memories.getMemoryKey()).assign(memories.getValue());
+            array.refOfIndex(env, traceInfo, memories.getMemoryKey()).assign(memories.getValue());
         }
 
         array.refOfIndex("is_localtime").assign(Memory.FALSE);
@@ -93,17 +94,17 @@ public final class DateTimeParseResult {
         // the parsed string has a relative part
         if (!relativeContributors.isEmpty()) {
             ArrayMemory relative = ArrayMemory.createHashed(RELATIVE_CONTRIBUTOR_NAMES.length);
-            array.refOfIndex("relative").assign(relative);
+            array.refOfIndex(env, traceInfo, "relative").assign(relative);
 
             Arrays.stream(RELATIVE_CONTRIBUTOR_NAMES)
                     .forEach(name -> {
                         Long value = relativeContributors.getOrDefault(name, 0L);
-                        relative.refOfIndex(name).assign(value);
+                        relative.refOfIndex(env, traceInfo, name).assign(value);
                     });
 
             Arrays.stream(RELATIVE_BOOL_CONTRIBUTOR_NAMES)
                     .filter(relativeContributors::containsKey)
-                    .forEach(name -> relative.refOfIndex(name).assign(Memory.TRUE));
+                    .forEach(name -> relative.refOfIndex(env, traceInfo, name).assign(Memory.TRUE));
         }
 
         return array;

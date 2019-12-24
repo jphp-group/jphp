@@ -11,6 +11,7 @@ import php.runtime.annotation.Reflection.Getter;
 import php.runtime.annotation.Reflection.Namespace;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.reflection.ClassEntity;
@@ -50,12 +51,12 @@ public class SourceToken extends BaseObject {
     }
 
     @Signature
-    public ArrayMemory getMeta() {
+    public ArrayMemory getMeta(Environment env, TraceInfo trace) {
         ArrayMemory r = new ArrayMemory();
 
         if (token instanceof CommentToken) {
-            r.refOfIndex("comment").assign(((CommentToken) token).getComment());
-            r.refOfIndex("kind").assign(((CommentToken) token).getKind().name());
+            r.refOfIndex(env, trace, "comment").assign(((CommentToken) token).getComment());
+            r.refOfIndex(env, trace, "kind").assign(((CommentToken) token).getKind().name());
         }
 
         return r.toConstant();

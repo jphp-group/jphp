@@ -1,44 +1,53 @@
 package org.develnext.jphp.zend.ext.standard.date;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import php.runtime.Memory;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.memory.ArrayMemory;
 
 /**
  *
  */
 public final class DateTimeMessageContainer {
-    private static final ArrayMemory messages = ArrayMemory.createHashed(4);
+    private static final ArrayMemory messages;
 
     static {
-        messages.refOfIndex("warning_count").assign(0);
-        messages.refOfIndex("warnings").assign(ArrayMemory.createListed(0));
-        messages.refOfIndex("error_count").assign(0);
-        messages.refOfIndex("errors").assign(ArrayMemory.createListed(0));
+        Map<String, Memory> tmp = new LinkedHashMap<>();
+        tmp.put("warning_count", Memory.CONST_INT_0);
+        tmp.put("warnings", ArrayMemory.createListed(0));
+        tmp.put("error_count", Memory.CONST_INT_0);
+        tmp.put("errors", ArrayMemory.createListed(0));
+
+        messages = ArrayMemory.ofMap(tmp);
     }
 
-    public static void addWarning(String message, int errorIndex) {
-        ArrayMemory warnings = messages.refOfIndex("warnings").toValue(ArrayMemory.class);
-        warnings.refOfIndex(errorIndex).assign(message);
-        messages.refOfIndex("warning_count").assign(warnings.size());
+    public static void addWarning(Environment env, TraceInfo trace, String message, int errorIndex) {
+        ArrayMemory warnings = messages.refOfIndex(env, trace, "warnings").toValue(ArrayMemory.class);
+        warnings.refOfIndex(env, trace, errorIndex).assign(message);
+        messages.refOfIndex(env, trace, "warning_count").assign(warnings.size());
     }
 
-    public static void addError(String message, int errorIndex) {
-        ArrayMemory errors = messages.refOfIndex("errors").toValue(ArrayMemory.class);
-        errors.refOfIndex(errorIndex).assign(message);
-        messages.refOfIndex("error_count").assign(errors.size());
+    public static void addError(Environment env, TraceInfo trace, String message, int errorIndex) {
+        ArrayMemory errors = messages.refOfIndex(env, trace, "errors").toValue(ArrayMemory.class);
+        errors.refOfIndex(env, trace, errorIndex).assign(message);
+        messages.refOfIndex(env, trace, "error_count").assign(errors.size());
     }
 
     public static Memory getMessages() {
         return messages.toImmutable();
     }
 
-    public static void clear() {
-        clearPart("errors", "error_count");
-        clearPart("warnings", "warning_count");
+    public static void clear(Environment env, TraceInfo trace) {
+        clearPart(env, trace, "errors", "error_count");
+        clearPart(env, trace, "warnings", "warning_count");
     }
 
-    private static void clearPart(String name, String counterName) {
-        messages.refOfIndex(counterName).assign(0);
-        messages.refOfIndex(name).toValue(ArrayMemory.class).clear();
+    private static void clearPart(Environment env, TraceInfo trace, String name, String counterName) {
+        messages.refOfIndex(env, trace, counterName).assign(0);
+        messages.refOfIndex(env, trace, name).toValue(ArrayMemory.class).clear();
     }
 }

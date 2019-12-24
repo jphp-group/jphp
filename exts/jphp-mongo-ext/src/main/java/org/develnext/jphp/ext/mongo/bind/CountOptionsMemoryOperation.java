@@ -26,10 +26,10 @@ public class CountOptionsMemoryOperation extends MemoryOperation<CountOptions> {
         ArrayMemory arr = arg.toValue(ArrayMemory.class);
         CountOptions options = new CountOptions();
 
-        if (arr.containsKey("skip")) options.skip(arg.valueOfIndex("skip").toInteger());
-        if (arr.containsKey("limit")) options.limit(arg.valueOfIndex("limit").toInteger());
+        if (arr.containsKey("skip")) options.skip(arg.valueOfIndex(env, trace, "skip").toInteger());
+        if (arr.containsKey("limit")) options.limit(arg.valueOfIndex(env, trace, "limit").toInteger());
         if (arr.containsKey("maxTime")) {
-            options.maxTime(WrapTimer.parsePeriod(arg.valueOfIndex("maxTime").toString()), TimeUnit.MILLISECONDS);
+            options.maxTime(WrapTimer.parsePeriod(arg.valueOfIndex(env, trace, "maxTime").toString()), TimeUnit.MILLISECONDS);
         }
 
         return options;

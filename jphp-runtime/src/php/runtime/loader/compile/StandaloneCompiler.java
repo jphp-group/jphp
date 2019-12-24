@@ -317,7 +317,7 @@ public class StandaloneCompiler {
     }
 
     public void compile(File destinationDirectory, File destinationResDirectory) {
-        StandaloneLibraryDumper dumper = new StandaloneLibraryDumper();
+        StandaloneLibraryDumper dumper = new StandaloneLibraryDumper(env);
 
         if (destinationResDirectory == null) {
             destinationResDirectory = destinationDirectory;

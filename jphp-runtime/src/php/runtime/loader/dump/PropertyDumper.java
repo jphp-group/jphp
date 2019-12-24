@@ -58,7 +58,7 @@ public class PropertyDumper extends Dumper<PropertyEntity> {
     @Override
     public PropertyEntity load(InputStream input) throws IOException {
         PropertyEntity property = new PropertyEntity(context);
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
 
         String docComment = data.readUTF();
 

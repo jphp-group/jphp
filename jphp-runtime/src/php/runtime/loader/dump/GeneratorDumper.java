@@ -53,7 +53,7 @@ public class GeneratorDumper extends Dumper<GeneratorEntity> {
     public GeneratorEntity load(InputStream input) throws IOException {
         GeneratorEntity entity = classDumper.load(input, GeneratorEntity.class);
 
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
 
         entity.setReturnReference(data.readBoolean());
 

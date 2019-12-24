@@ -22,16 +22,18 @@ import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 
 import php.runtime.common.Pair;
+import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DateFormatTest {
     private static ZonedDateTime create(String format, String date) {
-        return createFromFormat(format, date);
+        return createFromFormat(new Environment(), TraceInfo.UNKNOWN, format, date);
     }
 
     private static LocalDateTime local(String format, String date) {
-        return createFromFormat(format, date).toLocalDateTime();
+        return createFromFormat(new Environment(), TraceInfo.UNKNOWN, format, date).toLocalDateTime();
     }
 
     @Test

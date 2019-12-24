@@ -27,7 +27,7 @@ public interface IObject {
     }
 
     default Memory getProp(String name) {
-        return getProperties().valueOfIndex(name);
+        return getProperties().valueOfIndex(getEnvironment(), name);
     }
 
     default void setProp(String name, Memory value) {

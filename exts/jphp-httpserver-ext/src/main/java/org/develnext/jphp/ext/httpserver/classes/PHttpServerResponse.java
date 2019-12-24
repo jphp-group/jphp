@@ -141,7 +141,7 @@ public class PHttpServerResponse extends BaseObject {
 
     @Signature
     public PHttpServerResponse addCookie(Environment env, ArrayMemory cookie) {
-        Cookie _cookie = new Cookie(cookie.valueOfIndex("name").toString(), cookie.valueOfIndex("value").toString());
+        Cookie _cookie = new Cookie(cookie.valueOfIndex(env, "name").toString(), cookie.valueOfIndex(env,"value").toString());
         cookie.toBean(env, _cookie);
 
         response.addCookie(_cookie);

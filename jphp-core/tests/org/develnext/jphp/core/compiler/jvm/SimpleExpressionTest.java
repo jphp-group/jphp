@@ -6,21 +6,27 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
-import php.runtime.memory.*;
+
 import php.runtime.Memory;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.DoubleMemory;
+import php.runtime.memory.FalseMemory;
+import php.runtime.memory.LongMemory;
+import php.runtime.memory.NullMemory;
+import php.runtime.memory.TrueMemory;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class SimpleExpressionTest extends JvmCompilerCase {
 
     @Test
-    public void testReturn(){
+    public void testReturn() {
         Memory memory = run("return;", false);
         Assert.assertTrue(memory instanceof NullMemory);
     }
 
     @Test
-    public void testSimple(){
+    public void testSimple() {
         Memory memory = run("1");
         Assert.assertEquals(1, memory.toLong());
         Assert.assertTrue(memory instanceof LongMemory);
@@ -42,7 +48,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testArithmetic(){
+    public void testArithmetic() {
         Memory memory = run("1 + 2");
         Assert.assertEquals(3, memory.toLong());
         Assert.assertTrue(memory instanceof LongMemory);
@@ -69,7 +75,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testConcat(){
+    public void testConcat() {
         Memory memory = run("'foo' . 'bar'");
         Assert.assertEquals("foobar", memory.toString());
 
@@ -83,18 +89,18 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals("1bar", memory.toString());
 
         memory = run("$x = 'foo';\n" +
-                "return 'bar' . (string)$x;", false);
+            "return 'bar' . (string)$x;", false);
         Assert.assertEquals("barfoo", memory.toString());
     }
 
     @Test
-    public void testLocalVariable(){
+    public void testLocalVariable() {
         Memory memory = run("$x");
         Assert.assertTrue(memory instanceof NullMemory);
     }
 
     @Test
-    public void testNot(){
+    public void testNot() {
         Memory memory = run("!true");
         Assert.assertEquals(false, memory.toBoolean());
 
@@ -103,57 +109,57 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testAssign(){
+    public void testAssign() {
         Memory memory = run("$x = 20");
         Assert.assertEquals(20, memory.toLong());
         Assert.assertTrue(memory instanceof LongMemory);
     }
 
     @Test
-    public void testAssignVariable(){
+    public void testAssignVariable() {
         Memory memory = run("$x = 20; return $x", false);
         Assert.assertEquals(20, memory.toLong());
         Assert.assertTrue(memory instanceof LongMemory);
     }
 
     @Test
-    public void testAssignConcat(){
+    public void testAssignConcat() {
         Memory memory = run("$x = 'foo'; $x .= 'bar'; return $x", false);
         Assert.assertEquals("foobar", memory.toString());
     }
 
     @Test
-    public void testAssignPlus(){
+    public void testAssignPlus() {
         Memory memory = run("$x = 10; $x += 2; return $x", false);
         Assert.assertEquals(12, memory.toLong());
     }
 
     @Test
-    public void testAssignMinus(){
+    public void testAssignMinus() {
         Memory memory = run("$x = 10; $x -= 2; return $x", false);
         Assert.assertEquals(8, memory.toLong());
     }
 
     @Test
-    public void testAssignMul(){
+    public void testAssignMul() {
         Memory memory = run("$x = 10; $x *= 2; return $x", false);
         Assert.assertEquals(20, memory.toLong());
     }
 
     @Test
-    public void testAssignDiv(){
+    public void testAssignDiv() {
         Memory memory = run("$x = 10; $x /= 2; return $x", false);
         Assert.assertEquals(5, memory.toLong());
     }
 
     @Test
-    public void testAssignMod(){
+    public void testAssignMod() {
         Memory memory = run("$x = 10; $x %= 3; return $x", false);
         Assert.assertEquals(1, memory.toLong());
     }
 
     @Test
-    public void testOr(){
+    public void testOr() {
         Memory memory = runDynamic("$x || true");
         Assert.assertEquals(true, memory.toBoolean());
 
@@ -162,7 +168,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testAnd(){
+    public void testAnd() {
         Memory memory = runDynamic("$x && true");
         Assert.assertEquals(false, memory.toBoolean());
 
@@ -171,7 +177,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testAndOrComplex(){
+    public void testAndOrComplex() {
         Memory memory = runDynamic("$x || (!$y && !false || true)");
         Assert.assertEquals(true, memory.toBoolean());
 
@@ -198,7 +204,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testMathComplex(){
+    public void testMathComplex() {
         Memory memory = runDynamic("3 + $x * 4");
         Assert.assertEquals(3, memory.toLong());
 
@@ -220,57 +226,57 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testCallNativeFunc(){
+    public void testCallNativeFunc() {
         Memory memory = runDynamic("$i = 1; return cos($i);", false);
         Assert.assertTrue(memory.toDouble() > 0.54);
     }
 
     @Test
-    public void testArrays(){
+    public void testArrays() {
         Memory memory = runDynamic("array(1, 2, 3)");
         Assert.assertTrue(memory.isArray());
-        Assert.assertEquals(1, memory.valueOfIndex(0).toLong());
-        Assert.assertEquals(2, memory.valueOfIndex(1).toLong());
-        Assert.assertEquals(3, memory.valueOfIndex(2).toLong());
-        Assert.assertEquals(3, ((ArrayMemory)memory).size());
+        Assert.assertEquals(1, memory.valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(2, memory.valueOfIndex(environment, 1).toLong());
+        Assert.assertEquals(3, memory.valueOfIndex(environment, 2).toLong());
+        Assert.assertEquals(3, ((ArrayMemory) memory).size());
 
         memory = runDynamic("array('x' => 20, 'y' => 30)");
-        Assert.assertEquals(20, memory.valueOfIndex("x").toLong());
-        Assert.assertEquals(30, memory.valueOfIndex("y").toLong());
-        Assert.assertEquals(2, ((ArrayMemory)memory).size());
+        Assert.assertEquals(20, memory.valueOfIndex(environment, "x").toLong());
+        Assert.assertEquals(30, memory.valueOfIndex(environment, "y").toLong());
+        Assert.assertEquals(2, ((ArrayMemory) memory).size());
 
         memory = runDynamic("$x['x'] = 30; return $x;", false);
-        Assert.assertEquals(30, memory.valueOfIndex("x").toLong());
+        Assert.assertEquals(30, memory.valueOfIndex(environment, "x").toLong());
         Assert.assertEquals(1, memory.toValue(ArrayMemory.class).size());
 
         memory = runDynamic("$x[] = 30; return $x;", false);
-        Assert.assertEquals(30, memory.valueOfIndex(0).toLong());
+        Assert.assertEquals(30, memory.valueOfIndex(environment, 0).toLong());
         Assert.assertEquals(1, memory.toValue(ArrayMemory.class).size());
 
         memory = runDynamic("array(1 => 'foobar', 30, 'x' => true, 100)");
         Assert.assertTrue(memory.isArray());
-        Assert.assertEquals("foobar", memory.valueOfIndex(1).toString());
-        Assert.assertEquals(30, memory.valueOfIndex(2).toLong());
-        Assert.assertEquals(100, memory.valueOfIndex(3).toLong());
-        Assert.assertEquals(true, memory.valueOfIndex("x").toBoolean());
+        Assert.assertEquals("foobar", memory.valueOfIndex(environment, 1).toString());
+        Assert.assertEquals(30, memory.valueOfIndex(environment, 2).toLong());
+        Assert.assertEquals(100, memory.valueOfIndex(environment, 3).toLong());
+        Assert.assertEquals(true, memory.valueOfIndex(environment, "x").toBoolean());
         Assert.assertEquals(4, memory.toValue(ArrayMemory.class).size());
 
         // test short syntax
         memory = runDynamic("$arr = [1 => 'foobar', 30, 'x' => true, 100]; return $arr;", false);
         Assert.assertTrue(memory.isArray());
-        Assert.assertEquals("foobar", memory.valueOfIndex(1).toString());
-        Assert.assertEquals(30, memory.valueOfIndex(2).toLong());
-        Assert.assertEquals(100, memory.valueOfIndex(3).toLong());
-        Assert.assertEquals(true, memory.valueOfIndex("x").toBoolean());
+        Assert.assertEquals("foobar", memory.valueOfIndex(environment, 1).toString());
+        Assert.assertEquals(30, memory.valueOfIndex(environment, 2).toLong());
+        Assert.assertEquals(100, memory.valueOfIndex(environment, 3).toLong());
+        Assert.assertEquals(true, memory.valueOfIndex(environment, "x").toBoolean());
         Assert.assertEquals(4, memory.toValue(ArrayMemory.class).size());
 
         memory = runDynamic("[[100, 200], [500, 600]]");
         Assert.assertTrue(memory.isArray());
         Assert.assertEquals(2, memory.toValue(ArrayMemory.class).size());
 
-        Assert.assertTrue(memory.valueOfIndex(0).isArray());
-        Assert.assertEquals(2, memory.valueOfIndex(0).toValue(ArrayMemory.class).size());
-        Assert.assertEquals(2, memory.valueOfIndex(1).toValue(ArrayMemory.class).size());
+        Assert.assertTrue(memory.valueOfIndex(environment, 0).isArray());
+        Assert.assertEquals(2, memory.valueOfIndex(environment, 0).toValue(ArrayMemory.class).size());
+        Assert.assertEquals(2, memory.valueOfIndex(environment, 1).toValue(ArrayMemory.class).size());
 
         // test logic and array
         memory = runDynamic("array(1 && 1, 2);");
@@ -279,7 +285,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testReferences(){
+    public void testReferences() {
         Memory memory;
 
         memory = run("$x = 40; $y =& $x; $y = 10; return $x;", false);
@@ -290,13 +296,13 @@ public class SimpleExpressionTest extends JvmCompilerCase {
 
         memory = runDynamic("$x = array(20, 40); $y =& $x[0]; $y = 40; return $x;", false);
         Assert.assertTrue(memory.isArray());
-        Assert.assertEquals(40, memory.valueOfIndex(0).toLong());
-        Assert.assertEquals(40, memory.valueOfIndex(1).toLong());
+        Assert.assertEquals(40, memory.valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(40, memory.valueOfIndex(environment, 1).toLong());
 
         memory = run("$x = array(20, 40); $y =& $x[0]; $y = 40; return $x;", false);
         Assert.assertTrue(memory.isArray());
-        Assert.assertEquals(40, memory.valueOfIndex(0).toLong());
-        Assert.assertEquals(40, memory.valueOfIndex(1).toLong());
+        Assert.assertEquals(40, memory.valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(40, memory.valueOfIndex(environment, 1).toLong());
 
         memory = runDynamic("$y =& $x['z']; $x['z'] = 40; return $y;", false);
         Assert.assertEquals(40, memory.toLong());
@@ -306,7 +312,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testGlobals(){
+    public void testGlobals() {
         Memory memory;
 
         memory = runDynamic("$x = 100500; function test() { global $x; return $x; } return test();", false);
@@ -317,7 +323,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testStatics(){
+    public void testStatics() {
         Memory memory;
 
         memory = runDynamic("function test() { static $i = 3; $i++; return $i; } test(); return test();", false);
@@ -328,7 +334,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testStringBuilder(){
+    public void testStringBuilder() {
         Memory memory;
 
         memory = runDynamic("$x = 100500; return \"foo $x bar\";", false);
@@ -338,7 +344,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
     @Test
     public void testStringIdentical() {
         Memory memory = runDynamic("$a = 'foo';\n" +
-                "return ($a === 'foo' ? 1 : 0) . ('foo' === $a ? 1 : 0);", false);
+            "return ($a === 'foo' ? 1 : 0) . ('foo' === $a ? 1 : 0);", false);
         Assert.assertEquals("11", memory.toString());
     }
 
@@ -359,7 +365,7 @@ public class SimpleExpressionTest extends JvmCompilerCase {
         Assert.assertEquals("foobar\32" + "2", memory.toString());
 
         memory = runDynamic("$x = 'foobar'; $x[3] = ''; return $x;", false);
-        Assert.assertEquals("foo"+ '\0' + "ar", memory.toString());
+        Assert.assertEquals("foo" + '\0' + "ar", memory.toString());
     }
 
     @Test

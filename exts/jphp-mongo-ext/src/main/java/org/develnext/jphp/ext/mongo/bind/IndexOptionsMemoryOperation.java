@@ -24,20 +24,20 @@ public class IndexOptionsMemoryOperation extends MemoryOperation<IndexOptions> {
         ArrayMemory arr = arg.toValue(ArrayMemory.class);
         IndexOptions options = new IndexOptions();
 
-        if (arr.containsKey("background")) { options.background(arg.valueOfIndex("background").toBoolean()); }
-        if (arr.containsKey("defaultLanguage")) { options.defaultLanguage(arg.valueOfIndex("defaultLanguage").toString()); }
-        if (arr.containsKey("bits")) { options.bits(arg.valueOfIndex("bits").toInteger()); }
-        if (arr.containsKey("name")) { options.name(arg.valueOfIndex("name").toString()); }
-        if (arr.containsKey("max")) { options.max(arg.valueOfIndex("max").toDouble()); }
-        if (arr.containsKey("min")) { options.min(arg.valueOfIndex("min").toDouble()); }
-        if (arr.containsKey("languageOverride")) { options.languageOverride(arg.valueOfIndex("languageOverride").toString()); }
+        if (arr.containsKey("background")) { options.background(arg.valueOfIndex(env, trace, "background").toBoolean()); }
+        if (arr.containsKey("defaultLanguage")) { options.defaultLanguage(arg.valueOfIndex(env, trace, "defaultLanguage").toString()); }
+        if (arr.containsKey("bits")) { options.bits(arg.valueOfIndex(env, trace, "bits").toInteger()); }
+        if (arr.containsKey("name")) { options.name(arg.valueOfIndex(env, trace, "name").toString()); }
+        if (arr.containsKey("max")) { options.max(arg.valueOfIndex(env, trace, "max").toDouble()); }
+        if (arr.containsKey("min")) { options.min(arg.valueOfIndex(env, trace, "min").toDouble()); }
+        if (arr.containsKey("languageOverride")) { options.languageOverride(arg.valueOfIndex(env, trace, "languageOverride").toString()); }
 
-        if (arr.containsKey("sparse")) { options.sparse(arg.valueOfIndex("sparse").toBoolean()); }
-        if (arr.containsKey("unique")) { options.unique(arg.valueOfIndex("unique").toBoolean()); }
+        if (arr.containsKey("sparse")) { options.sparse(arg.valueOfIndex(env, trace, "sparse").toBoolean()); }
+        if (arr.containsKey("unique")) { options.unique(arg.valueOfIndex(env, trace, "unique").toBoolean()); }
 
-        if (arr.containsKey("version")) { options.version(arg.valueOfIndex("version").toInteger()); }
-        if (arr.containsKey("textVersion")) { options.textVersion(arg.valueOfIndex("textVersion").toInteger()); }
-        if (arr.containsKey("sphereVersion")) { options.sphereVersion(arg.valueOfIndex("sphereVersion").toInteger()); }
+        if (arr.containsKey("version")) { options.version(arg.valueOfIndex(env, trace, "version").toInteger()); }
+        if (arr.containsKey("textVersion")) { options.textVersion(arg.valueOfIndex(env, trace, "textVersion").toInteger()); }
+        if (arr.containsKey("sphereVersion")) { options.sphereVersion(arg.valueOfIndex(env, trace, "sphereVersion").toInteger()); }
 
         return options;
     }

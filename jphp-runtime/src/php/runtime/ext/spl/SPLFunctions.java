@@ -72,7 +72,7 @@ public class SPLFunctions extends FunctionsContainer {
             ForeachIterator iterator = object.getNewIterator(env, false, false);
             while (iterator.next()){
                 if (useKeys){
-                    result.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
+                    result.refOfIndex(env, trace, iterator.getMemoryKey()).assign(iterator.getValue());
                 } else {
                     result.add(iterator.getValue());
                 }

@@ -31,6 +31,11 @@ public class ArrayPushExprToken extends OperatorExprToken {
     }
 
     @Override
+    public boolean isEnvironmentNeeded() {
+        return true;
+    }
+
+    @Override
     public boolean isTraceNeeded() {
         return true;
     }

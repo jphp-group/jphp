@@ -2,7 +2,6 @@ package org.develnext.jphp.zend.ext.standard.date;
 
 import static java.time.temporal.ChronoField.DAY_OF_MONTH;
 import static java.time.temporal.ChronoField.DAY_OF_WEEK;
-import static java.time.temporal.ChronoField.DAY_OF_YEAR;
 import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.MICRO_OF_SECOND;
 import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
@@ -56,6 +55,7 @@ import org.develnext.jphp.zend.ext.standard.DateConstants;
 
 import php.runtime.annotation.Reflection.Ignore;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 
 @Ignore
 public class DateFormat {
@@ -288,16 +288,16 @@ public class DateFormat {
         }
     }
 
-    public static ZonedDateTime createFromFormat(String format, String date) {
-        return createFromFormat(format, date, ZonedDateTime.now());
+    public static ZonedDateTime createFromFormat(Environment env, TraceInfo trace, String format, String date) {
+        return createFromFormat(env, trace, format, date, ZonedDateTime.now());
     }
 
-    public static ZonedDateTime createFromFormat(String format, String date, ZonedDateTime dateTime) {
-        return DateFormatParser.fromFormat(format, date, dateTime);
+    public static ZonedDateTime createFromFormat(Environment env, TraceInfo trace, String format, String date, ZonedDateTime dateTime) {
+        return DateFormatParser.fromFormat(env, trace, format, date, dateTime);
     }
 
-    public static DateTimeParseResult createParseResultFromFormat(String format, String date, ZonedDateTime dateTime) {
-        return DateFormatParser.fromFormatToResult(format, date, dateTime);
+    public static DateTimeParseResult createParseResultFromFormat(Environment env, TraceInfo trace, String format, String date, ZonedDateTime dateTime) {
+        return DateFormatParser.fromFormatToResult(env, trace, format, date, dateTime);
     }
 
     private static class DateFormatParser {
@@ -309,22 +309,24 @@ public class DateFormat {
         private final Set<TemporalField> mods = new HashSet<>();
         private final String format;
         private final String date;
-        private final ZonedDateTime base;
+        private final Environment env;
+        private final TraceInfo trace;
         ZonedDateTime dateTime;
 
-        public DateFormatParser(String format, String date, ZonedDateTime base) {
+        public DateFormatParser(String format, String date, Environment env, TraceInfo trace, ZonedDateTime base) {
             this.format = format;
             this.date = date;
-            this.base = base;
+            this.env = env;
+            this.trace = trace;
             dateTime = base;
         }
 
-        private static ZonedDateTime fromFormat(String format, String date, ZonedDateTime base) {
-            return new DateFormatParser(format, date, base).parse();
+        private static ZonedDateTime fromFormat(Environment env, TraceInfo trace, String format, String date, ZonedDateTime base) {
+            return new DateFormatParser(format, date, env, trace, base).parse();
         }
 
-        private static DateTimeParseResult fromFormatToResult(String format, String date, ZonedDateTime base) {
-            return new DateFormatParser(format, date, base).parseResult();
+        private static DateTimeParseResult fromFormatToResult(Environment env, TraceInfo trace, String format, String date, ZonedDateTime base) {
+            return new DateFormatParser(format, date, env, trace, base).parseResult();
         }
 
         private static String exhaust(Scanner scanner) {
@@ -364,7 +366,7 @@ public class DateFormat {
         }
 
         private ZonedDateTime parse() {
-            DateTimeMessageContainer.clear();
+            DateTimeMessageContainer.clear(env, trace);
 
             Scanner scanner = new Scanner(date).useDelimiter("");
             // TODO: use more lightweight structure
@@ -452,13 +454,13 @@ public class DateFormat {
                     case 'a':
                     case 'A': {
                         if (!mods.contains(HOUR_OF_DAY)) {
-                            DateTimeMessageContainer.addError("Meridian can only come after an hour has been found", 0);
+                            DateTimeMessageContainer.addError(env, trace, "Meridian can only come after an hour has been found", 0);
                         }
 
                         String next = scanner.findWithinHorizon(MERIDIAN, 0);
                         if (next == null) {
                             scanner.skip(".");
-                            DateTimeMessageContainer.addError("A meridian could not be found", position(date, scanner));
+                            DateTimeMessageContainer.addError(env, trace, "A meridian could not be found", position(date, scanner));
                             break;
                         }
 
@@ -499,7 +501,7 @@ public class DateFormat {
                     case 'u': {
                         String micros = scanner.findWithinHorizon(MICROSECONDS, 0);
                         if (micros == null) {
-                            DateTimeMessageContainer.addError("Data missing", position(date, scanner));
+                            DateTimeMessageContainer.addError(env, trace, "Data missing", position(date, scanner));
                             throw new IllegalArgumentException("Data missing");
                         }
                         int length = micros.length();
@@ -511,7 +513,7 @@ public class DateFormat {
 
                         if (length > 6) {
                             micros = micros.substring(0, 6);
-                            DateTimeMessageContainer.addError("Trailing data", position(date, scanner));
+                            DateTimeMessageContainer.addError(env, trace, "Trailing data", position(date, scanner));
                         }
 
                         int microInt = Integer.parseInt(micros);
@@ -596,7 +598,7 @@ public class DateFormat {
                     case '+': {
                         String trailingData = exhaust(scanner);
                         if (!trailingData.isEmpty()) {
-                            DateTimeMessageContainer.addWarning("Trailing data", date.length() - trailingData.length());
+                            DateTimeMessageContainer.addWarning(env, trace, "Trailing data", date.length() - trailingData.length());
                         }
                         break;
                     }
@@ -636,7 +638,7 @@ public class DateFormat {
 
             String trailingData = exhaust(scanner);
             if (!trailingData.isEmpty()) {
-                DateTimeMessageContainer.addError("Trailing data", date.length() - trailingData.length());
+                DateTimeMessageContainer.addError(env, trace, "Trailing data", date.length() - trailingData.length());
                 throw new IllegalArgumentException("Trailing data");
             }
 
@@ -651,7 +653,7 @@ public class DateFormat {
             try {
                 scanner.skip(pattern);
             } catch (NoSuchElementException e) {
-                DateTimeMessageContainer.addError("Data missing", position(date, scanner));
+                DateTimeMessageContainer.addError(env, trace, "Data missing", position(date, scanner));
                 throw e;
             }
         }
@@ -660,14 +662,14 @@ public class DateFormat {
             try {
                 return Integer.parseInt(scanner.findWithinHorizon(pattern, 0));
             } catch (NumberFormatException e) {
-                DateTimeMessageContainer.addError(message, position(date, scanner));
+                DateTimeMessageContainer.addError(env, trace, message, position(date, scanner));
                 throw e;
             }
         }
 
         private int findInt(Scanner scanner, Pattern pattern) {
             if (!scanner.hasNext()) {
-                DateTimeMessageContainer.addError("Data missing", position(date, scanner));
+                DateTimeMessageContainer.addError(env, trace, "Data missing", position(date, scanner));
                 throw new IllegalArgumentException("Data missing");
             }
 

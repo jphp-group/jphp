@@ -1,6 +1,5 @@
 package php.runtime.loader.dump;
 
-import php.runtime.common.StringUtils;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.loader.dump.io.DumpInputStream;
@@ -62,7 +61,7 @@ public class ParameterDumper extends Dumper<ParameterEntity> {
 
     @Override
     public ParameterEntity load(InputStream input) throws IOException {
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
         ParameterEntity entity = new ParameterEntity(context);
 
         entity.setType(data.readHintType());

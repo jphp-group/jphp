@@ -63,7 +63,7 @@ public class InfoFunctions extends FunctionsContainer {
         return System.getProperty("user.name");
     }
 
-    public static Memory get_defined_constants(Environment env, boolean capitalize){
+    public static Memory get_defined_constants(Environment env, TraceInfo trace, boolean capitalize){
         Set<String> exists = new HashSet<String>();
 
         ArrayMemory result = new ArrayMemory();
@@ -72,7 +72,7 @@ public class InfoFunctions extends FunctionsContainer {
 
             ArrayMemory item = result;
             if (capitalize)
-                item = (ArrayMemory) result.refOfIndex(ext).assign(new ArrayMemory());
+                item = (ArrayMemory) result.refOfIndex(env, trace, ext).assign(new ArrayMemory());
 
             for(CompileConstant constant : extension.getConstants().values()){
                 item.put(constant.name, constant.value);
@@ -82,7 +82,7 @@ public class InfoFunctions extends FunctionsContainer {
 
         ArrayMemory item = result;
         if (capitalize)
-            item = (ArrayMemory) result.refOfIndex("user").assign(new ArrayMemory());
+            item = (ArrayMemory) result.refOfIndex(env, trace,"user").assign(new ArrayMemory());
 
         for(ConstantEntity constant : env.scope.getConstants()){
             if (!exists.contains(constant.getName()))
@@ -97,8 +97,8 @@ public class InfoFunctions extends FunctionsContainer {
         return result;
     }
 
-    public static Memory get_defined_constants(Environment env){
-        return get_defined_constants(env, false);
+    public static Memory get_defined_constants(Environment env, TraceInfo trace) {
+        return get_defined_constants(env, trace, false);
     }
 
     public static Memory get_declared_classes(Environment env){
@@ -131,15 +131,15 @@ public class InfoFunctions extends FunctionsContainer {
         return array.toConstant();
     }
 
-    public static Memory get_defined_functions(Environment env){
+    public static Memory get_defined_functions(Environment env, TraceInfo trace){
         ArrayMemory array = new ArrayMemory();
-        ArrayMemory item = (ArrayMemory)array.refOfIndex("internal").assign(new ArrayMemory());
+        ArrayMemory item = (ArrayMemory)array.refOfIndex(env, trace, "internal").assign(new ArrayMemory());
         for(FunctionEntity entity : env.getFunctions()){
             if (entity.isInternal())
                 item.add(new StringMemory(entity.getName()));
         }
 
-        item = (ArrayMemory)array.refOfIndex("user").assign(new ArrayMemory());
+        item = (ArrayMemory)array.refOfIndex(env, trace, "user").assign(new ArrayMemory());
         for(FunctionEntity entity : env.getLoadedFunctions().values()){
             if (!entity.isInternal())
                 item.add(new StringMemory(entity.getName()));

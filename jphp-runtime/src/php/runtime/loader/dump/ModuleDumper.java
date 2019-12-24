@@ -114,7 +114,7 @@ public class ModuleDumper extends Dumper<ModuleEntity> {
 
     @Override
     public ModuleEntity load(InputStream input) throws IOException {
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
 
         int STAMP = data.readInt();
         if (STAMP != DUMP_STAMP)

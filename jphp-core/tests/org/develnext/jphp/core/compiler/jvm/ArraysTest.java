@@ -20,9 +20,9 @@ public class ArraysTest extends JvmCompilerCase {
 
         ArrayMemory array = memory.toValue(ArrayMemory.class);
         Assert.assertEquals(3, array.size());
-        Assert.assertEquals(1, array.valueOfIndex(0).toLong());
-        Assert.assertEquals(2, array.valueOfIndex(1).toLong());
-        Assert.assertEquals(3, array.valueOfIndex(2).toLong());
+        Assert.assertEquals(1, array.valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(2, array.valueOfIndex(environment, 1).toLong());
+        Assert.assertEquals(3, array.valueOfIndex(environment, 2).toLong());
     }
 
     @Test
@@ -32,9 +32,9 @@ public class ArraysTest extends JvmCompilerCase {
 
         ArrayMemory array = memory.toValue(ArrayMemory.class);
         Assert.assertEquals(3, array.size());
-        Assert.assertEquals(1, array.valueOfIndex(0).toLong());
-        Assert.assertEquals(2, array.valueOfIndex(1).toLong());
-        Assert.assertEquals(3, array.valueOfIndex(2).toLong());
+        Assert.assertEquals(1, array.valueOfIndex(environment, 0).toLong());
+        Assert.assertEquals(2, array.valueOfIndex(environment, 1).toLong());
+        Assert.assertEquals(3, array.valueOfIndex(environment, 2).toLong());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ArraysTest extends JvmCompilerCase {
                 "    'a' => $baseDir . 'bla',);", false);
 
         Assert.assertTrue(memory.isArray());
-        Assert.assertEquals("foobar_bla", memory.valueOfIndex("a").toString());
+        Assert.assertEquals("foobar_bla", memory.valueOfIndex(environment, "a").toString());
         Assert.assertEquals(1, memory.toValue(ArrayMemory.class).size());
     }
 

@@ -1122,6 +1122,10 @@ public class Environment {
         error(trace, E_NOTICE, message, args);
     }
 
+    public void notice(TraceInfo trace, Messages.Item message, Object... args) {
+        error(trace, E_NOTICE, message, args);
+    }
+
     public OutputBuffer getDefaultBuffer() {
         return defaultBuffer;
     }

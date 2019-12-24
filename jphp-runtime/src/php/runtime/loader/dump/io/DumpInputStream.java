@@ -5,6 +5,7 @@ import php.runtime.common.HintType;
 import php.runtime.common.LangMode;
 import php.runtime.common.Modifier;
 import php.runtime.env.Context;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.DoubleMemory;
@@ -19,8 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class DumpInputStream extends DataInputStream {
-    public DumpInputStream(InputStream in) {
+    private final Environment env;
+
+    public DumpInputStream(InputStream in, Environment env) {
         super(in);
+        this.env = env;
     }
 
     public String readName(int max) throws IOException {
@@ -120,7 +124,7 @@ public class DumpInputStream extends DataInputStream {
                     for(int i = 0; i < size; i++){
                         Memory key = readMemory();
                         Memory value = readMemory();
-                        array.refOfIndex(key).assign(value);
+                        array.refOfIndex(env, TraceInfo.UNKNOWN, key).assign(value);
                     }
                     return array;
                 case OBJECT:

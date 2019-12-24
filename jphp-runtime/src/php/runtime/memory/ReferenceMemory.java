@@ -762,48 +762,48 @@ public class ReferenceMemory extends Memory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, Memory index) {
-        return getValue().valueOfIndex(trace, index);
+    public Memory valueOfIndex(Environment env, TraceInfo trace, Memory index) {
+        return getValue().valueOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, long index) {
-        return getValue().valueOfIndex(trace, index);
+    public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
+        return getValue().valueOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, double index) {
-        return getValue().valueOfIndex(trace, index);
+    public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
+        return getValue().valueOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, String index) {
-        return getValue().valueOfIndex(trace, index);
+    public Memory valueOfIndex(Environment environment, TraceInfo trace, String index) {
+        return getValue().valueOfIndex(environment, trace, index);
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, boolean index) {
-        return getValue().valueOfIndex(trace, index);
+    public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
+        return getValue().valueOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory refOfPush(TraceInfo trace) {
+    public Memory refOfPush(Environment env, TraceInfo trace) {
         needArray();
-        return getValue().refOfPush(trace);
+        return getValue().refOfPush(env, trace);
     }
 
     @Override
-    public Memory refOfIndexAsShortcut(TraceInfo trace, Memory index){
+    public Memory refOfIndexAsShortcut(Environment env, TraceInfo trace, Memory index){
         needArray();
         switch (getValue().type){
             case STRING:
-                return refOfIndex(trace, index);
-            default: return getValue().refOfIndexAsShortcut(trace, index);
+                return refOfIndex(env, trace, index);
+            default: return getValue().refOfIndexAsShortcut(env, trace, index);
         }
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, Memory index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, Memory index) {
         needArray();
         switch (getValue().type){
             case STRING:
@@ -816,30 +816,30 @@ public class ReferenceMemory extends Memory {
                     return CharMemory.valueOf(this, (StringMemory)this.getValue(), _index);
                 } else
                     return CharMemory.valueOf(this, (StringMemory)this.getValue(), (int)index.toNumeric().toLong());
-            default: return getValue().refOfIndex(trace, index);
+            default: return getValue().refOfIndex(env, trace, index);
         }
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, long index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, long index) {
         needArray();
         switch (getValue().type){
             case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), (int)index);
-            default: return getValue().refOfIndex(trace, index);
+            default: return getValue().refOfIndex(env, trace, index);
         }
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, double index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, double index) {
         needArray();
         switch (getValue().type){
             case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), (int)index);
-            default: return getValue().refOfIndex(trace, index);
+            default: return getValue().refOfIndex(env, trace, index);
         }
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, String index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, String index) {
         needArray();
         int _index = -1;
         Memory tmp = StringMemory.toLong(index);
@@ -848,32 +848,32 @@ public class ReferenceMemory extends Memory {
 
         switch (getValue().type){
             case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), _index);
-            default: return getValue().refOfIndex(trace, index);
+            default: return getValue().refOfIndex(env, trace, index);
         }
     }
 
     @Override
-    public Memory refOfIndex(TraceInfo trace, boolean index) {
+    public Memory refOfIndex(Environment env, TraceInfo trace, boolean index) {
         needArray();
         switch (getValue().type){
             case STRING: return CharMemory.valueOf(this, (StringMemory)this.getValue(), index ? 1 : 0);
-            default: return getValue().refOfIndex(trace, index);
+            default: return getValue().refOfIndex(env, trace, index);
         }
     }
 
     @Override
-    public void unsetOfIndex(TraceInfo trace, Memory index) {
-        getValue().unsetOfIndex(trace, index);
+    public void unsetOfIndex(Environment env, TraceInfo trace, Memory index) {
+        getValue().unsetOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory issetOfIndex(TraceInfo trace, Memory index) {
-        return getValue().issetOfIndex(trace, index);
+    public Memory issetOfIndex(Environment env, TraceInfo trace, Memory index) {
+        return getValue().issetOfIndex(env, trace, index);
     }
 
     @Override
-    public Memory emptyOfIndex(TraceInfo trace, Memory index) {
-        return getValue().emptyOfIndex(trace, index);
+    public Memory emptyOfIndex(Environment env, TraceInfo trace, Memory index) {
+        return getValue().emptyOfIndex(env, trace, index);
     }
 
     @Override

@@ -72,8 +72,8 @@ abstract class BaseDateTime extends BaseObject implements DateTimeInterface, ICo
         Stream.of("date", "timezone_type", "timezone").forEach(s -> props.refOfIndex(s).assign(Memory.UNDEFINED));
 
         if (nativeDateTime != null) {
-            props.refOfIndex("date").assign(DEFAULT_FORMATTER.format(nativeDateTime));
-            Memory timezoneType = props.refOfIndex("timezone_type");
+            props.refOfIndex(getEnvironment(), TraceInfo.UNKNOWN, "date").assign(DEFAULT_FORMATTER.format(nativeDateTime));
+            Memory timezoneType = props.refOfIndex(getEnvironment(), TraceInfo.UNKNOWN,"timezone_type");
             if (parsedZone == null) {
                 timezoneType.assign(DateTimeZone.getTimeZoneType(nativeDateTime.getZone()));
             } else {

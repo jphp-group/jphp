@@ -135,7 +135,7 @@ public class ReflectionProperty extends Reflection implements Reflector {
                     exception(env, "Static property %s::$%s cannot get a property value dynamically",
                             entity.getClazz().getName(), entity.getName());
 
-                return arg.toValue(ObjectMemory.class).getProperties().valueOfIndex(entity.getSpecificName());
+                return arg.toValue(ObjectMemory.class).getProperties().valueOfIndex(env, entity.getSpecificName());
             } else
                 exception(env, "Argument 1 must be object, given %s", arg.getRealType().toString());
         }

@@ -131,6 +131,10 @@ final public class Messages {
     public final static Item ERR_TIMEZONE_NULL_BYTE = new Item("%s: Timezone must not contain null bytes");
     public final static Item ERR_WRONG_PARAM_TYPE = new Item("%s expects parameter %d to be %s, %s given");
 
+    public final static Item ERR_ILLEGAL_STRING_OFFSET = new Item("Illegal string offset '%s'");
+    public final static Item ERR_UNINITIALIZED_STRING_OFFSET = new Item("Uninitialized string offset: %d");
+    public final static Item ERR_STRING_OFFSET_CAST = new Item("String offset cast occurred");
+
     public static class Item {
         private String message;
         public Item(String message){

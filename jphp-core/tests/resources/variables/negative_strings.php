@@ -13,11 +13,12 @@ var_dump($str[-6]);
 var_dump($str[-7]);
 
 ?>
---EXPECT--
+--EXPECTF--
 string(1) "r"
 string(1) "a"
 string(1) "b"
 string(1) "o"
 string(1) "o"
 string(1) "f"
+Notice: Uninitialized string offset: -7 in %s on line %d at pos %d
 string(0) ""

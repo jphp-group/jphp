@@ -65,6 +65,16 @@ public class StringsTest extends ZendJvmTestCase {
     }
 
     @Test
+    public void testOffsets() {
+        check("ext/strings/offsets_general.phpt");
+        check("ext/strings/offsets_chaining_1.phpt");
+        check("ext/strings/offsets_chaining_2.phpt");
+        check("ext/strings/offsets_chaining_3.phpt");
+        check("ext/strings/offsets_chaining_4.phpt");
+        check("ext/strings/offsets_chaining_5.phpt");
+    }
+
+    @Test
     public void testPhpCompat() {
         check("ext/strings/001.phpt");
         check("ext/strings/002.phpt");

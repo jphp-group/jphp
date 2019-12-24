@@ -173,7 +173,7 @@ public class StringFunctions extends FunctionsContainer {
             if (!(var instanceof ReferenceMemory))
                 var = new ReferenceMemory(var);
 
-            sIndex = segment.apply(string, strlen, sIndex, (ReferenceMemory) var, isReturnArray);
+            sIndex = segment.apply(env, trace, string, strlen, sIndex, (ReferenceMemory) var, isReturnArray);
 
             if (sIndex < 0) {
                 if (isReturnArray)
@@ -1450,14 +1450,14 @@ public class StringFunctions extends FunctionsContainer {
                 Memory value = iterator.getValue();
 
                 if (value.isArray()) {
-                    result.refOfIndex(key).assign(value.toImmutable());
+                    result.refOfIndex(env, trace, key).assign(value.toImmutable());
                 } else {
                     Memory ret = _str_replace(
                         env, trace, search, replace,
                         StringMemory.valueOf(value.toString()), count, isInsensitive
                     );
 
-                    result.refOfIndex(key).assign(ret);
+                    result.refOfIndex(env, trace, key).assign(ret);
                 }
             }
 
@@ -2831,7 +2831,9 @@ public class StringFunctions extends FunctionsContainer {
         return set;
     }
 
-    public static Memory str_word_count(String string, int format, String additionalWordCharacters) {
+
+    public static Memory str_word_count(Environment env, TraceInfo trace, String string, int format,
+                                        String additionalWordCharacters) {
         if (format < 0 || format > 2) {
             return Memory.NULL;
         }
@@ -2887,7 +2889,7 @@ public class StringFunctions extends FunctionsContainer {
                         if (format == 1) {
                             resultArray.add(new StringMemory(word));
                         } else if (format == 2) {
-                            resultArray.refOfIndex(lastWordStart).assign(word);
+                            resultArray.refOfIndex(env, trace, lastWordStart).assign(word);
                         }
                     }
                 }
@@ -3393,7 +3395,7 @@ public class StringFunctions extends FunctionsContainer {
 
             ForeachIterator iterator = htmlEntriesMap().foreachIterator(false, false);
             while (iterator.next()) {
-                HTML_SPECIALCHARS.refOfIndex(iterator.getValue()).assign(iterator.getKey().toString());
+                HTML_SPECIALCHARS.refOfIndex(null, TraceInfo.UNKNOWN, iterator.getValue()).assign(iterator.getKey().toString());
             }
         }
 

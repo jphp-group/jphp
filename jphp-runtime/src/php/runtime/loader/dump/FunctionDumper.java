@@ -68,7 +68,7 @@ public class FunctionDumper extends Dumper<FunctionEntity> {
 
     @Override
     public FunctionEntity load(InputStream input) throws IOException {
-        DumpInputStream data = new DumpInputStream(input);
+        DumpInputStream data = new DumpInputStream(input, env);
 
         FunctionEntity entity = new FunctionEntity(context);
         entity.setStatic(data.readBoolean());

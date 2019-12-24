@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
 import php.runtime.Memory;
+import php.runtime.env.Environment;
 
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -356,25 +357,28 @@ public class StringMemoryTest {
     @Test
     public void testIssetOfIndexEmptyString() {
         StringMemory memory = new StringMemory("");
+        Environment env = new Environment();
 
-        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_1)).isEqualTo(Memory.FALSE);
-        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_0)).isEqualTo(Memory.FALSE);
-        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_M1)).isEqualTo(Memory.FALSE);
+        assertThat(memory.issetOfIndex(env, UNKNOWN, Memory.CONST_INT_1)).isEqualTo(Memory.FALSE);
+        assertThat(memory.issetOfIndex(env, UNKNOWN, Memory.CONST_INT_0)).isEqualTo(Memory.FALSE);
+        assertThat(memory.issetOfIndex(env, UNKNOWN, Memory.CONST_INT_M1)).isEqualTo(Memory.FALSE);
     }
 
     @Test
     public void testIssetOfIndexNegative() {
+        Environment env = new Environment();
         StringMemory memory = new StringMemory("abc");
 
-        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_3)).isEqualTo(Memory.FALSE);
+        assertThat(memory.issetOfIndex(env, UNKNOWN, Memory.CONST_INT_3)).isEqualTo(Memory.FALSE);
     }
 
     @Test
     public void testIssetOfIndexPositive() {
+        Environment env = new Environment();
         StringMemory memory = new StringMemory("abc");
 
-        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_0)).isEqualTo(Memory.TRUE);
-        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_1)).isEqualTo(Memory.TRUE);
-        assertThat(memory.issetOfIndex(UNKNOWN, Memory.CONST_INT_2)).isEqualTo(Memory.TRUE);
+        assertThat(memory.issetOfIndex(env, UNKNOWN, Memory.CONST_INT_0)).isEqualTo(Memory.TRUE);
+        assertThat(memory.issetOfIndex(env, UNKNOWN, Memory.CONST_INT_1)).isEqualTo(Memory.TRUE);
+        assertThat(memory.issetOfIndex(env, UNKNOWN, Memory.CONST_INT_2)).isEqualTo(Memory.TRUE);
     }
 }

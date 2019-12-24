@@ -1539,8 +1539,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writeDefineGlobalVar(value.getName());
             } else if (methodStatement.isDynamicLocal()) { // ref-local variables
                 writePushLocal();
+                writePushEnv();
+                writePushTraceInfo(value);
                 writePushConstString(value.getName());
-                writeSysDynamicCall(Memory.class, "refOfIndex", Memory.class, String.class);
+                writeSysDynamicCall(Memory.class, "refOfIndex", Memory.class, Environment.class, TraceInfo.class, String.class);
                 makeVarStore(variable);
                 stackPop();
 
@@ -2586,19 +2588,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
         int traceIndex = createTraceInfo(operator);
         for (ExprStmtToken param : operator.getParameters()) {
+            writePushEnv();
             writePushTraceInfo(traceIndex); // push dup trace
             writeExpression(param, true, false);
+
             if (operator instanceof ArrayGetUnsetExprToken && i == size - 1) {
                 writePopBoxing();
-                writeSysDynamicCall(Memory.class, "unsetOfIndex", void.class, TraceInfo.class, stackPeek().type.toClass());
+                writeSysDynamicCall(Memory.class, "unsetOfIndex", void.class, Environment.class, TraceInfo.class, stackPeek().type.toClass());
                 if (returnValue)
                     writePushNull();
             } else if (operator instanceof ArrayGetIssetExprToken && i == size - 1) {
                 writePopBoxing();
-                writeSysDynamicCall(Memory.class, "issetOfIndex", Memory.class, TraceInfo.class, stackPeek().type.toClass());
+                writeSysDynamicCall(Memory.class, "issetOfIndex", Memory.class, Environment.class, TraceInfo.class, stackPeek().type.toClass());
             } else if (operator instanceof ArrayGetEmptyExprToken && i == size - 1) {
                 writePopBoxing();
-                writeSysDynamicCall(Memory.class, "emptyOfIndex", Memory.class, TraceInfo.class, stackPeek().type.toClass());
+                writeSysDynamicCall(Memory.class, "emptyOfIndex", Memory.class, Environment.class, TraceInfo.class, stackPeek().type.toClass());
             } else {
                 // TODO: Remove.
                 // PHP CMP: $hack = &$arr[0];
@@ -2612,7 +2616,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     }
                 }*/
 
-                writeSysDynamicCall(Memory.class, methodName, Memory.class, TraceInfo.class, stackPeek().type.toClass());
+                writeSysDynamicCall(Memory.class, methodName, Memory.class, Environment.class,
+                    TraceInfo.class, stackPeek().type.toClass());
                 i++;
             }
         }

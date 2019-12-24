@@ -6,6 +6,7 @@ import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.loader.sourcemap.SourceMap;
@@ -67,7 +68,10 @@ public class WrapSourceMap extends BaseWrapper<SourceMap> {
         int i = 0;
         while (iterator.next()) {
             Memory value = iterator.getValue();
-            inserts[i++] = new int[] {value.valueOfIndex(0).toInteger(), value.valueOfIndex(1).toInteger()};
+            inserts[i++] = new int[] {
+                value.valueOfIndex(env, TraceInfo.UNKNOWN, 0).toInteger(),
+                value.valueOfIndex(env, TraceInfo.UNKNOWN,1).toInteger()
+            };
         }
 
         getWrappedObject().insertLines(inserts, args[1].toInteger());
@@ -95,7 +99,7 @@ public class WrapSourceMap extends BaseWrapper<SourceMap> {
         ArrayMemory r = new ArrayMemory();
 
         for (Map.Entry<Integer, SourceMap.Item> entry : itemsByLine.entrySet()) {
-            r.refOfIndex(entry.getKey()).assign(entry.getValue().sourceLine);
+            r.refOfIndex(env, entry.getKey()).assign(entry.getValue().sourceLine);
         }
 
         return r.toConstant();

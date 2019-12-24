@@ -3,6 +3,7 @@ package php.runtime.ext.core.classes.util;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.ext.core.classes.lib.ItemsUtils;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.invoke.Invoker;
@@ -607,7 +608,7 @@ public class WrapFlow extends BaseObject implements Iterator {
         while (iterator.next()) {
             cnt++;
             if (withKeys)
-                tmp.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
+                tmp.refOfIndex(env, TraceInfo.UNKNOWN, iterator.getMemoryKey()).assign(iterator.getValue());
             else
                 tmp.add(iterator.getValue());
             if (cnt >= n) {
@@ -631,8 +632,8 @@ public class WrapFlow extends BaseObject implements Iterator {
     @Signature({
             @Arg(value = "callback", type = HintType.CALLABLE)
     })
-    public Memory group(Environment env, Memory... args) {
-        final Invoker invoker = Invoker.valueOf(env, null, args[0]);
+    public Memory group(Environment env, TraceInfo trace, Memory... args) {
+        final Invoker invoker = Invoker.valueOf(env, trace, args[0]);
         final ForeachIterator iterator = getSelfIterator(env);
 
         return new ObjectMemory(new WrapFlow(env, new ForeachIterator(false, false, false) {
@@ -652,9 +653,9 @@ public class WrapFlow extends BaseObject implements Iterator {
                 while (iterator.next()) {
                     done = true;
                     if (withKeys)
-                        r.refOfIndex(iterator.getMemoryKey()).assign(iterator.getValue());
+                        r.refOfIndex(env, trace, iterator.getMemoryKey()).assign(iterator.getValue());
                     else
-                        r.refOfPush().assign(iterator.getValue());
+                        r.refOfPush(env, trace).assign(iterator.getValue());
 
                     if (call(iterator, invoker).toBoolean())
                         break;

@@ -182,8 +182,8 @@ public class Serializer {
                             Memory value = iterator.getValue().toValue();
                             PropertyEntity entity = reflection.findProperty(value.toString());
                             value = entity == null
-                                    ? props.valueOfIndex(value).toValue()
-                                    : props.valueOfIndex(entity.getSpecificName()).toValue();
+                                    ? props.valueOfIndex(env, trace, value).toValue()
+                                    : props.valueOfIndex(env, trace, entity.getSpecificName()).toValue();
 
                             if (value == Memory.UNDEFINED) {
                                 env.error(trace,
@@ -196,7 +196,7 @@ public class Serializer {
                             if (entity != null)
                                 only.put(entity.getSpecificName(), value);
                             else
-                                only.refOfIndex(iterator.getValue()).assign(value);
+                                only.refOfIndex(env, trace, iterator.getValue()).assign(value);
                         }
                     }
                 } catch (RuntimeException e) {

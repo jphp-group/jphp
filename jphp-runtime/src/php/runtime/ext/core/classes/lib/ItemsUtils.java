@@ -3,6 +3,7 @@ package php.runtime.ext.core.classes.lib;
 import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
+import php.runtime.env.TraceInfo;
 import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
@@ -202,14 +203,14 @@ public class ItemsUtils extends BaseObject {
             @Arg(value = "keys", type = HintType.TRAVERSABLE),
             @Arg(value = "values", type = HintType.TRAVERSABLE),
     })
-    public static Memory combine(Environment env, Memory... args) {
+    public static Memory combine(Environment env, TraceInfo trace, Memory... args) {
         ForeachIterator keyIterator = args[0].getNewIterator(env);
         ForeachIterator valueIterator = args[1].getNewIterator(env);
         ArrayMemory r = new ArrayMemory();
 
         while (keyIterator.next()) {
             if (valueIterator.next()) {
-                r.refOfIndex(keyIterator.getValue()).assign(valueIterator.getValue().toImmutable());
+                r.refOfIndex(env, trace, keyIterator.getValue()).assign(valueIterator.getValue().toImmutable());
             } else {
                 return Memory.NULL;
             }
@@ -250,7 +251,7 @@ public class ItemsUtils extends BaseObject {
             @Arg(value = "collection", type = HintType.TRAVERSABLE),
             @Arg(value = "callback", type = HintType.CALLABLE),
     })
-    public static Memory map(Environment env, Memory... args) throws Throwable {
+    public static Memory map(Environment env, TraceInfo trace, Memory... args) throws Throwable {
         ForeachIterator iterator = args[0].getNewIterator(env);
 
         if (iterator == null) {
@@ -266,7 +267,7 @@ public class ItemsUtils extends BaseObject {
         ArrayMemory r = new ArrayMemory();
 
         while (iterator.next()) {
-            r.refOfIndex(iterator.getMemoryKey()).assign(callback.call(iterator.getValue()));
+            r.refOfIndex(env, trace, iterator.getMemoryKey()).assign(callback.call(iterator.getValue()));
         }
 
         return r.toConstant();

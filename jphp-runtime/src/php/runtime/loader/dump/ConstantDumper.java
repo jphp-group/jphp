@@ -48,7 +48,7 @@ public class ConstantDumper extends Dumper<ConstantEntity> {
 
     @Override
     public ConstantEntity load(InputStream input) throws IOException {
-        DumpInputStream dump = new DumpInputStream(input);
+        DumpInputStream dump = new DumpInputStream(input, env);
 
         String docComment = dump.readUTF();
 

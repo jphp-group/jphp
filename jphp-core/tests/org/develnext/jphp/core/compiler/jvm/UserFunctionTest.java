@@ -6,6 +6,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.junit.runners.MethodSorters;
+
+import php.runtime.env.TraceInfo;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.Memory;
 
@@ -28,7 +30,7 @@ public class UserFunctionTest extends JvmCompilerCase {
     @Test
     public void testWithGlobals(){
         ArrayMemory globals = new ArrayMemory();
-        globals.refOfIndex("y").assign("bar");
+        globals.refOfIndex(environment, TraceInfo.UNKNOWN, "y").assign("bar");
 
         Memory memory = includeResource("user_function/with_globals.php", globals);
         Assert.assertEquals("foobar", memory.toString());

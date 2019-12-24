@@ -1,6 +1,7 @@
 package php.runtime.memory.helper;
 
 import php.runtime.Memory;
+import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.StringMemory;
@@ -24,7 +25,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, long index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, long index) {
         int _index = (int)index;
         if (_index >= 0 && _index < buffer.length()) {
             return new BinaryMemory(buffer.charAt(_index));
@@ -33,7 +34,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, double index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, double index) {
         int _index = (int)index;
         if (_index >= 0 && _index < buffer.length())
             return new BinaryMemory(buffer.charAt(_index));
@@ -42,7 +43,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, boolean index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, boolean index) {
         int _index = index ? 1 : 0;
         if (_index >= 0 && _index < buffer.length())
             return new BinaryMemory(buffer.charAt(_index));
@@ -51,7 +52,7 @@ public class BinaryCharArrayMemory extends CharArrayMemory {
     }
 
     @Override
-    public Memory valueOfIndex(TraceInfo trace, String index) {
+    public Memory valueOfIndex(Environment env, TraceInfo trace, String index) {
         int _index = -1;
 
         Memory tmp = StringMemory.toLong(index);
