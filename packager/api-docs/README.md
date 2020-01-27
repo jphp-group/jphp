@@ -1,10 +1,10 @@
 ## jppm
-> version 0.2.3, created by JPPM.
+> version 0.4.2, created by JPPM.
 
 
 ### Install
 ```
-jppm add jppm@0.2.3
+jppm add jppm@0.4.2
 ```
 
 ### API

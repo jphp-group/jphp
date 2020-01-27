@@ -11,4 +11,3 @@ doc:
   stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
 
-config:

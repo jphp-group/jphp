@@ -216,17 +216,25 @@ class Package
     public function getAny(string $key, $def = null)
     {
         $keys = str::split($key, '.');
+        $keysCount = arr::count($keys);
+
         $result = $this->data;
 
-        foreach ($keys as $key) {
-            if (isset($result[$key])) {
-                $result = $result[$key];
+        foreach ($keys as $k) {
+            $keysCount--;
+
+            if (isset($result[$k])) {
+                $result = $result[$k];
             } else {
                 return $def;
             }
         }
 
-        return $result;
+        if ($keysCount == 0) {
+            return $result;
+        } else {
+            return $def;
+        }
     }
 
     public function toString(): string
