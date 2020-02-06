@@ -428,6 +428,10 @@ class GitHubPlugin
 
         $address = Console::read('Repo address:', $config['address']);
 
+        if (!$address) {
+            $address = $config['address'];
+        }
+
         $address = str::trim($address);
         if (!str::startsWith($address, 'https://github.com/') && !str::startsWith($address, 'http://github.com/')) {
             Console::error("Address {0} is invalid, enter full http link of your gitlab repository", $address);

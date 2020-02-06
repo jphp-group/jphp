@@ -1,12 +1,12 @@
 name: hello-world
 version: 1.0.0
 
-repos:
-- jphp
-- central
+plugins: [App]
+
+deps:
+  jphp-core: '*'
 
 
-- GitHub
 
 app:
   bootstrap: index.php

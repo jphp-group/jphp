@@ -1,5 +1,5 @@
 name: jppm
-version: 0.4.2
+version: 0.5.0
 
 plugins: [GitHub, Hub, Doc]
 
@@ -7,14 +7,15 @@ hub:
   login: d.zayceff@gmail.com
 
 github:
-  address: https://github.com/jphp-compiler/jphp
+  address: 'https://github.com/jphp-group/jphp'
   tag-prefix: '%name%-'
   title: '%name% %version%'
   description: |
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Add template system for jppm packages
+    + Add bytecode compiler via `-b` option
+    + Add deps depends by OS via flags `-win`, `-mac`, `-linux` and `-unix`.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

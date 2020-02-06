@@ -79,6 +79,7 @@ class JavaExec
     public function setEnvironment(array $environment): JavaExec
     {
         $this->environment = $environment;
+        return $this;
     }
 
     /**

@@ -68,6 +68,11 @@ class AppPlugin
         $launcher = $event->package()->getAny('app') ?: [];
         $build = $event->package()->getAny('app')['build'] ?: [];
 
+        $isBytecode = $event->isFlag('b', 'bytecode');
+        if ($isBytecode) {
+            Console::log("-> [-b option] Bytecode compilation is enabled!");
+        }
+
         $exec = new JavaExec();
 
         $exec->addVendorClassPath($vendor);
@@ -166,6 +171,12 @@ class AppPlugin
         fs::delete("$buildDir/.app/META-INF/Manifest.mf");
         fs::delete("$buildDir/.app/META-INF/MANIFEST.MF");
 
+        if ($isBytecode) {
+            Console::log("-> compile all 'php' sources to 'phb' bytecode files");
+            $compiler = new \app\AppPluginCompiler("$buildDir/.app");
+            $compiler->compile($event->package());
+        }
+
         if (!$launcher['disable-launcher']) {
             Console::log("-> create jphp app launcher");
 
@@ -174,7 +185,23 @@ class AppPlugin
 
             $includes = (array)$vendor->fetchPaths()['includes'];
 
-            $includes = flow($includes, $event->package()->getIncludes())->toArray();
+            $includes = flow($includes, $event->package()->getIncludes());
+
+            if ($isBytecode) { // replace php to phb is bytecode compiler
+                $includes = $includes->map(function ($one) {
+                    if (fs::ext($one) == "php") {
+                        return str::replace(fs::pathNoExt($one), "\\", "/") . ".phb";
+                    } else {
+                        return $one;
+                    }
+                });
+
+                if ($launcher['bootstrap'] && str::endsWith($launcher['bootstrap'], ".php")) {
+                    $launcher['bootstrap'] = str::replace(fs::pathNoExt($launcher['bootstrap']), "\\", "/") . ".phb";
+                }
+            }
+
+            $includes = $includes->toArray();
 
             if ($includes && !$launcher['bootstrap']) {
                 $launcher['bootstrap'] = arr::pop($includes);
@@ -184,7 +211,7 @@ class AppPlugin
                 'bootstrap.files' => flow($includes)->map(function ($one) {
                     return "res://$one";
                 })->toString('|'),
-                'bootstrap.file'  => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : 'res://JPHP-INF/.bootstrap.php',
+                'bootstrap.file'  => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : ('res://JPHP-INF/.bootstrap.' . ($isBytecode ? 'phb' : 'php')),
             ], 'ini');
 
             Tasks::createFile("$buildDir/.app/META-INF/MANIFEST.MF");
@@ -212,7 +239,7 @@ class AppPlugin
 
         $zip->close();
 
-        Tasks::deleteFile("$buildDir/.app");
+        //Tasks::deleteFile("$buildDir/.app");
 
         foreach ($event->package()->getAny('app.assets', []) as $asset) {
             Tasks::deleteFile("$buildDir/" . fs::name($asset));
@@ -271,6 +298,8 @@ class AppPlugin
      * @jppm-dependency-of start
      *
      * @param Event $event
+     * @throws \php\lang\IllegalArgumentException
+     * @throws \php\lang\IllegalStateException
      */
     function run(Event $event)
     {

@@ -35,6 +35,20 @@ class Package
     private $info = [];
 
     /**
+     * @var string
+     */
+    private static $os = '';
+
+    /**
+     * Set OS for build
+     * @param string $os
+     */
+    public static function setOS(string $os)
+    {
+        self::$os = $os;
+    }
+
+    /**
      * Package constructor.
      * @param array $data
      * @param array $info
@@ -42,9 +56,32 @@ class Package
     public function __construct(array $data, array $info = [])
     {
         $this->data = $data;
-        $this->data = $this->prepareData($data);
+        $this->data = $this->prepareData($this->data);
+        $this->data = $this->prepareDataForOS($this->data);
 
         $this->info = $info;
+    }
+
+    protected function prepareDataForOS(array $data): array
+    {
+        $depsLinux = flow((array) $data['depsUnix'], (array) $data['depsLinux'])->toMap();
+        $depsWin = (array) $data['depsWin'];
+        $depsMacOs = (array) $data['depsMac'];
+
+        $deps = (array) $data['deps'];
+
+        $osName = self::$os;
+
+        if (str::posIgnoreCase($osName, 'win') > -1) {
+            $deps = flow($deps, $depsWin)->toMap();
+        } else if (str::posIgnoreCase($osName, 'mac') > -1) {
+            $deps = flow($deps, $depsMacOs)->toMap();
+        } else if ($osName) {
+            $deps = flow($deps, $depsLinux)->toMap();
+        }
+
+        $data['deps'] = $deps;
+        return $data;
     }
 
     protected function prepareData(array $data): array
