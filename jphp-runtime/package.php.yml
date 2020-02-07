@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.0.7
+version: 1.0.8
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,8 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.0.8:
+    - Now Timer works as Thread with daemon options
   1.0.7:
     - Fix bug - LongMemory.notEquals has invalid beahaviour when references are passed.
   1.0.6:

@@ -3,13 +3,13 @@
 ---
 
 ## jphp-runtime
-> версия 1.0.7, создано с помощью JPPM.
+> версия 1.0.8, создано с помощью JPPM.
 
 Runtime for JPHP + Standard library.
 
 ### Установка
 ```
-jppm add jphp-runtime@1.0.7
+jppm add jphp-runtime@1.0.8
 ```
 
 ### АПИ

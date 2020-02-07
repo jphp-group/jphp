@@ -48,6 +48,21 @@ class Package
         self::$os = $os;
     }
 
+    public static function isWindows()
+    {
+        return self::$os === "win";
+    }
+
+    public static function isMac()
+    {
+        return self::$os === "mac";
+    }
+
+    public static function isLinux()
+    {
+        return self::$os === "unix";
+    }
+
     /**
      * Package constructor.
      * @param array $data
