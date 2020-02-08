@@ -34,10 +34,10 @@ foreach($inputs as $key =>$value) {
 *** Testing gmstrftime() : usage variation ***
 
 --The ISO 8601:1988 week number--
-string(%d) "%d"
+string(%d) %s
 string(2) "32"
 
 --Weekday as decimal--
-string(1) "%d"
+string(1) %s
 string(1) "5"
 ===DONE===

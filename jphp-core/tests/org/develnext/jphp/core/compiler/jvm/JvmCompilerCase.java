@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 abstract public class JvmCompilerCase {
@@ -201,6 +202,8 @@ abstract public class JvmCompilerCase {
             environment = new Environment(newScope(), outputR);
         }
 
+        environment.setLocale(Locale.ENGLISH);
+
         //environment.setErrorFlags(ErrorType.E_ALL.value);
 
         String resourceName = "resources/" + name;
@@ -275,7 +278,11 @@ abstract public class JvmCompilerCase {
         lastOutput = outputR.toString();
 
         if (test.getExpect() != null)
-            Assert.assertEquals(test.getTest() + " (" + name + ")", test.getExpect(), rtrim(lastOutput));
+            Assert.assertEquals(
+                    test.getTest() + " (" + name + ")",
+                    test.getExpect().replace("\r\n", "\n"),
+                    rtrim(lastOutput).replace("\r\n", "\n")
+            );
 
         if (test.getExpectF() != null){
 
@@ -288,7 +295,10 @@ abstract public class JvmCompilerCase {
             PrintF printF = new PrintF(environment.getLocale(), test.getExpectF(), ((ArrayMemory)result).values());
             String out = printF.toString();
 
-            Assert.assertEquals(out, rtrim(lastOutput));
+            Assert.assertEquals(
+                    out.replace("\r\n", "\n"),
+                    rtrim(lastOutput).replace("\r\n", "\n")
+            );
         }
     }
 

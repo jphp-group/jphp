@@ -26,7 +26,7 @@ $inputs = array(
 foreach($inputs as $key =>$value) {
       echo "\n--$key--\n";
       print_r( gmstrftime($value) );
-      echo PHP_EOL;
+      echo "\r\n";
       var_dump( gmstrftime($value, $timestamp) );
 };
 
