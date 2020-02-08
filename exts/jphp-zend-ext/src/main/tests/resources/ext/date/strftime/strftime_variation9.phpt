@@ -34,7 +34,7 @@ foreach($inputs as $key =>$value) {
 *** Testing strftime() : usage variation ***
 
 --The ISO 8601:1988 week number--
-string(2) "%d"
+string(2) %s
 string(2) "32"
 
 --Weekday as decimal--

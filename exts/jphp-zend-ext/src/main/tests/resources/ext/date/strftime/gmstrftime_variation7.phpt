@@ -39,7 +39,7 @@ string(%d) "%02d"
 string(2) "08"
 
 --Day of the year as a decimal number--
-string(%d) "%d"
+string(%d) %s
 string(3) "221"
 
 --Day of the week as a decimal number--
