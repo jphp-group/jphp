@@ -76,7 +76,7 @@ $server->route('GET', '/client-data', function (HttpServerRequest $req, HttpServ
 // run server.
 $server->run();
 ```
-Check it, open [http://localhost:8888/client-data](http://localhost:8888/hello-world) in your browser.
+Check it, open [http://localhost:8888/client-data](http://localhost:8888/client-data) in your browser.
 
 ---
 
