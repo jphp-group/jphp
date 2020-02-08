@@ -458,20 +458,20 @@ public class DateTimeParserTest {
         assertThat(parse("22DEC78"))
                 .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22).truncatedTo(DAYS));
 
-        assertThat(parse("30-June 2008"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS));
+        assertThat(parse("28-June 2008"))
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(28).truncatedTo(DAYS));
 
         assertThat(parse("22\t12.78"))
                 .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22).truncatedTo(DAYS));
 
-        assertThat(parse("30.6.08"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS));
+        assertThat(parse("28.6.08"))
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(28).truncatedTo(DAYS));
 
         assertThat(parse("22.12.1978"))
                 .isEqualToIgnoringNanos(now().withYear(1978).withMonth(12).withDayOfMonth(22).truncatedTo(DAYS));
 
-        assertThat(parse("30-6-2008"))
-                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(30).truncatedTo(DAYS));
+        assertThat(parse("28-6-2008"))
+                .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(28).truncatedTo(DAYS));
 
         assertThat(parse("8-6-21"))
                 .isEqualToIgnoringNanos(now().withYear(2008).withMonth(6).withDayOfMonth(21).truncatedTo(DAYS));

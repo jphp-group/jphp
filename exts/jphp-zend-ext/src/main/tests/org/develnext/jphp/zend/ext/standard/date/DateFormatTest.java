@@ -36,7 +36,8 @@ public class DateFormatTest {
 
     @Test
     public void dayOfMonth() {
-        assertThat(create("d", "30")).isEqualToIgnoringNanos(now().withDayOfMonth(30));
+        ZonedDateTime now = now();
+        assertThat(create("d", "28")).isEqualToIgnoringNanos(now.withDayOfMonth(28));
 
         Stream.of(
                 Pair.of("d", "5"),
@@ -45,7 +46,7 @@ public class DateFormatTest {
                 Pair.of("j", "5")
         )
                 .map(pair -> create(pair.getA(), pair.getB()))
-                .forEach(dateTime -> assertThat(dateTime).isEqualToIgnoringNanos(now().withDayOfMonth(5)));
+                .forEach(dateTime -> assertThat(dateTime).isEqualToIgnoringNanos(now.withDayOfMonth(5)));
     }
 
     @Test
