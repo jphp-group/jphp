@@ -84,6 +84,19 @@ class Event
     }
 
     /**
+     * @param mixed ...$names
+     * @return bool
+     */
+    function isFlagExists(...$names): bool
+    {
+        foreach ($names as $name) {
+            if (isset($this->flags[$name])) return true;
+        }
+
+        return false;
+    }
+
+    /**
      * @param array ...$names
      * @return bool
      */

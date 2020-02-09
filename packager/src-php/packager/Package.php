@@ -48,19 +48,27 @@ class Package
         self::$os = $os;
     }
 
-    public static function isWindows()
+    public static function isWindows(): bool
     {
         return self::$os === "win";
     }
 
-    public static function isMac()
+    public static function isMac(): bool
     {
         return self::$os === "mac";
     }
 
-    public static function isLinux()
+    public static function isLinux(): bool
     {
-        return self::$os === "unix";
+        return self::$os === "linux";
+    }
+
+    /**
+     * @return string linux|mac|win
+     */
+    public static function getOS(): string
+    {
+        return self::$os;
     }
 
     /**

@@ -4,3 +4,6 @@ buildSrc/gradle/gradlew.bat text eol=crlf
 
 scripts/jppm text eol=lf
 scripts/jppm.bat text eol=crlf
+
+buildSrc/app/scripts/app text eol=lf
+buildSrc/app/scripts/app.bat text eol=crlf

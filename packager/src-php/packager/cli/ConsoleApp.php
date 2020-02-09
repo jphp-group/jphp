@@ -93,14 +93,14 @@ class ConsoleApp
                     $os = 'win';
                 } else if ($this->isFlag('mac') || str::posIgnoreCase($osName, 'mac') > -1) {
                     $os = 'mac';
-                } else if ($this->isFlag('linux') || $this->isFlag('unix')) {
-                    $os = 'unix';
+                } else if ($this->isFlag('linux')) {
+                    $os = 'linux';
                 } else if (str::posIgnoreCase($osName, 'win') > -1) {
                     $os = 'win';
                 } else if (str::posIgnoreCase($osName, 'mac') > -1) {
                     $os = 'mac';
                 } else {
-                    $os = 'unix';
+                    $os = 'linux';
                 }
             }
 

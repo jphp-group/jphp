@@ -1,6 +1,6 @@
 
 name: jphp-httpclient-ext
-version: 1.0.1
+version: 1.0.2
 description: Http Client library.
 
 plugins: [Doc, Hub]

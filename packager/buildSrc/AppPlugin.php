@@ -1,13 +1,13 @@
 <?php
 
+use app\AppPluginJavaRuntimeBuilder;
+use app\AppPluginLaunch4JBuilder;
 use compress\GzipOutputStream;
 use compress\TarArchive;
 use compress\TarArchiveEntry;
 use compress\ZipArchive;
 use compress\ZipArchiveEntry;
-use packager\{
-    cli\Console, Event, JavaExec, Packager, Vendor
-};
+use packager\{cli\Console, Event, JavaExec, Package, Packager, Vendor};
 
 use php\lang\{
     System, Thread
@@ -67,8 +67,14 @@ class AppPlugin
         $vendor = new Vendor($event->package()->getConfigVendorPath());
         $launcher = $event->package()->getAny('app') ?: [];
         $build = $event->package()->getAny('app')['build'] ?: [];
+        $launcherConf = $event->package()->getAny('app')['launcher'] ?: [];
 
-        $isBytecode = $event->isFlag('b', 'bytecode');
+        if ($event->isFlagExists('b', 'bytecode')) {
+            $isBytecode = $event->isFlag('b', 'bytecode');
+        } else {
+            $isBytecode = (bool) $build['bytecode'];
+        }
+
         if ($isBytecode) {
             Console::log("-> [-b option] Bytecode compilation is enabled!");
         }
@@ -177,7 +183,9 @@ class AppPlugin
             $compiler->compile($event->package());
         }
 
-        if (!$launcher['disable-launcher']) {
+        $launcherConf['types'] = $launcherConf['types'] ?? ['jar', 'sh', 'bat'];
+
+        if (!$launcherConf['disabled']) {
             Console::log("-> create jphp app launcher");
 
             Tasks::createDir("$buildDir/.app/JPHP-INF/");
@@ -251,6 +259,73 @@ class AppPlugin
             }
         }
 
+        if (!$launcherConf['disabled'] && (arr::has($launcherConf['types'], "sh") || arr::has($launcherConf['types'], "bat"))) {
+            $mainClass = $launcher['main-class'] ?: 'php.runtime.launcher.Launcher';
+
+            $jars = ["$buildFileName.jar"];
+            $libJars = flow(fs::scan("$buildDir/libs", ['extensions' => ['jar']], 1))
+                ->map(function ($one) { return "libs/" . fs::name($one); })
+                ->toArray();
+
+            $templateArgs = [
+                'APP_NAME' => $event->package()->getName(),
+                'MAINCLASS' => $mainClass,
+                'JAVA_OPTS' => flow($launcher['jvm-args'])->toString(" ")
+            ];
+
+            $templateArgs['JAVA_OPTS'] .= " -Dfile.encoding=" . ($launcher['encoding'] ?: 'UTF-8');
+
+            $templateSh = fs::get("res://app/scripts/app");
+            $templateBat = fs::get("res://app/scripts/app.bat");
+
+            foreach ($templateArgs as $key => $templateArg) {
+                $templateSh = str::replace($templateSh, "{{{$key}}}", $templateArg);
+                $templateBat = str::replace($templateBat, "{{{$key}}}", $templateArg);
+            }
+
+            if (arr::has($launcherConf['types'], "sh")) {
+                $templateSh = str::replace(
+                    $templateSh,
+                    '{{CLASSPATH}}',
+                    flow($jars, $libJars)->map(function ($el) { return "\$APP_HOME/$el"; })->toString(":")
+                );
+
+                Tasks::createFile("$buildDir/$buildFileName", $templateSh, true);
+            }
+
+            if (arr::has($launcherConf['types'], "bat")) {
+                $templateBat = str::replace(
+                    $templateBat,
+                    '{{CLASSPATH}}',
+                    flow($jars, $libJars)->map(function ($el) { return "%APP_HOME%\\" . str::replace($el, "/", "\\"); })->toString(";")
+                );
+
+                Tasks::createFile("$buildDir/$buildFileName.bat", $templateBat, true);
+            }
+
+            if ($launcherConf['java']['embedded']) {
+                Console::log("-> Build portable Java Runtime for App (via 'jlink')");
+                $javaRuntimeBuilder = new AppPluginJavaRuntimeBuilder();
+
+                foreach (flow($jars, $libJars) as $jar) {
+                    $javaRuntimeBuilder->addJar($jar);
+                }
+
+                $javaRuntimeBuilder->build($buildDir);
+                Console::log("-> Java Runtime is build successfully, the app will use the 'jre' dir as JAVA_HOME");
+            }
+
+            /*
+             * TODO Implement this, now launch4j doesn't support Java 11+
+             * if (arr::has($launcherConf['types'], "exe-gui")) {
+                $launcher4j = new AppPluginLaunch4JBuilder($event->package(), $buildDir, $launcherConf, $mainClass, 'gui');
+                $launcher4j->build();
+            } else if (arr::has($launcherConf['types'], "exe-console")) {
+                $launcher4j = new AppPluginLaunch4JBuilder($event->package(), $buildDir, $launcherConf, $mainClass, 'console');
+                $launcher4j->build();
+            }*/
+        }
+
         switch (str::lower($event->package()->getAny('app.build.result'))) {
             case 'tar':
                 Console::log("-> pack build dir to tar.gz archive ...");
@@ -279,7 +354,7 @@ class AppPlugin
                 break;
 
             default:
-                if (!$launcher['disable-launcher']) {
+                if (!$launcher['disable-launcher'] && !$launcherConf['disabled']) {
                     Console::log("\n   Use 'java -jar \"$buildDir/$buildFileName.jar\"' to run the result app.");
                 }
         }

@@ -34,6 +34,33 @@ class GradlePlugin
         }
     }
 
+    protected function makeDepSection(array $deps, string $gradleMethod = 'compile'): array
+    {
+        $compile = [];
+
+        foreach ($deps as $dep) {
+            if (is_array($dep)) {
+                $exclude = flow($dep['exclude'])->map(function ($s) {
+                    [$group, $module] = str::split($s, ":");
+                    return "  exclude(group: '$group', module: '$module')";
+                })->toString("\n");
+
+                $compile[] = "$gradleMethod ('{$dep['dep']}') { \n$exclude }";
+            } else {
+                if (str::trim($dep)) {
+                    if (str::startsWith($dep, 'file:')) {
+                        $dep = str::sub($dep, 5);
+                        $compile[] = "  $gradleMethod files('$dep')";
+                    } else {
+                        $compile[] = "  $gradleMethod '$dep'";
+                    }
+                }
+            }
+        }
+
+        return $compile;
+    }
+
     protected function makeGradleBuild(Package $pkg)
     {
         $vendor = new Vendor($pkg->getConfigVendorPath());
@@ -52,30 +79,8 @@ class GradlePlugin
             }
         }
 
-        $provided = [];
-        $compile = [];
-
-        foreach ((array) $this->config['deps'] as $dep) {
-            if (str::trim($dep)) {
-                if (str::startsWith($dep, 'file:')) {
-                    $dep = str::sub($dep, 5);
-                    $compile[] = "  compile files('$dep')";
-                } else {
-                    $compile[] = "  compile '$dep'";
-                }
-            }
-        }
-
-        foreach ((array) $this->config['providedDeps'] as $dep) {
-            if (str::trim($dep)) {
-                if (str::startsWith($dep, 'file:')) {
-                    $dep = str::sub($dep, 5);
-                    $provided[] = "  provided files('$dep')";
-                } else {
-                    $provided[] = "  provided '$dep'";
-                }
-            }
-        }
+        $compile = $this->makeDepSection((array) $this->config['deps'], 'compile');
+        $provided = $this->makeDepSection((array) $this->config['providedDeps'], 'provided');
 
         $jars = fs::scan("./jars/", ['extensions' => ['jar'], 'excludeDirs' => true], 1);
 

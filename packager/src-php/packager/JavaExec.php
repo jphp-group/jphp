@@ -40,13 +40,13 @@ class JavaExec
 
     /**
      * JavaExec constructor.
-     * @param string $mainClass
+     * @param string $mainClassOrJar
      * @param array $jvmArgs
      * @param array|null $environment
      */
-    public function __construct(string $mainClass = 'php.runtime.launcher.Launcher', array $jvmArgs = [], array $environment = null)
+    public function __construct(string $mainClassOrJar = 'php.runtime.launcher.Launcher', array $jvmArgs = [], array $environment = null)
     {
-        $this->mainClass = $mainClass;
+        $this->mainClass = $mainClassOrJar;
         $this->jvmArgs = $jvmArgs;
         $this->environment = $environment;
 
@@ -242,10 +242,17 @@ class JavaExec
             $sysArgs[] = "-D$key=$value";
         }
 
-        $commands = flow([
-            $this->javaBin, '-cp', str::join($this->classPaths, File::PATH_SEPARATOR)],
-            $this->jvmArgs, $sysArgs, [$this->mainClass], $args
-        )->toArray();
+        if (str::endsWith($this->mainClass, '.jar')) {
+            $commands = flow(
+                [$this->javaBin, '-jar'],
+                $this->jvmArgs, $sysArgs, [$this->mainClass], $args
+            )->toArray();
+        } else {
+            $commands = flow(
+                [$this->javaBin, '-cp', str::join($this->classPaths, File::PATH_SEPARATOR)],
+                $this->jvmArgs, $sysArgs, [$this->mainClass], $args
+            )->toArray();
+        }
 
         $process = new Process(
             $commands,

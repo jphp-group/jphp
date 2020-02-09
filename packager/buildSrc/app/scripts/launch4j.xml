@@ -1,0 +1,41 @@
+<launch4jConfig>
+    <headerType>{{headerType}}</headerType>
+    <outfile>{{outfile}}</outfile>
+    <jar>file</jar>
+    <dontWrapJar>{{dontWrapJar}}</dontWrapJar>
+    <errTitle>{{errTitle}}</errTitle>
+    <downloadUrl>https://bell-sw.com/</downloadUrl>
+    <supportUrl>{{supportUrl}}</supportUrl>
+    <cmdLine>{{cmdLine}}</cmdLine>
+    <chdir>{{chdir}}</chdir>
+    <priority>normal</priority>
+    <stayAlive>{{stayAlive}}</stayAlive>
+    <restartOnCrash>{{restartOnCrash}}</restartOnCrash>
+    <icon>{{icon}}</icon>
+    <classPath>
+        <mainClass>{{mainClass}}</mainClass>
+        {{cp}}
+    </classPath>
+    {{singleInstance}}
+    <jre>
+        <!-- Specify path or minVersion or both. -->
+        <path>{{jre.path}}</path>
+        <bundledJre64Bit>{{bundledJre64Bit}}</bundledJre64Bit>
+        <!-- Heap sizes in MB and % of available memory. -->
+        <initialHeapSize>{{initialHeapSize}}</initialHeapSize>
+        <!-- <maxHeapSize>{{maxHeapSize}}</maxHeapSize>-->
+    </jre>
+    <versionInfo>
+        <fileVersion>{{fileVersion}}</fileVersion>
+        <txtFileVersion>{{txtFileVersion}}</txtFileVersion>
+        <fileDescription>{{fileDescription}}</fileDescription>
+        <copyright>{{copyright}}</copyright>
+        <productVersion>{{productVersion}}</productVersion>
+        <txtProductVersion>{{txtProductVersion}}</txtProductVersion>
+        <productName>{{productName}}</productName>
+        <companyName>{{companyName}}</companyName>
+        <internalName>{{internalName}}</internalName>
+        <originalFilename>{{originalFilename}}</originalFilename>
+        <trademarks>{{trademarks}}</trademarks>
+    </versionInfo>
+</launch4jConfig>

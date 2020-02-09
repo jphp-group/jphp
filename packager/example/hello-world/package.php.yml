@@ -6,13 +6,21 @@ plugins: [App]
 deps:
   jphp-core: '*'
 
-
-
 app:
   bootstrap: index.php
   encoding: UTF-8
   metrics: false
   trace: false
+  build:
+    type: multi-jar
+  launcher:
+    enabled: true # enable launcher scripts
+    icons:
+      win: ''
+    types: [sh, bat]
+    java:
+      embedded: true # add jvm via jlink + jdeps
 
 sources:
 - src
+
