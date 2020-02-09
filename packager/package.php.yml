@@ -1,5 +1,5 @@
 name: jppm
-version: 0.5.0
+version: 0.5.1
 
 plugins: [GitHub, Hub, Doc]
 
@@ -14,8 +14,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Add bytecode compiler via `-b` option
-    + Add deps depends by OS via flags `-win`, `-mac`, `-linux` and `-unix`.
+    + Bugfixes for OS flags
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

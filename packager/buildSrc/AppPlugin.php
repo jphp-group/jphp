@@ -239,7 +239,7 @@ class AppPlugin
 
         $zip->close();
 
-        //Tasks::deleteFile("$buildDir/.app");
+        Tasks::deleteFile("$buildDir/.app");
 
         foreach ($event->package()->getAny('app.assets', []) as $asset) {
             Tasks::deleteFile("$buildDir/" . fs::name($asset));

@@ -84,17 +84,29 @@ class ConsoleApp
             })->toArray();
 
             $osName = System::osName();
+            $os = null;
+
             if ($this->isFlag('without-os')) {
                 // nop.
-            } else if ($this->isFlag('win') || str::posIgnoreCase($osName, 'win') > -1) {
-                Package::setOS('win');
-                Console::log("-> [for Windows]");
-            } else if ($this->isFlag('mac') || str::posIgnoreCase($osName, 'mac') > -1) {
-                Package::setOS('mac');
-                Console::log("-> [for MacOS]");
-            } else if ($this->isFlag('linux') || $this->isFlag('unix')) {
-                Package::setOS('unix');
-                Console::log("-> [for Unix & Linux]");
+            } else {
+                if ($this->isFlag('win')) {
+                    $os = 'win';
+                } else if ($this->isFlag('mac') || str::posIgnoreCase($osName, 'mac') > -1) {
+                    $os = 'mac';
+                } else if ($this->isFlag('linux') || $this->isFlag('unix')) {
+                    $os = 'unix';
+                } else if (str::posIgnoreCase($osName, 'win') > -1) {
+                    $os = 'win';
+                } else if (str::posIgnoreCase($osName, 'mac') > -1) {
+                    $os = 'mac';
+                } else {
+                    $os = 'unix';
+                }
+            }
+
+            if ($os) {
+                Console::log("-> $os");
+                Package::setOS($os);
             }
 
             $command = $args[1];
