@@ -34,7 +34,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
 + [Threading](jphp-runtime/api-docs/classes/php/lang/Thread.md), [Sockets](jphp-runtime/api-docs/classes/php/net/Socket.md), [Environment](jphp-runtime/api-docs/classes/php/lang/Environment.md) architecture (like sandbox objects in the runkit zend extension).
-+ GUI ([JavaFX](exts/jphp-gui-ext/api-docs) or [SWT](https://github.com/jphp-group/jphp-swt-ext))
++ GUI ([JavaFX](https://github.com/jphp-group/jphp-gui-ext) or [SWT](https://github.com/jphp-group/jphp-swt-ext))
 + Embedded cache system for classes and functions
 + Optional Hot Reloading for classes and functions
 + Ability to use on **Android** OS : [jphp-android](https://github.com/VenityStudio/jphp-android)
