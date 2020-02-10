@@ -1,6 +1,6 @@
 
 name: jphp-core
-version: 1.0.4
+version: 1.1.0
 description: Compiler and Launcher for JPHP.
 
 deps:
@@ -16,3 +16,8 @@ doc:
 
 config:
   ignore: ['/package.hub.yml']
+
+
+history:
+  1.1.0:
+    - Upgrade ASM library from 5.2 to 7.3.1

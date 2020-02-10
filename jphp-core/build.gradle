@@ -9,7 +9,8 @@ sourceSets {
 
 dependencies {
     compileMaven project(':jphp-runtime')
-    compile group: 'org.ow2.asm', name: 'asm-all', version:'5.2'
+    compile group: 'org.ow2.asm', name: 'asm-commons', version: '7.3.1'
+    compile group: 'org.ow2.asm', name: 'asm-util', version: '7.3.1'
 
     testCompile 'junit:junit:4.+'
     testCompile 'org.assertj:assertj-core:3.12.2'
