@@ -45,7 +45,7 @@ Our project started in October 2013. There were a few reasons for that:
 ### Own Extensions
 - [Standard Library](jphp-runtime/api-docs) - own runtime standard library
 - [Http Server](exts/jphp-httpserver-ext) (+Web Sockets +Multithread)
-- GUI ([JavaFX](exts/jphp-gui-ext/api-docs) or [SWT](https://github.com/jphp-compiler/jphp-swt-ext))
+- GUI ([JavaFX](https://github.com/jphp-group/jphp-gui-ext) or [SWT](https://github.com/jphp-group/jphp-swt-ext))
 - [Git](exts/jphp-git-ext/api-docs) (based on JGit)
 - [JSoup](exts/jphp-jsoup-ext/api-docs) - for parsing html in jQuery style.
 - [SQL](exts/jphp-sql-ext/api-docs) (supports [MySQL](exts/jphp-sql-ext/api-docs), [PostgreSQL](exts/jphp-pgsql-ext/api-docs), [SQLite](exts/jphp-sqlite-ext/api-docs), [Firebird](exts/jphp-firebirdsql-ext/api-docs)).
