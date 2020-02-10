@@ -25,10 +25,7 @@ import php.runtime.lang.Closure;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
 import php.runtime.lang.Resource;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.ObjectMemory;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.*;
 import php.runtime.memory.helper.ObservableMemory;
 import php.runtime.reflection.*;
 import php.runtime.util.StackTracer;
@@ -413,9 +410,23 @@ public class LangFunctions extends FunctionsContainer {
         return memory.isString();
     }
 
+    protected static Memory to_floating_point(String s) {
+        try {
+            return new DoubleMemory(Double.parseDouble(s));
+        } catch(NumberFormatException nfe) {
+            return null;
+        }
+    }
+
     @Immutable
     public static boolean is_numeric(Memory memory) {
-        return StringMemory.toNumeric(memory.toString(), false, null) != null;
+        if (memory.isNumber()) {
+            return true;
+        } else {
+            String asString = memory.toString();
+            return StringMemory.toLong(asString, true) != null || to_floating_point(asString) != null;
+        }
+        //return StringMemory.toNumeric(memory.toString(), false, null) != null;
     }
 
     @Immutable
