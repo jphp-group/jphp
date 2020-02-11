@@ -311,6 +311,11 @@ class AppPlugin
                     $javaRuntimeBuilder->addJar($jar);
                 }
 
+                $tree = $event->packager()->fetchDependencyTree($event->package(), '');
+                $tree->eachDep(function (Package $pkg) use ($javaRuntimeBuilder) {
+                    $javaRuntimeBuilder->addJvmModules(...$pkg->getAny('jvm-modules', []));
+                });
+
                 $javaRuntimeBuilder->build($buildDir);
                 Console::log("-> Java Runtime is build successfully, the app will use the 'jre' dir as JAVA_HOME");
             }

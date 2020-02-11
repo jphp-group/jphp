@@ -8,6 +8,7 @@ use php\lang\Process;
 use php\lang\System;
 use php\lib\fs;
 use php\lib\str;
+use php\util\Flow;
 
 class AppPluginJavaRuntimeBuilder
 {
@@ -16,6 +17,8 @@ class AppPluginJavaRuntimeBuilder
      */
     public $jars = [];
 
+    public $jvmModules = [];
+
     public function __construct()
     {
     }
@@ -23,6 +26,16 @@ class AppPluginJavaRuntimeBuilder
     public function addJar($jar)
     {
         $this->jars[$jar] = $jar;
+    }
+
+    public function addJvmModules(...$modules)
+    {
+        foreach ($modules as $module) {
+            if (!$this->jvmModules[$module]) {
+                $this->jvmModules[$module] = $module;
+                Console::log("-- add jvm module '{0}'", $module);
+            }
+        }
     }
 
     public function fetchModules($workingDir)
@@ -41,8 +54,14 @@ class AppPluginJavaRuntimeBuilder
                 foreach (str::lines($string, true) as $line) {
                     [, $module] = str::split($line, "->");
                     $module = str::trim($module);
-                    if ($module === "not found") continue;
-                    $modules[$module] = $module;
+                    if ($module === "not found") {
+                        continue;
+                    }
+
+                    if (!$modules[$module]) {
+                        Console::log("-- add jvm module '{0}'", $module);
+                        $modules[$module] = $module;
+                    }
                 }
             }
         }
@@ -52,11 +71,10 @@ class AppPluginJavaRuntimeBuilder
 
     public function build($workingDir)
     {
-        $modules = $this->fetchModules($workingDir);
-
-        foreach ($modules as $module) {
-            Console::log("-- add jvm module '{0}'", $module);
-        }
+        $modules = flow(
+            $this->fetchModules($workingDir),
+            $this->jvmModules
+        )->toMap();
 
         $javaExec = new JavaExec();
         $javaHome = fs::parent($javaExec->getJavaBin());

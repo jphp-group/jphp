@@ -5,6 +5,7 @@ use php\io\FileStream;
 use php\lang\Environment;
 use php\lang\Module;
 use php\lib\fs;
+use php\lib\str;
 
 function ____makePackage($fileOrStream)
 {
@@ -84,20 +85,23 @@ function ____compile($sourceDir)
     spl_autoload_register(function ($name) use ($sourceDir, &$includedFiles) {
         echo("Try class '$name' auto load\n");
 
-        $filename = "$sourceDir/$name.php";
-        $includedFiles[fs::normalize($filename)] = true;
+        $filename = "$sourceDir/" . str::replace($name, "\\", "/") . ".php";
 
-        if (fs::exists($filename)) {
+        if (fs::isFile($filename)) {
             echo "Find class '$name' in ", $filename, "\n";
+            $includedFiles[fs::normalize($filename)] = true;
 
-            $compiled = new File($sourceDir, $name . ".phb");
+            $compiled = new File($sourceDir, str::replace($name, "\\", "/") . ".phb");
             fs::ensureParent($compiled);
 
             $fileStream = new FileStream($filename);
             $module = new Module($fileStream, false, true);
             $module->dump($compiled, true);
             $fileStream->close();
+            $includedFiles[fs::normalize($filename)] = true;
             return;
+        } else {
+            echo "[WARN] Unable to load '$name' class, '$filename' is not found";
         }
     });
 
