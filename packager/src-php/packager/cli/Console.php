@@ -2,6 +2,7 @@
 namespace packager\cli;
 
 
+use packager\Colors;
 use php\io\Stream;
 use php\lang\System;
 use php\lib\arr;
@@ -32,18 +33,23 @@ class Console
     {
         global $app;
         if ($app->isDebug()) {
-            static::log("[DEBUG] $message", ...$args);
+            static::log(Colors::withColor('(debug)', 'silver')." $message", ...$args);
         }
     }
 
     public static function warn($message, ...$args)
     {
-        static::log("[WARNING] $message", ...$args);
+        static::log(Colors::withColor('(warning)', 'yellow')." $message", ...$args);
     }
 
     public static function error($message, ...$args)
     {
-        static::log("[ERROR] $message", ...$args);
+        static::log(Colors::withColor('(error)', 'red')." $message", ...$args);
+    }
+
+    public static function info($message, ...$args)
+    {
+        static::log(Colors::withColor('(info)', 'magenta')." $message", ...$args);
     }
 
     public static function readYesNo(string $message, bool $default = false): bool
@@ -53,7 +59,7 @@ class Console
         if (arr::has(['yes', 'y'], $result)) return true;
         if (arr::has(['no', 'n'], $result)) return false;
 
-        static::log(" -> please enter Y (yes) or N (no), try again ...");
+        static::log(" -> please enter ".Colors::withColor('Y', 'green')." (yes) or ".Colors::withColor('N', 'yellow')." (no), try again ...");
 
         return static::readYesNo($message, $default);
     }

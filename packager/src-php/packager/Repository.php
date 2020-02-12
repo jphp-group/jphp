@@ -396,7 +396,7 @@ class Repository
             if ($foundVersionSource instanceof ExternalRepository) {
                 $foundVersionInfo = $this->getVersionInfoFromExternal($foundVersionSource, $name, $foundVersion);
 
-                Console::log("-> download package {0}@{1} from '{$foundVersionSource->getSource()}'", $name, $foundVersion);
+                Console::info("-> ".Colors::withColor('Download Package', 'green')." {0}@{1} from '{$foundVersionSource->getSource()}'", $name, $foundVersion);
 
                 $indexFile = "$this->dir/$name/$foundVersion.json";
                 $archFile = "$this->dir/$name/$foundVersion.tar.gz";

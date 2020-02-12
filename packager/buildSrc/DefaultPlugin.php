@@ -8,6 +8,7 @@ use compress\ZipArchive;
 use httpclient\HttpClient;
 use httpclient\HttpRequest;
 use packager\cli\Console;
+use packager\Colors;
 use packager\Event;
 use packager\Package;
 use packager\PackageDependencyTree;
@@ -91,8 +92,8 @@ class DefaultPlugin
                 Console::error("Failed to init, package '{0}' already exists", $dir . '/' . Package::FILENAME);
                 exit(-1);
             }
-
-            Console::log("Init new package in dir '$dir'':");
+            Console::log(Colors::withColor("JPHP Packager", 'silver') . " " . Colors::withColor($event->packager()->getVersion(), 'bold'));
+            Console::log("Init new package in dir '$dir':");
 
             $name = fs::name(fs::parent($dir . "/foo"));
             $version = "1.0.0";
@@ -100,10 +101,10 @@ class DefaultPlugin
             if ($event->isFlag('y', 'yes')) {
                 $addAppPlugin = true;
             } else {
-                $name = Console::read("Enter name ($name):", $name);
-                $version = Console::read("Enter version ($version):", $version);
-                $description = Console::read("Enter description:", '');
-                $addAppPlugin = Console::readYesNo("Add 'jphp app' plugin? (default = Yes)", 'yes');
+                $name = Console::read("Enter ".Colors::withColor('name', 'bold')." ($name):", $name);
+                $version = Console::read("Enter ".Colors::withColor('version', 'bold')." ($version):", $version);
+                $description = Console::read("Enter ".Colors::withColor('description', 'bold').":", '');
+                $addAppPlugin = Console::readYesNo("Add '".Colors::withColor('jphp app', 'bold')."' plugin? (default = Yes)", 'yes');
             }
 
             $data = [
@@ -134,7 +135,7 @@ class DefaultPlugin
             Console::log("Success, {0} has been created.", Package::FILENAME);
         }
 
-        Console::log("Done.");
+        Console::log("✨ Done.");
     }
 
     /**

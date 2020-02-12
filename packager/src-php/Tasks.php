@@ -93,7 +93,7 @@ class Tasks
      */
     static function createFile(string $path, string $content = '', bool $ignoreErrs = false): bool
     {
-        Console::log("-> create new file '{0}'", $path);
+        Console::info("Create new file '{0}'", $path);
 
         try {
             fs::ensureParent($path);
@@ -117,7 +117,7 @@ class Tasks
     static function deleteFile(string $path, bool $ignoreErrs = false): bool
     {
         if (fs::exists($path)) {
-            Console::log("-> delete file '{0}'", $path);
+            Console::info("Delete file '{0}'", $path);
 
             if (fs::delete($path)) {
                 return true;
@@ -143,7 +143,7 @@ class Tasks
     static function cleanDir(string $path, array $filter = [], bool $ignoreErrs = false): bool
     {
         if (fs::isDir($path)) {
-            Console::log("-> clean dir '{0}'", $path);
+            Console::info("Clean dir '{0}'", $path);
 
             $result = fs::clean($path, $filter);
 
@@ -178,7 +178,7 @@ class Tasks
             return true;
         }
 
-        Console::log("-> create dir '{0}'", $path);
+        Console::info("Create dir '{0}'", $path);
 
         if (fs::makeDir($path)) {
             return true;
