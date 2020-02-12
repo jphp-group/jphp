@@ -1,5 +1,5 @@
 name: jppm
-version: 0.5.5
+version: 0.5.6
 
 plugins: [GitHub, Hub, Doc]
 

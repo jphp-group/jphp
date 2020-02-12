@@ -33,6 +33,10 @@ class Colors{
 
     public static function withColor($str, $color)
     {
+
+        if(Package::getOS()=='win'){
+            return $str;
+        }
         $color_attrs = explode("+", $color);
         $ansi_str = "";
 
