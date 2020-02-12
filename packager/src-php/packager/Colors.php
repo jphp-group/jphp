@@ -1,9 +1,12 @@
 <?php
 namespace packager;
 
+use packager\cli\Console;
+use php\lang\System;
 use php\lib\char;
+use php\lib\str;
 
-class Colors{
+class Colors {
     public static $ANSI_CODES = array(
         "off"        => 0,
         "bold"       => 1,
@@ -33,10 +36,10 @@ class Colors{
 
     public static function withColor($str, $color)
     {
-
-        if(Package::getOS()=='win'){
+        if (!Console::isXTerm()) {
             return $str;
         }
+
         $color_attrs = explode("+", $color);
         $ansi_str = "";
 

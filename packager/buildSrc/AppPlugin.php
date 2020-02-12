@@ -183,7 +183,7 @@ class AppPlugin
             $compiler->compile($event->package());
         }
 
-        $launcherConf['types'] = $launcherConf['types'] ?? ['jar', 'sh', 'bat'];
+        $launcherConf['types'] = $launcherConf['types'] ?? ['sh', 'bat'];
 
         if (!$launcherConf['disabled']) {
             Console::log("-> create jphp app launcher");

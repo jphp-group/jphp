@@ -369,6 +369,7 @@ class Package
         $ignore->addRule("/" . self::LOCK_FILENAME);
 
         $ignore->addRule($this->getConfigBuildPath() . "/**");
+        $ignore->addRule( $this->getConfigBuildPath() . "-*/**");
         $ignore->addRule($this->getConfigVendorPath() . "/**");
         $ignore->addRule("/package.*.yml");
         $ignore->addRule("/.gradle/**");

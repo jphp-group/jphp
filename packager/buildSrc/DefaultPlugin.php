@@ -135,7 +135,8 @@ class DefaultPlugin
             Console::log("Success, {0} has been created.", Package::FILENAME);
         }
 
-        Console::log("✨ Done.");
+        Console::printForXterm("✨ ");
+        Console::log("Done.");
     }
 
     /**

@@ -212,7 +212,7 @@ class ConsoleApp
 
                 if ($handler = $command['handler']) {
                     foreach ($command['dependsOn'] as $one) {
-                        $this->invokeTask($one, $args);
+                        $this->invokeTask($one, $args, ...$flags);
                     }
 
                     Console::log("-> {0} {1}", $task, ($flags ? '-' : '') . flow($flags)->keys()->toString(' -'));

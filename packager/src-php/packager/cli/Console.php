@@ -1,7 +1,6 @@
 <?php
 namespace packager\cli;
 
-
 use packager\Colors;
 use php\io\Stream;
 use php\lang\System;
@@ -11,11 +10,29 @@ use php\util\Scanner;
 
 class Console
 {
+    public static function isXTerm(): bool
+    {
+        static $xterm;
+
+        if ($xterm === null) {
+            $xterm = str::equalsIgnoreCase($_ENV['TERM'], 'xterm');
+        }
+
+        return $xterm;
+    }
+
     public static function log($message, ...$args)
     {
         static::print($message, ...$args);
 
         System::out()->write("\n");
+    }
+
+    public static function printForXterm($message, ...$args)
+    {
+        if (Console::isXTerm()) {
+            static::print($message, ...$args);
+        }
     }
 
     public static function print($message, ...$args)
