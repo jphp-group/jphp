@@ -3123,6 +3123,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         int initStackSize = method.getStackCount();
         exprStackInit.push(initStackSize);
 
+        if (expression == null) {
+            throw new CriticalException("Invalid expression token expr, on line unknown, expr = null");
+        }
         if (!expression.isStmtList()) {
             if (expression.getAsmExpr() == null) {
                 throw new CriticalException("Invalid expression token without asm expr, on line " + expression.getMeta().getStartLine() + ", expr = " + expression.getWord());

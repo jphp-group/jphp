@@ -9,6 +9,8 @@ use php\lang\System;
 use php\lib\fs;
 use php\lib\str;
 use php\util\Flow;
+use Tasks;
+use function var_dump;
 
 class AppPluginJavaRuntimeBuilder
 {
@@ -19,13 +21,34 @@ class AppPluginJavaRuntimeBuilder
 
     public $jvmModules = [];
 
+    protected $javaHome;
+    protected $javaHomeEmbedded;
+
     public function __construct()
     {
+        $this->javaHome = fs::parent(fs::parent((new JavaExec())->getJavaBin()));
+        $this->javaHomeEmbedded = $this->javaHome;
+    }
+
+    /**
+     * @param string $javaHomeEmbedded
+     */
+    public function setJavaHomeEmbedded(string $javaHomeEmbedded): void
+    {
+        $this->javaHomeEmbedded = $javaHomeEmbedded;
+    }
+
+    /**
+     * @param string $javaHome
+     */
+    public function setJavaHome(string $javaHome): void
+    {
+        $this->javaHome = $javaHome;
     }
 
     public function addJar($jar)
     {
-        $this->jars[$jar] = $jar;
+        $this->jars[$jar] = fs::abs($jar);
     }
 
     public function addJvmModules(...$modules)
@@ -41,7 +64,7 @@ class AppPluginJavaRuntimeBuilder
     public function fetchModules($workingDir)
     {
         $javaExec = new JavaExec();
-        $jdepsBin = fs::parent($javaExec->getJavaBin()) . "/jdeps";
+        $jdepsBin = $this->javaHome . "/bin/jdeps";
 
         $modules = [];
 
@@ -69,20 +92,18 @@ class AppPluginJavaRuntimeBuilder
         return $modules;
     }
 
-    public function build($workingDir)
+    public function buildForJDK11($workingDir)
     {
         $modules = flow(
             $this->fetchModules($workingDir),
             $this->jvmModules
         )->toMap();
 
-        $javaExec = new JavaExec();
-        $javaHome = fs::parent($javaExec->getJavaBin());
-        $jlinkBin = $javaHome . "/jlink";
+        $jlinkBin = $this->javaHome . "/bin/jlink";
 
         $proc = new Process([
             $jlinkBin,
-            "--module-path", "$javaHome/jmods;out",
+            "--module-path", "$this->javaHomeEmbedded/jmods;out",
             "--add-modules", str::join($modules, ","),
             "--output", "jre"
         ], $workingDir, System::getEnv());
@@ -90,6 +111,30 @@ class AppPluginJavaRuntimeBuilder
 
         if ($proc->getExitValue() !== 0) {
             exit(-1);
+        }
+    }
+
+    public function buildForJDK8($workingDir)
+    {
+        Tasks::copy("$this->javaHomeEmbedded/jre", "$workingDir/jre");
+    }
+
+    public function build($workingDir)
+    {
+        if (fs::exists("$this->javaHomeEmbedded/jmods")) {
+            if (!fs::exists("$this->javaHome/jmods")) {
+                Console::error("Failed to build jre, it's requires JDK 11+ with 'jlink' tool, JAVA_HOME = {0}", $this->javaHome);
+                exit(-1);
+            }
+
+            $this->buildForJDK11($workingDir);
+        } else {
+            if (fs::exists("$this->javaHomeEmbedded/jre")) {
+                $this->buildForJDK8($workingDir);
+            } else {
+                Console::error("Failed to build jre, cannot find {0}", $this->javaHomeEmbedded);
+                exit(-1);
+            }
         }
     }
 }

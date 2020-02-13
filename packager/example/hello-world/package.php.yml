@@ -17,7 +17,8 @@ app:
     enabled: true # enable launcher scripts
     types: [sh, bat]
     java:
-      embedded: true # add jvm via jlink + jdeps
+      # jdk: 'path-to-embedded-jdk' # path to jdk with JRE or jmods
+      #embedded: true # add jvm via jlink + jdeps
 
 sources:
 - src

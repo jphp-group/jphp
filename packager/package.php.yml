@@ -1,5 +1,5 @@
 name: jppm
-version: 0.5.6
+version: 0.5.7
 
 plugins: [GitHub, Hub, Doc]
 
@@ -14,8 +14,8 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Fix Tasks::run() up-to-date status when using flags.
-    + Colorized output for Xterm console (Linux, Mac, Cygwin).
+    + Improve build jre (`java.launcher.jdk` option).
+    + Remove `one-jar` build type (`app.build.type` option), use only `multi-jar`
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

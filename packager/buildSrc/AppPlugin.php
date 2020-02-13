@@ -90,7 +90,7 @@ class AppPlugin
             $buildFileName = $build['file-name'];
         }
 
-        $buildType = $build['type'] ?? 'one-jar';
+        $buildType = $build['type'] ?? 'multi-jar';
 
         $buildDir = $event->package()->getConfigBuildPath();
 
@@ -104,6 +104,7 @@ class AppPlugin
 
         $metaInfServices = [];
         $jars = [];
+        $vendorJars = [];
 
         foreach ($exec->getClassPaths() as $classPath) {
             if (fs::isDir($classPath)) {
@@ -130,10 +131,14 @@ class AppPlugin
                 });
             } else if (fs::ext($classPath) === 'jar') {
                 Console::log("-> add jar: $classPath");
+                $vendorJars[] = $classPath;
 
                 switch ($buildType) {
                     case 'one-jar': {
-                        $jar = new ZipArchive($classPath);
+                        Console::error("app.build.type as 'one-jar' no longer supported, use 'multi-jar'");
+                        exit(-1);
+
+                        /*$jar = new ZipArchive($classPath);
                         $jar->readAll(function (ZipArchiveEntry $stat, ?Stream $stream) use (&$metaInfServices, $buildDir) {
                             $name = $stat->name;
 
@@ -151,7 +156,7 @@ class AppPlugin
                                 fs::ensureParent($file);
                                 fs::copy($stream, $file);
                             }
-                        });
+                        });*/
 
                         break;
                     }
@@ -307,7 +312,15 @@ class AppPlugin
                 Console::log("-> Build portable Java Runtime for App (via 'jlink')");
                 $javaRuntimeBuilder = new AppPluginJavaRuntimeBuilder();
 
-                foreach (flow($jars, $libJars) as $jar) {
+                if ($launcherConf['java']['jdk']) {
+                    if (is_string($launcherConf['java']['jdk'])) {
+                        $javaRuntimeBuilder->setJavaHomeEmbedded($launcherConf['java']['jdk']);
+                    } else if (is_array($launcherConf['java']['jdk'])) {
+                        $javaRuntimeBuilder->setJavaHomeEmbedded($launcherConf['java']['jdk'][Package::getOS()]);
+                    }
+                }
+
+                foreach ($vendorJars as $jar) {
                     $javaRuntimeBuilder->addJar($jar);
                 }
 
@@ -360,7 +373,19 @@ class AppPlugin
 
             default:
                 if (!$launcher['disable-launcher'] && !$launcherConf['disabled']) {
-                    Console::log("\n   Use 'java -jar \"$buildDir/$buildFileName.jar\"' to run the result app.");
+                    if (str::posIgnoreCase(System::osName(), 'win') === -1) {
+                        if (arr::has($launcherConf['types'], 'sh')) {
+                            Console::log("\n   Use '{0}' to run the result app.", fs::normalize("./$buildDir/$buildFileName"));
+                        } else {
+                            Console::warn("\n   Launcher script is not available, app.launcher.types hasn't 'sh' value");
+                        }
+                    } else {
+                        if (arr::has($launcherConf['types'], 'bat')) {
+                            Console::log("\n   Use '{0}.bat' to run the result app.", fs::normalize($buildDir . "\\" . $buildFileName));
+                        } else {
+                            Console::warn("\n   Launcher script is not available, app.launcher.types hasn't 'bat' value");
+                        }
+                    }
                 }
         }
 
