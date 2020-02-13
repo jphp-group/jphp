@@ -15,6 +15,7 @@ use php\util\Regex;
 class Package
 {
     const FILENAME = "package.php.yml";
+    const FILENAME_S = "package-%s.php.yml";
     const LOCK_FILENAME = "package-lock.php.yml";
 
     const TYPE_LIBRARY = 'library';
@@ -380,5 +381,10 @@ class Package
         $ignore->addRule("/gradlew");
 
         return $this->ignore = $ignore;
+    }
+
+    public function mergePackage(Package $profilePkg)
+    {
+        $this->data = arr::merge($this->data, $profilePkg->data);
     }
 }

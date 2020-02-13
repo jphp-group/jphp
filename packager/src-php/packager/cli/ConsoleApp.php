@@ -390,11 +390,27 @@ class ConsoleApp
 
     function getPackage(): ?Package
     {
-        try {
-            $dir = fs::abs("./");
-            return $this->packager->getRepo()->readPackage("$dir/" . Package::FILENAME);
-        } catch (IOException $e) {
-            return null;
+        static $pkg;
+
+        if ($pkg === null) {
+            try {
+                $dir = fs::abs("./");
+                $repo = $this->packager->getRepo();
+                $pkg = $repo->readPackage("$dir/" . Package::FILENAME);
+
+                foreach ($this->packager->getProfiles() as $profile) {
+                    $profilePkg = $repo
+                        ->readPackage("$dir/" . str::format(Package::FILENAME_S, $profile));
+                    
+                    $pkg->mergePackage($profilePkg);
+                }
+
+                return $pkg;
+            } catch (IOException $e) {
+                return null;
+            }
+        } else {
+            return $pkg;
         }
     }
 

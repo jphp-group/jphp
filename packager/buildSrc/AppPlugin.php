@@ -135,10 +135,9 @@ class AppPlugin
 
                 switch ($buildType) {
                     case 'one-jar': {
-                        Console::error("app.build.type as 'one-jar' no longer supported, use 'multi-jar'");
-                        exit(-1);
+                        Console::warn("app.build.type as 'one-jar' is unstable, try to use 'multi-jar'");
 
-                        /*$jar = new ZipArchive($classPath);
+                        $jar = new ZipArchive($classPath);
                         $jar->readAll(function (ZipArchiveEntry $stat, ?Stream $stream) use (&$metaInfServices, $buildDir) {
                             $name = $stat->name;
 
@@ -156,7 +155,7 @@ class AppPlugin
                                 fs::ensureParent($file);
                                 fs::copy($stream, $file);
                             }
-                        });*/
+                        });
 
                         break;
                     }

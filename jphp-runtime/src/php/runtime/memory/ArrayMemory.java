@@ -439,15 +439,17 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                             if (done.contains(value.getPointer()))
                                 throw new RecursiveException();
 
-                            Memory current = getByScalar(key).toImmutable();
-                            if (current.isArray()) {
+                            ReferenceMemory byScalar = getByScalar(key);
+                            Memory current = byScalar != null ? byScalar.toImmutable() : null;
+
+                            if (byScalar != null && current.isArray()) {
                                 value = value.toImmutable();
 
                                 int pointer = value.getPointer();
                                 done.add(pointer); // for check recursive
 
-                                ArrayMemory result = (ArrayMemory) value; // already array immutable above
-                                result.merge((ArrayMemory) current, recursive, done);
+                                ArrayMemory result = (ArrayMemory) current; // already array immutable above
+                                result.merge((ArrayMemory) value, recursive, done);
                                 put(key, result);
 
                                 done.remove(pointer);

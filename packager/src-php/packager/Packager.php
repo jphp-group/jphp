@@ -29,11 +29,6 @@ class Packager
     private $repo;
 
     /**
-     * @var Ignore
-     */
-    private $ignore;
-
-    /**
      * @var PackageLoader
      */
     private $packageLoader;
@@ -42,6 +37,11 @@ class Packager
      * @var PackageLock
      */
     private $packageLock;
+
+    /**
+     * @var string[]
+     */
+    private $profiles = ['dev'];
 
     /**
      * Packager constructor.
@@ -53,6 +53,19 @@ class Packager
         $home = $argv[0];
         if (fs::isFile($home)) {
             $home = fs::parent($home);
+        }
+
+        foreach ($argv as $arg) {
+            if (str::startsWith($arg, '-profile=')) {
+                $this->profiles = str::split(str::split($arg, '=', 2)[1], ',');
+                Console::info(
+                    "Using profile '{0}'",
+                    flow($this->profiles)
+                        ->map(fn($el) => Colors::withColor($el, 'yellow'))
+                        ->toString("' + '")
+                );
+                break;
+            }
         }
 
         System::setProperty("jppm.home", $home);
@@ -77,6 +90,14 @@ class Packager
     public function getVersion()
     {
         return $this->version;
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getProfiles(): array
+    {
+        return $this->profiles;
     }
 
     /**

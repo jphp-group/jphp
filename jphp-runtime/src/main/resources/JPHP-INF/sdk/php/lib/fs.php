@@ -422,8 +422,9 @@ class fs
      *
      * @param string $fromPath
      * @param string $toPath
+     * @return bool
      */
-    static function move($fromPath, $toPath)
+    static function move($fromPath, $toPath): bool
     {
     }
 
@@ -434,8 +435,9 @@ class fs
      *
      * @param string $pathToFile
      * @param string $newName
+     * @return bool
      */
-    static function rename($pathToFile, $newName)
+    static function rename($pathToFile, $newName): bool
     {
     }
 

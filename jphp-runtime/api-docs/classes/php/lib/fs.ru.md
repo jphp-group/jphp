@@ -363,7 +363,7 @@ fs::copy(string|File|Stream $source, string|File|Stream $dest, callable $onProgr
 
 ### move()
 ```php
-fs::move(string $fromPath, string $toPath): void
+fs::move(string $fromPath, string $toPath): bool
 ```
 Переименновывает или перемещает файл, либо пустую папку.
 
@@ -373,7 +373,7 @@ fs::move(string $fromPath, string $toPath): void
 
 ### rename()
 ```php
-fs::rename(string $pathToFile, string $newName): void
+fs::rename(string $pathToFile, string $newName): bool
 ```
 Задает файлу новое название, возвращает true при успехе.
 

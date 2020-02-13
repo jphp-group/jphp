@@ -1,0 +1,7 @@
+# this file used when -profile=dev or if -profile is not set in cmd args
+
+sources:
+- src-dev
+
+includes:
+- debug.php

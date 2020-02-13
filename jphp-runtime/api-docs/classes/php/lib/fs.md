@@ -365,7 +365,7 @@ Copies $source stream to $dest stream.
 
 ### move()
 ```php
-fs::move(string $fromPath, string $toPath): void
+fs::move(string $fromPath, string $toPath): bool
 ```
 Renames or moves a file or empty dir.
 
@@ -375,7 +375,7 @@ Renames or moves a file or empty dir.
 
 ### rename()
 ```php
-fs::rename(string $pathToFile, string $newName): void
+fs::rename(string $pathToFile, string $newName): bool
 ```
 Set name for file, returns true if success.
 

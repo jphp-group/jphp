@@ -256,4 +256,13 @@ class arr
     public static function reverse(array $array)
     {
     }
+
+    /**
+     * @param array $array
+     * @param array ...$others
+     * @return array
+     */
+    public static function merge(array $array, array ...$others): array
+    {
+    }
 }

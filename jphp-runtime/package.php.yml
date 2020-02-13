@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.0.8
+version: 1.0.10
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,10 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.0.10:
+    - Add arr::merge method to merge arrays.
+  1.0.9:
+    - Fix is_numeric function
   1.0.8:
     - Now Timer works as Thread with daemon options
   1.0.7:

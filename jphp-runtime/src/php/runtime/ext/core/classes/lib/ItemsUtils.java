@@ -7,10 +7,7 @@ import php.runtime.invoke.Invoker;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.spl.Countable;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.KeyValueMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.*;
 import php.runtime.reflection.ClassEntity;
 
 import java.util.*;
@@ -435,6 +432,26 @@ public class ItemsUtils extends BaseObject {
 
         while (iterator.next()) {
             result.unshift(iterator.getValue().toImmutable());
+        }
+
+        return result.toConstant();
+    }
+
+    @Signature({
+            @Arg(value = "collection", type = HintType.ARRAY),
+            @Arg(value = "others", type = HintType.VARARG)
+    })
+    public static Memory merge(Environment env, Memory... args) {
+        ArrayMemory result = (ArrayMemory) args[0].toImmutable();
+
+        int i = 0;
+
+        for (Memory arg : args) {
+            if (i >= 1 && arg.isArray()) {
+                result.merge(arg.toValue(ArrayMemory.class), true, null);
+            }
+
+            i++;
         }
 
         return result.toConstant();

@@ -77,7 +77,7 @@ class AppPluginJavaRuntimeBuilder
                 foreach (str::lines($string, true) as $line) {
                     [, $module] = str::split($line, "->");
                     $module = str::trim($module);
-                    if ($module === "not found") {
+                    if (str::contains($module, " ")) {
                         continue;
                     }
 

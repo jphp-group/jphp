@@ -38,6 +38,7 @@ Library for working with collections - arrays, iterators, etc.
 - `arr ::`[`last()`](#method-last) - _Alias to peek()._
 - `arr ::`[`lastKey()`](#method-lastkey)
 - `arr ::`[`reverse()`](#method-reverse)
+- `arr ::`[`merge()`](#method-merge)
 
 ---
 
@@ -259,6 +260,15 @@ arr::lastKey(array $collection): string|int|null
 ### reverse()
 ```php
 arr::reverse(array $array): array
+```
+
+---
+
+<a name="method-merge"></a>
+
+### merge()
+```php
+arr::merge(array $array, array $others): array
 ```
 
 ---

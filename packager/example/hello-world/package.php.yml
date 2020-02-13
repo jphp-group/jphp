@@ -5,6 +5,7 @@ plugins: [App]
 
 deps:
   jphp-core: '*'
+  jphp-zend-ext: '*'
 
 app:
   bootstrap: index.php
