@@ -34,7 +34,7 @@ string(11) "changed.all"
 string(11) "changed.all"
 
 But because this is implemented using PHP references, the reference set can easily be split:
-&string(11) "changed.one"
-&string(11) "changed.one"
-&string(11) "changed.one"
+string(11) "changed.one"
+string(11) "changed.one"
+string(11) "changed.one"
 ==Done==

@@ -13,11 +13,20 @@ import java.util.List;
 
 public class ListExprToken extends ValueExprToken implements CallableExprToken {
     protected final List<Variable> variables;
+    protected boolean hasRef = false;
     protected ExprStmtToken value;
 
     public ListExprToken(TokenMeta meta) {
         super(meta, TokenType.T_LIST);
         variables = new ArrayList<Variable>();
+    }
+
+    public boolean isHasRef() {
+        return hasRef;
+    }
+
+    public void setHasRef(boolean hasRef) {
+        this.hasRef = hasRef;
     }
 
     public ExprStmtToken getValue() {
@@ -32,14 +41,14 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
         return variables;
     }
 
-    public Variable addVariable(ExprStmtToken v, ExprStmtToken index, List<Integer> indexes){
-        Variable var = new Variable(v, index, indexes);
+    public Variable addVariable(ExprStmtToken v, ExprStmtToken index, List<Integer> indexes, boolean isRef){
+        Variable var = new Variable(v, index, indexes, isRef);
         variables.add(var);
         return var;
     }
 
-    public Variable addVariable(ExprStmtToken v, int index, List<Integer> indexes){
-        Variable var = new Variable(v, index, indexes);
+    public Variable addVariable(ExprStmtToken v, int index, List<Integer> indexes, boolean isRef){
+        Variable var = new Variable(v, index, indexes, isRef);
         variables.add(var);
         return var;
     }
@@ -55,23 +64,26 @@ public class ListExprToken extends ValueExprToken implements CallableExprToken {
 
     public class Variable {
         public final ExprStmtToken var;
+        public final boolean isRef;
         //public final String name;
         public final int index;
         public final ExprStmtToken exprIndex;
         public final List indexes;
 
-        public Variable(ExprStmtToken var, int index, List indexes) {
+        public Variable(ExprStmtToken var, int index, List indexes, boolean isRef) {
             this.var = var;
             this.index = index;
             this.exprIndex = null;
             this.indexes = indexes;
+            this.isRef = isRef;
         }
 
-        public Variable(ExprStmtToken var, ExprStmtToken index, List indexes) {
+        public Variable(ExprStmtToken var, ExprStmtToken index, List indexes, boolean isRef) {
             this.var = var;
             this.index = -1;
             this.exprIndex = index;
             this.indexes = indexes;
+            this.isRef = isRef;
         }
 
         public boolean isArrayPush() {

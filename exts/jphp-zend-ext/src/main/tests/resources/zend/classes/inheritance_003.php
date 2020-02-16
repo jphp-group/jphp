@@ -16,5 +16,5 @@ class B extends A
 ?>
 ===DONE===
 --EXPECTF--
-Warning: Declaration of B::f() must be compatible with A::f($x) in %s on line %d at pos %d
+Warning: Declaration of B::f() should be compatible with A::f($x) in %s on line %d at pos %d
 ===DONE===

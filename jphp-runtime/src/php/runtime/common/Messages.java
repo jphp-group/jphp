@@ -18,6 +18,7 @@ final public class Messages {
     public final static Item ERR_CANNOT_JUMP_TO_LEVEL = new Item("Cannot break/continue %s level(s)");
     public final static Item ERR_CANNOT_JUMP = new Item("Cannot break/continue");
     public final static Item ERR_EXPECTED_CONST_VALUE = new Item("Expecting constant value for %s");
+    public final static Item ERR_CANNOT_ASSIGN_REF_TO_NON_REF_VALUE = new Item("Cannot assign reference to non referencable value");
     public final static Item ERR_CANNOT_FETCH_OF_NON_ARRAY = new Item("Cannot fetch an item of non-array");
 
     public final static Item ERR_CALL_TO_UNDEFINED_FUNCTION = new Item("Call to undefined function %s()");
@@ -52,7 +53,7 @@ final public class Messages {
     public final static Item ERR_IMPLEMENT_METHOD =
             new Item("Class %s contains %s abstract method(s) and must therefore be declared abstract or implement the remaining methods (%s)");
 
-    public final static Item ERR_INVALID_METHOD_SIGNATURE = new Item("Declaration of %s must be compatible with %s");
+    public final static Item ERR_INVALID_METHOD_SIGNATURE = new Item("Declaration of %s should be compatible with %s");
     public final static Item ERR_INTERFACE_FUNCTION_CANNOT_CONTAIN_BODY = new Item("Interface function %s cannot contain body");
     public final static Item ERR_ACCESS_TYPE_FOR_INTERFACE_METHOD = new Item("Access type for interface method %s must be omitted");
     public final static Item ERR_CANNOT_MAKE_NON_STATIC_TO_STATIC = new Item("Cannot make non static method %s static in class %s");

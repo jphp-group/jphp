@@ -116,17 +116,24 @@ public class ForeachCompiler extends BaseStatementCompiler<ForeachStmtToken> {
             if (token.getValue().getSingle() instanceof VariableExprToken)
                 expr.checkAssignableVar(var = (VariableExprToken)token.getValue().getSingle());
 
-            expr.writeVarLoad(foreachVariable);
-            expr.writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
-            if (!token.isValueReference())
-                expr.writePopImmutable();
-
             ExprStmtToken value = token.getValue();
 
+            expr.writeVarLoad(foreachVariable);
+            expr.writeSysDynamicCall(ForeachIterator.class, "getValue", Memory.class);
+
             if (value.isSingle() && value.getSingle() instanceof ListExprToken) {
+                ListExprToken listExprToken = (ListExprToken) value.getSingle();
+
+                if (!token.isValueReference() && !listExprToken.isHasRef()) {
+                    expr.writePopImmutable();
+                }
+
                 ListCompiler listCompiler = (ListCompiler)expr.getCompiler(ListExprToken.class);
-                listCompiler.write((ListExprToken)value.getSingle(), false, false);
+                listCompiler.write(listExprToken, false, false);
             } else {
+                if (!token.isValueReference())
+                    expr.writePopImmutable();
+
                 expr.writeExpression(value, true, false);
                 if (expr.stackPeek().immutable)
                     expr.unexpectedToken(value.getLast());

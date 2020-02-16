@@ -24,7 +24,7 @@ public class VarDump extends Printer {
 
     @Override
     protected void printReference(ReferenceMemory reference, int level, Set<Integer> used) {
-        if (reference.isShortcut())
+        if (reference.isShortcut() && (used != null && !used.isEmpty()))
             printer.write("&");
 
         super.printReference(reference, level, used);
