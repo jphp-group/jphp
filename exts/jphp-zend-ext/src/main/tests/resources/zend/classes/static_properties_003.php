@@ -38,7 +38,7 @@ Notice: Undefined property: C::$x in %s on line 14 at pos %d
 Strict Standards: Accessing static property C::$x as non static in %s on line 15 at pos %d
 Strict Standards: Accessing static property C::$x as non static in %s on line 17 at pos %d
 Strict Standards: Accessing static property C::$x as non static in %s on line 18 at pos %d
-&string(3) "ref"
+string(3) "ref"
 string(5) "C::$x"
 
 --> Access non-visible static prop like instance prop:

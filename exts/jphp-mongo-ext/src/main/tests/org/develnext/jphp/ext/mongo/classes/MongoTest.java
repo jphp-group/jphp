@@ -1,6 +1,9 @@
 package org.develnext.jphp.ext.mongo.classes;
 
+import com.mongodb.LazyDBList;
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
 import org.develnext.jphp.ext.mongo.MongoJvmTestCase;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -12,14 +15,31 @@ import org.junit.runners.MethodSorters;
 @RunWith(JUnit4.class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MongoTest extends MongoJvmTestCase {
+    protected boolean availableMongoDb = false;
+
     @Before
     public void before() {
-        MongoClient client = new MongoClient();
-        client.getDatabase("jphp-mongo-ext").drop();
+        MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
+        builder.connectTimeout(5000);
+        builder.socketTimeout(5000);
+        builder.maxWaitTime(2000);
+        MongoClient client = new MongoClient(new ServerAddress(), builder.build());
+        try {
+            client.getAddress();
+            availableMongoDb = true;
+        } catch (Exception e) {
+            System.err.println("Failed to connect MongoDB to test jphp-mongo-ext !!!");
+        }
+
+        if (availableMongoDb) {
+            client.getDatabase("jphp-mongo-ext").drop();
+        }
     }
 
     @Test
     public void testBasic() {
-        check("mongo/mongo_basic.php");
+        if (availableMongoDb) {
+            check("mongo/mongo_basic.php");
+        }
     }
 }

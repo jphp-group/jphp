@@ -26,6 +26,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.common.Callback;
 import php.runtime.common.Messages;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
@@ -116,11 +117,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
         int i = 0;
         boolean withKeys = false;
+        boolean isRef = false;
         ExprStmtToken keyExpr = null;
 
         while (true){
             next = nextToken(iterator);
             if (next instanceof ListExprToken || isOpenedBrace(next, ARRAY)) {
+                isRef = false;
                 if ((arraySyntax && next instanceof ListExprToken) || (!arraySyntax && isOpenedBrace(next, ARRAY))) {
                     analyzer.getEnvironment().error(
                             next.toTraceInfo(analyzer.getContext()),
@@ -146,8 +149,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 i++;
             } else if (isClosedBrace(next, arraySyntax ? ARRAY : SIMPLE)){
                 break;
-            } else if (next instanceof CommaToken){
+            } else if (next instanceof CommaToken) {
                 i++;
+            } else if (next instanceof AmpersandRefToken) {
+                result.setHasRef(true);
+                isRef = true;
             } else {
                 SimpleExprGenerator generator = analyzer.generator(SimpleExprGenerator.class);
                 int currIndex = iterator.nextIndex() - 1;
@@ -170,8 +176,30 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                                 var.getTokens().subList(k + 1, var.getTokens().size())
                         );
 
+                        isRef = valueExpr.getSingle() instanceof AmpersandRefToken;
+                        AmpersandRefToken isRefToken = null;
+
+                        if (isRef) {
+                            result.setHasRef(true);
+                            isRefToken = (AmpersandRefToken) valueExpr.getSingle();
+                            valueExpr = new ExprStmtToken(
+                                    analyzer.getEnvironment(),
+                                    analyzer.getContext(),
+                                    valueExpr.getTokens().subList(1, valueExpr.getTokens().size())
+                            );
+                        }
+
                         if (valueExpr.getSingle() instanceof ArrayExprToken || valueExpr.getSingle() instanceof ListExprToken) {
-                            if ((arraySyntax && valueExpr.getSingle() instanceof ListExprToken) || (!arraySyntax && valueExpr.getSingle() instanceof ArrayExprToken)) {
+                            if (isRef) {
+                                unexpectedToken(isRefToken);
+                            }
+
+                            if (valueExpr.getSingle() instanceof ListExprToken && ((ListExprToken)valueExpr.getSingle()).isHasRef()) {
+                                result.setHasRef(true);
+                            }
+
+                            if ((arraySyntax && valueExpr.getSingle() instanceof ListExprToken)
+                                    || (!arraySyntax && valueExpr.getSingle() instanceof ArrayExprToken)) {
                                 analyzer.getEnvironment().error(
                                         next.toTraceInfo(analyzer.getContext()),
                                         ErrorType.E_ERROR,
@@ -250,7 +278,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         );
                     }
 
-                    result.addVariable(valueExpr, i, indexes);
+                    result.addVariable(valueExpr, i, indexes, isRef);
                 } else {
                     if (!withKeys && i > 0) {
                         analyzer.getEnvironment().error(
@@ -261,10 +289,18 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     }
 
                     withKeys = true;
-                    result.addVariable(valueExpr, keyExpr, indexes);
+                    result.addVariable(valueExpr, keyExpr, indexes, isRef);
+                }
+
+                if (isRef
+                        && analyzer.getFunction() != null
+                        && valueExpr.isSingle() && valueExpr.getSingle() instanceof ValueExprToken) {
+                    analyzer.getFunction().variable((VariableExprToken) valueExpr.getSingle()).setReference(true);
                 }
 
                 cont:
+
+                isRef = false;
                 i++;
             }
         }
@@ -280,6 +316,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
                     nextToken(iterator), iterator, BraceExprToken.Kind.ANY
             );
+
             result.setValue(value);
         }
 

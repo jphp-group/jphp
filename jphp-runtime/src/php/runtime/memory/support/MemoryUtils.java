@@ -4,7 +4,9 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.lang.spl.ArrayAccess;
 import php.runtime.memory.*;
+import php.runtime.memory.helper.ShortcutMemory;
 
 import java.util.*;
 
@@ -336,25 +338,113 @@ public class MemoryUtils {
         }
     }
 
+    public static Memory valueForList(Memory memory, TraceInfo traceInfo, long index) {
+        if (memory.isArray() || memory.instanceOf(ArrayAccess.class)) {
+            Memory valueOfIndex = memory.valueOfIndex(traceInfo, index);
+            return valueOfIndex;
+        } else {
+            return Memory.NULL;
+        }
+    }
+
     public static Memory valueForList(Memory memory, long index) {
-        if (memory.isArray()) {
-            return memory.valueOfIndex(index);
+        return valueForList(memory, null, index);
+    }
+
+    public static Memory refValueForList(Memory memory, TraceInfo traceInfo, long index) {
+        return refValueForList(memory, traceInfo, false, index);
+    }
+
+    public static Memory refValueForList(Memory memory, TraceInfo traceInfo, boolean inner, long index) {
+        if (memory.isArray() || memory.instanceOf(ArrayAccess.class)) {
+            Memory refOfIndex = memory.refOfIndex(traceInfo, index);
+            if (refOfIndex.isUndefined()) {
+                if (inner) {
+                    ArrayMemory arrayMemory = new ArrayMemory();
+                    refOfIndex.assignRef(arrayMemory);
+                    if (memory.instanceOf(ArrayAccess.class)) {
+                        refOfIndex = memory.valueOfIndex(traceInfo, index);
+                    }
+                } else {
+                    refOfIndex.assign(Memory.NULL);
+                }
+            }
+            return refOfIndex;
+        } else {
+            return Memory.NULL;
+        }
+    }
+
+    public static Memory valueForList(Memory memory, TraceInfo traceInfo, String index) {
+        if (memory.isArray() || memory.instanceOf(ArrayAccess.class)) {
+            Memory valueOfIndex = memory.valueOfIndex(traceInfo, index);
+            return valueOfIndex;
         } else {
             return Memory.NULL;
         }
     }
 
     public static Memory valueForList(Memory memory, String index) {
-        if (memory.isArray()) {
-            return memory.valueOfIndex(index);
+        return valueForList(memory, null, index);
+    }
+
+    public static Memory refValueForList(Memory memory, TraceInfo traceInfo, String index) {
+        return refValueForList(memory, traceInfo, false, index);
+    }
+
+    public static Memory refValueForList(Memory memory, TraceInfo traceInfo, boolean inner, String index) {
+        if (memory.isArray() || memory.instanceOf(ArrayAccess.class)) {
+            Memory refOfIndex = memory.refOfIndex(traceInfo, index);
+            if (refOfIndex.isUndefined()) {
+                if (inner) {
+                    ArrayMemory arrayMemory = new ArrayMemory();
+                    refOfIndex.assignRef(arrayMemory);
+                    if (memory.instanceOf(ArrayAccess.class)) {
+                        refOfIndex = memory.valueOfIndex(traceInfo, index);
+                    }
+                } else {
+                    refOfIndex.assign(Memory.NULL);
+                }
+            }
+            return refOfIndex;
+        } else {
+            return Memory.NULL;
+        }
+    }
+
+    public static Memory valueForList(Memory memory, TraceInfo traceInfo, Memory index) {
+        if (memory.isArray() || memory.instanceOf(ArrayAccess.class)) {
+            Memory valueOfIndex = memory.valueOfIndex(traceInfo, index);
+            return valueOfIndex;
         } else {
             return Memory.NULL;
         }
     }
 
     public static Memory valueForList(Memory memory, Memory index) {
-        if (memory.isArray()) {
-            return memory.valueOfIndex(index);
+        return valueForList(memory, null, index);
+    }
+
+    public static Memory refValueForList(Memory memory, TraceInfo traceInfo, Memory index) {
+        return refValueForList(memory, traceInfo, false, index);
+    }
+
+    public static Memory refValueForList(Memory memory, TraceInfo traceInfo, boolean inner, Memory index) {
+        if (memory.isArray() || memory.instanceOf(ArrayAccess.class)) {
+            Memory refOfIndex = memory.refOfIndex(traceInfo, index);
+            if (refOfIndex.isUndefined()) {
+                if (inner) {
+                    ArrayMemory arrayMemory = new ArrayMemory();
+                    refOfIndex.assignRef(arrayMemory);
+
+                    if (memory.instanceOf(ArrayAccess.class)) {
+                        refOfIndex = memory.valueOfIndex(traceInfo, index);
+                    }
+                } else {
+                    refOfIndex.assign(Memory.NULL);
+                }
+            }
+            return refOfIndex;
         } else {
             return Memory.NULL;
         }
