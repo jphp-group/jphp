@@ -10,6 +10,7 @@ import php.runtime.lang.spl.Countable;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
+import php.runtime.memory.TrueMemory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +37,17 @@ public class ArrayFunctions extends FunctionsContainer {
             }
         }
         return size;
+    }
+
+    public static Memory is_countable(Environment env, TraceInfo traceInfo, Memory var) {
+        switch (var.type) {
+            case ARRAY:
+                return Memory.TRUE;
+            case OBJECT:
+                return TrueMemory.valueOf(var.instanceOf(Countable.class));
+        }
+
+        return Memory.FALSE;
     }
 
     @Runtime.Immutable
