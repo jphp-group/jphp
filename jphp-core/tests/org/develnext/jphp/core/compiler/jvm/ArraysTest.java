@@ -94,6 +94,11 @@ public class ArraysTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testCountInvalid() {
+        check("arrays/count_invalid.phpt");
+    }
+
+    @Test
     public void testBugs() {
         check("arrays/bug148.php");
         check("arrays/bug_unset_and_ref.php");

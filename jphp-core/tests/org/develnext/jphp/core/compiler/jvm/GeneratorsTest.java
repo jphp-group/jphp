@@ -210,6 +210,11 @@ public class GeneratorsTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testCountError() {
+        check("generators/count_error.phpt");
+    }
+
+    @Test
     public void testBug262() {
         check("generators/bug262.php");
     }
