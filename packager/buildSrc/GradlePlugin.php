@@ -41,7 +41,7 @@ class GradlePlugin
         foreach ($deps as $dep) {
             if (is_array($dep)) {
                 $exclude = flow($dep['exclude'])->map(function ($s) {
-                    [$group, $module] = str::split($s, ":");
+                    [$group, $module] = str::split($s, ":", 2);
                     return "  exclude(group: '$group', module: '$module')";
                 })->toString("\n");
 
@@ -80,6 +80,7 @@ class GradlePlugin
         }
 
         $compile = $this->makeDepSection((array) $this->config['deps'], 'compile');
+        $implementation = $this->makeDepSection((array) $this->config['implDeps'], 'implementation');
         $provided = $this->makeDepSection((array) $this->config['providedDeps'], 'provided');
 
         $jars = fs::scan("./jars/", ['extensions' => ['jar'], 'excludeDirs' => true], 1);
@@ -131,6 +132,7 @@ class GradlePlugin
             "",
             "dependencies {",
                 str::join($provided, "\r\n"),
+                str::join($implementation, "\r\n"),
                 str::join($compile, "\r\n"),
             "}",
             "",
