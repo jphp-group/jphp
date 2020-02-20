@@ -14,6 +14,8 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.1.1:
+    - Improve arrays performance.
   1.1.0:
     - Add PHP 7.2 features (ref in list, is_countable, count() warnings).
   1.0.10:

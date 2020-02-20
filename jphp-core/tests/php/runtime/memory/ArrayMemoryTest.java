@@ -203,8 +203,8 @@ public class ArrayMemoryTest {
         set = arr.keySet();
         setArr = set.toArray();
         assertEquals(3, setArr.length);
-        assertEquals(0, ((Memory)setArr[0]).toInteger());
-        assertEquals(1, ((Memory)setArr[1]).toInteger());
+        assertEquals(0L, setArr[0]);
+        assertEquals(1L, setArr[1]);
         assertEquals("3", setArr[2].toString());
     }
 }

@@ -7,7 +7,12 @@ import php.runtime.env.TraceInfo;
 import java.nio.charset.Charset;
 
 public class StringMemory extends Memory {
+    protected static final int FLAG_IS_LIKE_LONG = 1 << 1;
+    protected static final int FLAG_IS_NOT_LIKE_LONG = 1 << 2;
+
     String value = "";
+
+    protected int flags = 0;
 
     protected final static StringMemory[] CACHED_CHARS;
 
@@ -21,6 +26,19 @@ public class StringMemory extends Memory {
 
     public StringMemory(char ch){
         this(String.valueOf(ch));
+    }
+
+    public boolean canBeConvertedToLong() {
+        if ((flags & FLAG_IS_LIKE_LONG) != 0) return true;
+        if ((flags & FLAG_IS_NOT_LIKE_LONG) != 0) return false;
+
+        if (toLong(toString()) == null) {
+            flags |= FLAG_IS_NOT_LIKE_LONG;
+            return false;
+        } else {
+            flags |= FLAG_IS_LIKE_LONG;
+            return false;
+        }
     }
 
     public static Memory valueOf(String value){

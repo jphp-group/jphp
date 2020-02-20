@@ -307,7 +307,6 @@ public class ParameterEntity extends Entity {
         if (isReference != that.isReference) return false;
         if (clazz != null ? !clazz.equals(that.clazz) : that.clazz != null) return false;
         return getType() == that.getType();
-
     }
 
     @Override

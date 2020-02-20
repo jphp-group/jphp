@@ -235,26 +235,26 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public static Object toKey(Memory key) {
         switch (key.type) {
             case STRING: {
-                String key1 = key.toString();
-                Memory number = StringMemory.toLong(key1);
-                if (number == null)
-                    return key1;
-                else
-                    return number;
+                if (((StringMemory)key).canBeConvertedToLong()) {
+                    return StringMemory.toLong(key.toString()).toLong();
+                } else {
+                    return key.toString();
+                }
             }
             case INT:
-                return key;
+            case DOUBLE:
+                return key.toLong();
             case NULL:
                 return Memory.CONST_EMPTY_STRING;
             case REFERENCE:
                 return toKey(key.toValue());
             default:
-                return LongMemory.valueOf(key.toLong());
+                return toKey(StringMemory.valueOf(key.toString()));
         }
     }
 
     public boolean containsLongKey(long key) {
-        return containsKey(LongMemory.valueOf(key));
+        return containsKey(key);
     }
 
     public boolean containsKey(Object key) {
@@ -273,10 +273,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     private void convertToMap() {
         map = new ArrayMemoryMap();
         if (_list != null && !_list.isEmpty()) {
-            int i = 0;
+            long i = 0;
             for (ReferenceMemory memory : _list) {
                 if (memory != null) {
-                    map.put(LongMemory.valueOf(i), memory.getValue());
+                    map.put(i, memory.getValue());
                 }
                 i++;
             }
@@ -343,8 +343,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public ReferenceMemory getByScalar(Object key) {
         if (_list != null) {
-            if (key instanceof Memory) {
-                int index = (int) ((Memory) key).toLong();
+            if (key instanceof Long) {
+                int index = ((Long)key).intValue();
                 if (index >= 0 && index < _list.size()) {
                     return _list.get(index);
                 } else
@@ -396,7 +396,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             getList().add(ref);
             size++;
         } else {
-            ref = put(LongMemory.valueOf(++lastLongIndex), value);
+            ref = put(++lastLongIndex, value);
         }
 
         return ref;
@@ -431,7 +431,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             } else {
                 for (Map.Entry<Object, Memory> entry : array.map.entrySet()) {
                     Object key = entry.getKey();
-                    if (key instanceof LongMemory) {
+                    if (key instanceof Long) {
                         add(entry.getValue().toImmutable());
                     } else {
                         Memory value = entry.getValue();
@@ -466,10 +466,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public void putAll(ArrayMemory array) {
         if (array.map == null) {
-            int i = 0;
+            long i = 0;
             for (ReferenceMemory memory : array.getList()) {
                 if (memory != null)
-                    put(LongMemory.valueOf(i), memory.toImmutable());
+                    put(i, memory.toImmutable());
                 i++;
             }
         } else {
@@ -488,10 +488,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public void putAllRef(ArrayMemory array) {
         if (array.map == null) {
-            int i = 0;
+            long i = 0;
             for (ReferenceMemory memory : array.getList()) {
                 if (memory != null)
-                    put(LongMemory.valueOf(i), memory);
+                    put(i, memory);
                 i++;
             }
         } else {
@@ -541,16 +541,21 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         return put(key, ObjectMemory.valueOf(value));
     }
 
+    public ReferenceMemory put(long key, Memory value) {
+        return put((Long) key, value);
+    }
+
     public ReferenceMemory put(Object key, Memory value) {
-        if (key instanceof LongMemory) {
+        if (key instanceof Long) {
             ReferenceMemory mem = new ReferenceMemory(value);
 
-            int index = (int) ((LongMemory) key).value;
-
-            if (index > lastLongIndex)
-                lastLongIndex = index;
+            if ((Long) key > lastLongIndex) {
+                lastLongIndex = (Long) key;
+            }
 
             if (map == null) {
+                int index = ((Number) key).intValue();
+
                 int size = getList().size();
                 if (index >= 0) {
                     if (index < size) {
@@ -618,14 +623,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         }
 
         {
-            if (key instanceof Long)
-                key = LongMemory.valueOf((Long) key);
-            else if (key instanceof Integer)
-                key = LongMemory.valueOf((Integer) key);
-            else if (key instanceof String) {
+            if (key instanceof String) {
                 Memory tmp = StringMemory.toLong((String) key);
-                if (tmp != null)
-                    key = tmp;
+                if (tmp != null) {
+                    key = tmp.toLong();
+                }
+            } else if (key instanceof Integer) {
+                key = ((Integer) key).longValue();
             }
 
             Memory memory = map.remove(key);
@@ -639,7 +643,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public Memory remove(Memory key) {
         Object _key = toKey(key);
         if (map == null) {
-            int index = _key instanceof LongMemory ? (int) key.toLong() : -1;
+            int index = _key instanceof Long ? ((Long) _key).intValue() : -1;
             if (index < 0 || _list == null || index >= getList().size())
                 return null;
 
@@ -813,8 +817,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return LongMemory.valueOf(size - 1);
         else {
             Object key = map.lastKey();
-            if (key instanceof Memory) {
-                return (Memory) key;
+            if (key instanceof Long) {
+                return LongMemory.valueOf((Long) key);
             } else if (key instanceof String) {
                 return StringMemory.valueOf(key.toString());
             }
@@ -834,8 +838,8 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             }
 
             Object key = keys.next();
-            if (key instanceof LongMemory)
-                return (LongMemory) key;
+            if (key instanceof Long)
+                return LongMemory.valueOf((long) key);
             else
                 return new StringMemory((String) key);
         }
@@ -1168,13 +1172,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, long index) {
-        Memory e = getByScalar(LongMemory.valueOf(index));
+        Memory e = getByScalar(index);
         return e == null ? UNDEFINED : e;
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, double index) {
-        Memory e = getByScalar(LongMemory.valueOf((long) index));
+        Memory e = getByScalar((long) index);
         return e == null ? UNDEFINED : e;
     }
 
@@ -1187,7 +1191,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     @Override
     public Memory valueOfIndex(TraceInfo trace, String index) {
         Memory number = StringMemory.toLong(index);
-        Memory e = number == null ? getByScalar(index) : getByScalar(number);
+        Memory e = number == null ? getByScalar(index) : getByScalar(number.toLong());
         return e == null ? UNDEFINED : e;
     }
 
@@ -1234,12 +1238,12 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     @Override
     public Memory refOfIndex(TraceInfo trace, long index) {
         checkCopied();
-        return getOrCreate(LongMemory.valueOf(index));
+        return getByScalarOrCreate(index);
     }
 
     @Override
     public Memory refOfIndex(TraceInfo trace, double index) {
-        return refOfIndex(null, LongMemory.valueOf((long) index));
+        return refOfIndex(trace, (long) index);
     }
 
     @Override
@@ -1252,7 +1256,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public Memory refOfIndex(TraceInfo trace, String index) {
         checkCopied();
         Memory number = StringMemory.toLong(index);
-        return number == null ? getByScalarOrCreate(index) : getByScalarOrCreate(number);
+        return number == null ? getByScalarOrCreate(index) : getByScalarOrCreate(number.toLong());
     }
 
     @Override
@@ -1402,7 +1406,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                         return false;
                     } else {
                         cursor--;
-                        currentKey = LongMemory.valueOf((long) cursor);
+                        currentKey = (long) cursor;
                         setCurrentValue(getList().get(cursor));
                         return true;
                     }
@@ -1434,7 +1438,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                         return false;
                     }
 
-                    currentKey = LongMemory.valueOf((long) cursor);
+                    currentKey = (long) cursor;
                     setCurrentValue(getList().get(cursor));
                     cursor++;
                     return true;

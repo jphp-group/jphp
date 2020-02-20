@@ -23,6 +23,12 @@ public class KeyValueMemory extends ReferenceMemory {
 
     public static Memory valueOf(Memory key, Memory value, Memory arrayKey) {
         KeyValueMemory memory = new KeyValueMemory(key, value);
+        memory.arrayKey = ArrayMemory.toKey(arrayKey);
+        return memory;
+    }
+
+    public static Memory valueOf(Memory key, Memory value, long arrayKey) {
+        KeyValueMemory memory = new KeyValueMemory(key, value);
         memory.arrayKey = arrayKey;
         return memory;
     }

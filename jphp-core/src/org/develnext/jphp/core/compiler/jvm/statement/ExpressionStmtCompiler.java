@@ -416,9 +416,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             if (arrayKey instanceof String) {
                 writePushConstString((String) arrayKey);
                 writeSysStaticCall(KeyValueMemory.class, "valueOf", Memory.class, Memory.class, Memory.class, String.class);
-            } else if (arrayKey instanceof LongMemory) {
-                writePushConstantMemory((Memory) arrayKey);
-                writeSysStaticCall(KeyValueMemory.class, "valueOf", Memory.class, Memory.class, Memory.class, Memory.class);
+            } else if (arrayKey instanceof Long) {
+                writePushConstLong((long) arrayKey);
+                writeSysStaticCall(KeyValueMemory.class, "valueOf", Memory.class, Memory.class, Memory.class, Long.TYPE);
             } else {
                 writeSysStaticCall(KeyValueMemory.class, "valueOf", Memory.class, Memory.class, Memory.class);
             }
@@ -449,16 +449,24 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
                 } else {
                     Memory key = foreachIterator.getMemoryKey();
-                    writePushMemory(key);
-
-                    if (!key.isString()) {
+                    if (key instanceof LongMemory) {
+                        writePushConstLong(key.toLong());
+                        writePushMemory(foreachIterator.getValue());
                         writePopBoxing();
+
+                        writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Long.TYPE, Memory.class);
+                    } else {
+                        writePushMemory(key);
+
+                        if (!key.isString()) {
+                            writePopBoxing();
+                        }
+
+                        writePushMemory(foreachIterator.getValue());
+                        writePopBoxing();
+
+                        writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Object.class, Memory.class);
                     }
-
-                    writePushMemory(foreachIterator.getValue());
-                    writePopBoxing();
-
-                    writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Object.class, Memory.class);
                 }
 
                 writePopAll(1);
