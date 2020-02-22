@@ -48,4 +48,9 @@ public class ClassConstantMemory extends ReferenceMemory {
     public String getClassName() {
         return className;
     }
+
+    @Override
+    public Memory toValue() {
+        return this;
+    }
 }
