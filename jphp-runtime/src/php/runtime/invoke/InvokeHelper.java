@@ -8,6 +8,8 @@ import php.runtime.common.Callback;
 import php.runtime.common.Function;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
+import php.runtime.env.CallStack;
+import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.FatalException;
@@ -235,15 +237,20 @@ final public class InvokeHelper {
             return result;
         }
 
-        if (trace != null && function.isUsesStackTrace())
-            env.pushCall(trace, null, args, function.getName(), null, null);
+        CallStack callStack = trace != null && function.isUsesStackTrace() ? env.getCallStack() : null;
+
+        if (callStack != null) {
+            callStack.push(trace, null, args, function.getName(), (String) null, (String) null);
+        }
 
         try {
             result = function.invoke(env, trace, passed);
         } finally {
-            if (trace != null && function.isUsesStackTrace())
-                env.popCall();
+            if (callStack != null) {
+                callStack.pop();
+            }
         }
+
         return result;
     }
 
@@ -369,14 +376,18 @@ final public class InvokeHelper {
             return result;
         }
 
+        CallStack callStack = trace != null && method.isUsesStackTrace() ? env.getCallStack() : null;
+
         try {
-            if (trace != null)
-                env.pushCallEx(trace, null, args, originMethodName, method.getClazz(), classEntity);
+            if (callStack != null) {
+                callStack.push(trace, (IObject) null, args, originMethodName, method.getClazz(), classEntity);
+            }
 
             return method.invokeStatic(env, trace, passed);
         } finally {
-            if (trace != null)
-                env.popCall();
+            if (callStack != null) {
+                callStack.pop();
+            }
         }
     }
 
@@ -410,15 +421,18 @@ final public class InvokeHelper {
                 env, args, method.getParameters(), originClassName, originMethodName, staticClass, trace
         );
 
+        CallStack callStack = trace != null && method.isUsesStackTrace() ? env.getCallStack() : null;
+
         try {
-            if (trace != null && method.isUsesStackTrace()) {
-                env.pushCallEx(trace, null, passed, originMethodName, method.getClazz(), staticClazz);
+            if (callStack != null) {
+                callStack.push(trace, null, passed, originMethodName, method.getClazz(), staticClazz);
             }
 
             return method.invokeStatic(env, passed);
         } finally {
-            if (trace != null && method.isUsesStackTrace())
-                env.popCall();
+            if (callStack != null) {
+                callStack.pop();
+            }
         }
     }
 

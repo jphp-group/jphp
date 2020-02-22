@@ -2,7 +2,7 @@ package php.runtime.env;
 
 import java.io.File;
 
-public class TraceInfo {
+public class TraceInfo implements Cloneable {
     public final static TraceInfo UNKNOWN = new TraceInfo("Unknown", -1, -1);
 
     private Context context;
@@ -14,6 +14,8 @@ public class TraceInfo {
     private int endPosition;
 
     private String fileName;
+
+    private TraceInfoCallCache callCache;
 
     public TraceInfo(StackTraceElement element) {
         this.fileName = element.getFileName();
@@ -46,6 +48,18 @@ public class TraceInfo {
 
     public static TraceInfo valueOf(String fileName, long startLine, long startPosition){
         return new TraceInfo(fileName, (int) startLine, (int) startPosition);
+    }
+
+    public TraceInfoCallCache getCallCache() {
+        if (this == UNKNOWN) return null;
+
+        return callCache;
+    }
+
+    public void setCallCache(TraceInfoCallCache callCache) {
+        if (this == UNKNOWN) return;
+
+        this.callCache = callCache;
     }
 
     public Context getContext() {
@@ -81,5 +95,10 @@ public class TraceInfo {
 
     public boolean isUnknown(){
         return this == UNKNOWN;
+    }
+
+    @Override
+    protected TraceInfo clone() throws CloneNotSupportedException {
+        return (TraceInfo) super.clone();
     }
 }

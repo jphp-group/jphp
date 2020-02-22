@@ -3,8 +3,11 @@ package php.runtime.invoke;
 import php.runtime.Memory;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
+import php.runtime.env.CallStack;
+import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.env.TraceInfoCallCache;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.ConstantCallCache;
@@ -143,6 +146,22 @@ final public class ObjectInvokeHelper {
             method = clazz.methodMagicInvoke;
         } else {
             method = clazz.findMethod(methodLowerName);
+            /*TraceInfoCallCache callCache = trace == null ? null : trace.getCallCache();
+
+            if (callCache != null && callCache.self == clazz && callCache.callEntity != null) {
+                method = (MethodEntity) callCache.callEntity;
+            } else {
+                method = clazz.findMethod(methodLowerName);
+                if (trace != null && !trace.isUnknown()) {
+                    if (callCache == null) {
+                        callCache = new TraceInfoCallCache();
+                    }
+
+                    callCache.self = clazz;
+                    callCache.callEntity = method;
+                    trace.setCallCache(callCache);
+                }
+            }*/
 
             if (method != null && method.isContextDepends()) {
                 ClassEntity context = env.getLastClassOnStack();
@@ -195,8 +214,10 @@ final public class ObjectInvokeHelper {
             return result;
         }
 
+        CallStack callStack = (trace == null || !method.isUsesStackTrace()) ? null : env.getCallStack();
+
         try {
-            if (trace != null) {
+            if (callStack != null) {
                 String staticClass = className;
 
                 if (iObject instanceof Closure) {
@@ -204,16 +225,20 @@ final public class ObjectInvokeHelper {
                 }
 
                 if (clazz.isHiddenInCallStack()) {
-                    env.pushCall(trace, iObject, args, methodName, staticClass, staticClass);
+                    callStack.push(trace, iObject, args, methodName, staticClass, staticClass);
+                    //env.pushCall(trace, iObject, args, methodName, staticClass, staticClass);
 
                     if (doublePop) {
-                        env.pushCall(trace, iObject, passed, method.getName(), staticClass, staticClass);
+                        callStack.push(trace, iObject, passed, method.getName(), staticClass, staticClass);
+                        //env.pushCall(trace, iObject, passed, method.getName(), staticClass, staticClass);
                     }
                 } else {
-                    env.pushCallEx(trace, iObject, args, methodName, method.getClazz(), staticClass);
+                    callStack.push(trace, iObject, args, methodName, method.getClazz(), staticClass);
+                    //env.pushCallEx(trace, iObject, args, methodName, method.getClazz(), staticClass);
 
                     if (doublePop) {
-                        env.pushCallEx(trace, iObject, passed, method.getName(), method.getClazz(), staticClass);
+                        callStack.push(trace, iObject, passed, method.getName(), method.getClazz(), staticClass);
+                        //env.pushCallEx(trace, iObject, passed, method.getName(), method.getClazz(), staticClass);
                     }
                 }
             }
@@ -222,11 +247,13 @@ final public class ObjectInvokeHelper {
         } catch (NoClassDefFoundError e) {
             throw new CriticalException("Unable to call method " + className + "::" + methodName + "(), " + e.getMessage());
         } finally {
-            if (trace != null) {
-                env.popCall();
+            if (callStack != null) {
+                callStack.pop();
+                //env.popCall();
 
                 if (doublePop) {
-                    env.popCall();
+                    callStack.pop();
+                    //env.popCall();
                 }
             }
         }

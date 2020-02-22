@@ -25,6 +25,10 @@ import java.util.Arrays;
 public class CompileMethodEntity extends MethodEntity {
     protected CompileMethod function;
 
+    {
+        setUsesStackTrace(true);
+    }
+
     public CompileMethodEntity(Extension extension) {
         super((Context) null);
 

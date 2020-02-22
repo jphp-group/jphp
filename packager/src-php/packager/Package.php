@@ -323,7 +323,7 @@ class Package
         try {
             $data = $stream->parseAs('yaml');
 
-            return new Package($data, $info);
+            return new Package((array) $data, $info);
         } finally {
             $stream->close();
         }

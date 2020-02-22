@@ -116,6 +116,7 @@ public class FunctionEntity extends AbstractFunctionEntity {
         closureEntity1.setReturnReference(this.isReturnReference());
 
         MethodEntity m = new MethodEntity(this);
+        m.setUsesStackTrace(true);
         m.setClazz(closureEntity1);
         m.setName("__invoke");
         closureEntity1.addMethod(m, null);

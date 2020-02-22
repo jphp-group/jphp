@@ -2,6 +2,7 @@ package php.runtime.env;
 
 import php.runtime.Memory;
 import php.runtime.lang.IObject;
+import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ModuleEntity;
 
 public class CallStack {
@@ -139,5 +140,18 @@ public class CallStack {
 
     public TraceInfo trace(int systemOffsetStackTrace){
         return new TraceInfo(Thread.currentThread().getStackTrace()[systemOffsetStackTrace]);
+    }
+
+    public CallStackItem push(TraceInfo trace, IObject iObject, Memory[] args, String methodName, ClassEntity clazz, String staticClass) {
+        CallStackItem push = push(new CallStackItem(trace, iObject, args, methodName, clazz.getName(), staticClass));
+        push.classEntity = clazz;
+        return push;
+    }
+
+    public CallStackItem push(TraceInfo trace, IObject iObject, Memory[] args, String originMethodName, ClassEntity clazz, ClassEntity classEntity) {
+        CallStackItem stackItem = push(new CallStackItem(trace, null, args, originMethodName, clazz.getName(), classEntity.getName()));
+        stackItem.classEntity = clazz;
+        stackItem.staticClassEntity = classEntity;
+        return stackItem;
     }
 }

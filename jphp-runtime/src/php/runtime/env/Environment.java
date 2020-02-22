@@ -442,6 +442,21 @@ public class Environment {
         return getCallStack().trace();
     }
 
+    public TraceInfo traceCloned() {
+        TraceInfo trace = getCallStack().trace();
+        if (trace != null) {
+            try {
+                TraceInfo clone = trace.clone();
+                clone.setCallCache(null);
+                return clone;
+            } catch (CloneNotSupportedException e) {
+                return null;
+            }
+        }
+
+        return null;
+    }
+
     public TraceInfo trace(int systemOffsetStackTrace) {
         return getCallStack().trace(systemOffsetStackTrace);
     }
@@ -1703,7 +1718,7 @@ public class Environment {
     }
 
     public Memory invokeMethod(IObject object, String name, Memory... args) throws Throwable {
-        return ObjectInvokeHelper.invokeMethod(new ObjectMemory(object), name, name.toLowerCase(), this, trace(), args);
+        return ObjectInvokeHelper.invokeMethod(new ObjectMemory(object), name, name.toLowerCase(), this, traceCloned(), args);
     }
 
     public Memory invokeMethodNoThrow(IObject object, String name, Memory... args) {
@@ -1724,7 +1739,7 @@ public class Environment {
     }
 
     public Memory invokeMethod(Memory object, String name, Memory... args) throws Throwable {
-        return ObjectInvokeHelper.invokeMethod(object, name, name.toLowerCase(), this, trace(), args);
+        return ObjectInvokeHelper.invokeMethod(object, name, name.toLowerCase(), this, traceCloned(), args);
     }
 
     public void assignProperty(IObject object, String property, Memory value) throws Throwable {
