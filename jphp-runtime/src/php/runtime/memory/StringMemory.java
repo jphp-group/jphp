@@ -689,7 +689,6 @@ public class StringMemory extends Memory {
         return this;
     }
 
-
     @Override
     public boolean isNull() {
         return false;

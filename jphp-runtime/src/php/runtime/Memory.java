@@ -159,13 +159,13 @@ abstract public class Memory implements Comparable<Memory> {
 
     public Memory toArray() {
         ArrayMemory result = new ArrayMemory();
-        result.add(toImmutable());
+        result.add(fast_toImmutable());
         return result.toConstant();
     }
 
     public Memory toObject(Environment env) {
         StdClass stdClass = new StdClass(env);
-        stdClass.getProperties().refOfIndex("scalar").assign(toImmutable());
+        stdClass.getProperties().refOfIndex("scalar").assign(fast_toImmutable());
         return new ObjectMemory(stdClass);
     }
 
@@ -354,9 +354,9 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory pow(boolean value) {
         Memory real = toNumeric();
         if (real instanceof LongMemory) {
-            return value ? real.toImmutable() : Memory.CONST_INT_1;
+            return value ? real.fast_toImmutable() : Memory.CONST_INT_1;
         }
-        return value ? real.toImmutable() : Memory.CONST_DOUBLE_1;
+        return value ? real.fast_toImmutable() : Memory.CONST_DOUBLE_1;
     }
     public Memory pow(String value) { return pow(StringMemory.toNumeric(value)); }
 
@@ -428,7 +428,7 @@ abstract public class Memory implements Comparable<Memory> {
     abstract public boolean identical(Memory memory);
     public boolean identical(long value) { return type == Type.INT && toLong() == value; }
     public boolean identical(double value) { return type == Type.DOUBLE && DoubleMemory.almostEqual(toDouble(), value); }
-    public boolean identical(boolean value) { return type == Type.BOOL && value ? toImmutable() == TRUE : toImmutable() == FALSE; }
+    public boolean identical(boolean value) { return type == Type.BOOL && value ? fast_toImmutable() == TRUE : fast_toImmutable() == FALSE; }
     public boolean identical(String value) { return type == Type.STRING && toString().equals(value); }
 
     // NOT EQUAL
@@ -641,8 +641,42 @@ abstract public class Memory implements Comparable<Memory> {
         return this;
     }
 
+    /**
+     * This method more faster than toImmutable because is not overrided and is final
+     */
+    final public Memory fast_toImmutable() {
+        switch (type) {
+            case INT:
+            case BOOL:
+            case NULL:
+            case DOUBLE:
+            case STRING:
+            case OBJECT:
+                return this;
+            default:
+                return toImmutable();
+        }
+    }
+
+    /**
+     * For compiler.
+     */
+    static public Memory __static_fast_toImmutable(Memory value) {
+        switch (value.type) {
+            case INT:
+            case BOOL:
+            case NULL:
+            case DOUBLE:
+            case STRING:
+            case OBJECT:
+                return value;
+            default:
+                return value.toImmutable();
+        }
+    }
+
     public Memory toImmutable(Environment env, TraceInfo trace){
-        return toImmutable();
+        return fast_toImmutable();
     }
 
     @SuppressWarnings("unchecked")

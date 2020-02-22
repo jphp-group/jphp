@@ -767,7 +767,7 @@ public class Environment {
                     String key = entry.getKey();
                     if (prefix != null && !key.startsWith(prefix)) continue;
 
-                    result.put(key, entry.getValue().toImmutable());
+                    result.put(key, entry.getValue().fast_toImmutable());
                 }
             }
 
@@ -775,7 +775,7 @@ public class Environment {
             String key = entry.getKey();
 
             if (prefix != null && !key.startsWith(prefix)) continue;
-            result.put(key, entry.getValue().toImmutable());
+            result.put(key, entry.getValue().fast_toImmutable());
         }
         return result;
     }
@@ -1565,6 +1565,20 @@ public class Environment {
 
     public Memory __throwException(InvocationTargetException e) {
         Throwable throwable = e.getTargetException();
+        if (throwable instanceof FinallyException) {
+            return Memory.NULL;
+        }
+
+        if (throwable instanceof JPHPException)
+            throw (RuntimeException) throwable;
+        else {
+            JavaReflection.exception(this, throwable);
+        }
+
+        return Memory.NULL;
+    }
+
+    public Memory __throwThrowable(Throwable throwable) {
         if (throwable instanceof FinallyException) {
             return Memory.NULL;
         }

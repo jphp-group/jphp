@@ -75,7 +75,7 @@ public class CompileFunctionEntity extends FunctionEntity {
 
             if (clazz == Memory.class) {
                 Memory argument = arguments[j];
-                passed[i] = isRef ? argument : (mutableValue ? argument.toImmutable() : argument.toValue());
+                passed[i] = isRef ? argument : (mutableValue ? argument.fast_toImmutable() : argument.toValue());
                 j++;
             } else if (converter != null) {
                 passed[i] = converter.run(arguments[j]);
@@ -89,7 +89,7 @@ public class CompileFunctionEntity extends FunctionEntity {
 
                 if (!isRef){
                     for(int k = 0; k < arg.length; k++)
-                        arg[i] = arguments[i].toImmutable();
+                        arg[i] = arguments[i].fast_toImmutable();
                 } else {
                     System.arraycopy(arguments, j, arg, 0, arg.length);
                 }

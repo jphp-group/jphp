@@ -1,7 +1,6 @@
 package php.runtime.memory.support;
 
 import php.runtime.Memory;
-import php.runtime.common.Pair;
 import php.runtime.common.collections.*;
 import php.runtime.common.collections.iterators.*;
 import php.runtime.common.collections.list.UnmodifiableList;
@@ -383,26 +382,30 @@ public class ArrayMemoryMap extends AbstractMap<Object, Memory>
      * @return the value previously mapped to this key, null if none
      */
     public Memory put(Object key, Memory value) {
-        return putWithEntry(key, value).getA();
+        return putWithCallback(key, value, null);
     }
 
-    public Pair<Memory, ArrayMapEntryMemory> putWithEntry(Object key, Memory value) {
+    public ArrayMapEntryMemory putWithCallback(Object key, Memory value, Runnable onAdd) {
         int hashCode = hash((key == null) ? NULL : key);
         int index = hashIndex(hashCode, data.length);
         ArrayMapEntryMemory entry = data[index];
 
         while (entry != null) {
             if (entry.hashCode == hashCode && isEqualKey(key, entry.getKey())) {
-                Memory oldValue = entry.getValue();
+                //Memory oldValue = entry.getValue();
                 updateEntry(entry, value);
-                return new Pair<>(oldValue, entry);
+                return entry;
             }
 
             entry = entry.next;
         }
 
         entry = addMapping(index, hashCode, key, value);
-        return new Pair<>(null, entry);
+        if (onAdd != null) {
+            onAdd.run();
+        }
+
+        return entry;
     }
 
     /**

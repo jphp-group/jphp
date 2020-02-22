@@ -246,7 +246,7 @@ public class SharedUtils extends BaseObject {
             } else if (value.isObject()) {
                 this.value = value.clone(env, trace);
             } else {
-                this.value = value.toImmutable();
+                this.value = value.fast_toImmutable();
             }
         }
     }
@@ -298,7 +298,7 @@ public class SharedUtils extends BaseObject {
             queue = new LinkedList<Memory>();
 
             while (iterator.next()) {
-                queue.add(iterator.getValue().toImmutable());
+                queue.add(iterator.getValue().fast_toImmutable());
             }
         }
 
@@ -417,7 +417,7 @@ public class SharedUtils extends BaseObject {
             stack = new Stack<Memory>();
 
             while (iterator.next()) {
-                stack.push(iterator.getValue().toImmutable());
+                stack.push(iterator.getValue().fast_toImmutable());
             }
         }
 
@@ -557,7 +557,7 @@ public class SharedUtils extends BaseObject {
             map = new LinkedHashMap<String, Memory>();
 
             while (iterator.next()) {
-                map.put(iterator.getKey().toString(), iterator.getValue().toImmutable());
+                map.put(iterator.getKey().toString(), iterator.getValue().fast_toImmutable());
             }
         }
 

@@ -65,7 +65,7 @@ public class InvokeArgumentHelper {
 
             return arg;
         } else {
-            return param.isMutable() ? arg.toImmutable() : arg.toValue();
+            return param.isMutable() ? arg.fast_toImmutable() : arg.toValue();
         }
     }
 
@@ -182,7 +182,7 @@ public class InvokeArgumentHelper {
 
     private static void makeImmutable(Memory[] passed, ParameterEntity[] parameters) {
         for (int j = parameters.length ; j < passed.length; j++) {
-            passed[j] = passed[j].toImmutable();
+            passed[j] = passed[j].fast_toImmutable();
         }
     }
 
@@ -229,7 +229,7 @@ public class InvokeArgumentHelper {
                         isRef = parameterEntity != null && parameterEntity.isReference();
 
                         Memory value = foreachIterator.getValue();
-                        varPassed.add(isRef ? value : value.toImmutable());
+                        varPassed.add(isRef ? value : value.fast_toImmutable());
 
                         paramCnt++;
 
@@ -378,7 +378,7 @@ public class InvokeArgumentHelper {
                 arg = new ReferenceMemory(arg);
             }
         } else {
-            arg = param.isMutable() ? arg.toImmutable() : arg.toValue();
+            arg = param.isMutable() ? arg.fast_toImmutable() : arg.toValue();
         }
 
         return arg;

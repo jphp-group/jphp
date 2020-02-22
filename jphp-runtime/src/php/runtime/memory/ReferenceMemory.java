@@ -31,7 +31,7 @@ public class ReferenceMemory extends Memory {
     }
 
     public ReferenceMemory duplicate(){
-        return new ReferenceMemory(getValue().toImmutable());
+        return new ReferenceMemory(getValue().fast_toImmutable());
     }
 
     public Memory getValue() {
@@ -609,12 +609,7 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Memory toImmutable() {
-        switch (getValue().type){
-            case NULL:
-            case REFERENCE:
-            case ARRAY: return getValue().toImmutable();
-            default: return getValue();
-        }
+        return getValue().fast_toImmutable();
     }
 
     @Override
@@ -717,7 +712,7 @@ public class ReferenceMemory extends Memory {
             assign(new StringMemory(getValue().toString()));
         }
 
-        return (StringMemory)toImmutable();
+        return (StringMemory) toImmutable();
     }
 
     @Override

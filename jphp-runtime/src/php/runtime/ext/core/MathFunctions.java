@@ -201,7 +201,7 @@ public class MathFunctions extends FunctionsContainer {
                 if (max == null || one.greater(max))
                     max = one;
             }
-            return max == null ? Memory.NULL : max.toImmutable();
+            return max == null ? Memory.NULL : max.fast_toImmutable();
         } else {
             Memory max = value;
             if (args != null)
@@ -209,7 +209,7 @@ public class MathFunctions extends FunctionsContainer {
                     if (one.greater(max))
                         max = one;
                 }
-            return max.toImmutable();
+            return max.fast_toImmutable();
         }
     }
 
@@ -221,14 +221,14 @@ public class MathFunctions extends FunctionsContainer {
                 if (min == null || one.smaller(min))
                     min = one;
             }
-            return min == null ? Memory.NULL : min.toImmutable();
+            return min == null ? Memory.NULL : min.fast_toImmutable();
         } else {
             Memory min = value;
             for(Memory one : args){
                 if (one.smaller(min))
                     min = one;
             }
-            return min.toImmutable();
+            return min.fast_toImmutable();
         }
     }
 

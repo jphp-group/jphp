@@ -206,7 +206,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             result.map = new ArrayMemoryMap();
 
             for (Map.Entry<Object, Memory> entry : map.entrySet()) {
-                result.map.put(entry.getKey(), entry.getValue().toImmutable());
+                result.map.put(entry.getKey(), entry.getValue().fast_toImmutable());
             }
         }
 
@@ -385,7 +385,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     public ReferenceMemory add(Memory value) {
         if (value instanceof KeyValueMemory) {
             KeyValueMemory keyValue = (KeyValueMemory) value;
-            return put(keyValue.getArrayKey(), keyValue.getValue().toImmutable());
+            return put(keyValue.getArrayKey(), keyValue.getValue().fast_toImmutable());
         }
 
         ReferenceMemory ref;
@@ -415,7 +415,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         if (map == null && array.map == null) {
             for (ReferenceMemory reference : array.getList())
-                getList().add(new ReferenceMemory(reference.toImmutable()));
+                getList().add(new ReferenceMemory(reference.fast_toImmutable()));
 
             size = getList().size();
             lastLongIndex = size - 1;
@@ -426,13 +426,13 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
             if (array.map == null) {
                 for (ReferenceMemory reference : array.getList()) {
-                    add(reference.toImmutable());
+                    add(reference.fast_toImmutable());
                 }
             } else {
                 for (Map.Entry<Object, Memory> entry : array.map.entrySet()) {
                     Object key = entry.getKey();
                     if (key instanceof Long) {
-                        add(entry.getValue().toImmutable());
+                        add(entry.getValue().fast_toImmutable());
                     } else {
                         Memory value = entry.getValue();
                         if (recursive && value.isArray()) {
@@ -440,10 +440,10 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                                 throw new RecursiveException();
 
                             ReferenceMemory byScalar = getByScalar(key);
-                            Memory current = byScalar != null ? byScalar.toImmutable() : null;
+                            Memory current = byScalar != null ? byScalar.fast_toImmutable() : null;
 
                             if (byScalar != null && current.isArray()) {
-                                value = value.toImmutable();
+                                value = value.fast_toImmutable();
 
                                 int pointer = value.getPointer();
                                 done.add(pointer); // for check recursive
@@ -454,9 +454,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
                                 done.remove(pointer);
                             } else
-                                put(key, value.toImmutable());
+                                put(key, value.fast_toImmutable());
                         } else {
-                            put(key, value.toImmutable());
+                            put(key, value.fast_toImmutable());
                         }
                     }
                 }
@@ -469,7 +469,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             long i = 0;
             for (ReferenceMemory memory : array.getList()) {
                 if (memory != null)
-                    put(i, memory.toImmutable());
+                    put(i, memory.fast_toImmutable());
                 i++;
             }
         } else {
@@ -481,7 +481,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                 lastLongIndex = array.lastLongIndex;
 
             for (Map.Entry<Object, Memory> entry : array.map.entrySet()) {
-                put(entry.getKey(), entry.getValue().toImmutable());
+                put(entry.getKey(), entry.getValue().fast_toImmutable());
             }
         }
     }
@@ -512,13 +512,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             convertToMap();
         }
 
-        Pair<Memory, ArrayMapEntryMemory> result = map.putWithEntry(key, value);
-
-        if (!result.hasA()) {
-            size++;
-        }
-
-        return result.getB();
+        return map.putWithCallback(key, value, () -> size++);
     }
 
     public ReferenceMemory put(Object key, String value) {
@@ -581,13 +575,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             }
         }
 
-        Pair<Memory, ArrayMapEntryMemory> result = map.putWithEntry(key, value);
-
-        if (!result.hasA()) {
-            size++;
-        }
-
-        return result.getB();
+        return map.putWithCallback(key, value, () -> size++);
     }
 
     public Memory removeByScalar(Object key) {
@@ -973,7 +961,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         Memory[] result = new Memory[size];
         int i = 0;
         for (ReferenceMemory el : this) {
-            result[i++] = asImmutable ? el.toImmutable() : el.toValue();
+            result[i++] = asImmutable ? el.fast_toImmutable() : el.toValue();
         }
         return result;
     }
@@ -1034,7 +1022,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     Memory origin = getByScalar(key);
                     if (origin == null) {
                         left.checkCopied();
-                        left.put(key, iterator.getValue().toImmutable());
+                        left.put(key, iterator.getValue().fast_toImmutable());
                     }
                 }
                 return left;
@@ -1715,7 +1703,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public static ArrayMemory ofPair(String key, Memory value) {
         ArrayMemory r = new ArrayMemory();
-        r.refOfIndex(key).assign(value.toImmutable());
+        r.refOfIndex(key).assign(value.fast_toImmutable());
         return r;
     }
 
@@ -1866,7 +1854,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
         if (array != null) {
             for (Memory el : array) {
-                result.add(el.toImmutable());
+                result.add(el.fast_toImmutable());
             }
         }
 
@@ -1904,7 +1892,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         ArrayMemory result = new ArrayMemory();
 
         for (Memory el : list) {
-            result.add(el.toImmutable());
+            result.add(el.fast_toImmutable());
         }
 
         return result;
@@ -1914,7 +1902,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         ArrayMemory result = new ArrayMemory();
 
         for (Map.Entry<String, Memory> entry : map.entrySet()) {
-            result.putAsKeyString(entry.getKey(), entry.getValue().toImmutable());
+            result.putAsKeyString(entry.getKey(), entry.getValue().fast_toImmutable());
         }
 
         return result;
@@ -2160,9 +2148,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             try {
                 for (ReferenceMemory referenceMemory : getList().subList(offset, getList().size())) {
                     if (saveKeys) {
-                        result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
+                        result.refOfIndex(i + offset).assign(referenceMemory.fast_toImmutable());
                     } else {
-                        result.add(referenceMemory.toImmutable());
+                        result.add(referenceMemory.fast_toImmutable());
                     }
 
                     i++;
@@ -2178,9 +2166,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             while (iterator.next()) {
                 if (i >= offset) {
                     if (saveKeys || !iterator.isLongKey()) {
-                        result.put(iterator.getKey(), iterator.getValue().toImmutable());
+                        result.put(iterator.getKey(), iterator.getValue().fast_toImmutable());
                     } else {
-                        result.add(iterator.getValue().toImmutable());
+                        result.add(iterator.getValue().fast_toImmutable());
                     }
                 }
 
@@ -2207,9 +2195,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             try {
                 for (ReferenceMemory referenceMemory : getList().subList(offset, offset + length)) {
                     if (saveKeys) {
-                        result.refOfIndex(i + offset).assign(referenceMemory.toImmutable());
+                        result.refOfIndex(i + offset).assign(referenceMemory.fast_toImmutable());
                     } else {
-                        result.add(referenceMemory.toImmutable());
+                        result.add(referenceMemory.fast_toImmutable());
                     }
 
                     i++;
@@ -2227,9 +2215,9 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                     count++;
 
                     if (saveKeys || !iterator.isLongKey()) {
-                        result.put(iterator.getKey(), iterator.getValue().toImmutable());
+                        result.put(iterator.getKey(), iterator.getValue().fast_toImmutable());
                     } else {
-                        result.add(iterator.getValue().toImmutable());
+                        result.add(iterator.getValue().fast_toImmutable());
                     }
 
                     if (count >= length) {

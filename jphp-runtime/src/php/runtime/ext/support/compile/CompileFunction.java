@@ -10,9 +10,11 @@ import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.support.MemoryUtils;
+import php.runtime.reflection.support.Entity;
 import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
@@ -360,12 +362,15 @@ public class CompileFunction {
                 if (resultType == void.class){
                     method.invoke(null, passed);
                     return Memory.NULL;
-                } else
+                } else {
                     return MemoryUtils.valueOf(method.invoke(null, passed));
+                }
             } catch (InvocationTargetException e){
                 return env.__throwException(e);
             } catch (IllegalAccessException e) {
                 throw new CriticalException(e);
+            } catch (Throwable throwable) {
+                return env.__throwThrowable(throwable);
             }
         }
     }

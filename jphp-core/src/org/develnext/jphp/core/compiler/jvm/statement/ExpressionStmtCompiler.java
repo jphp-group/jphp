@@ -2138,7 +2138,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     public void writePopImmutable() {
         if (!stackPeek().immutable) {
-            writeSysDynamicCall(Memory.class, "toImmutable", Memory.class);
+            writeSysStaticCall(Memory.class, "__static_fast_toImmutable", Memory.class, Memory.class);
+
+            //writeSysDynamicCall(Memory.class, "fast_toImmutable", Memory.class);
             setStackPeekAsImmutable();
         }
     }

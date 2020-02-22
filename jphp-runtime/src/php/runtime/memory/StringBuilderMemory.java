@@ -60,7 +60,7 @@ public class StringBuilderMemory extends StringMemory {
             case INT: builder.append(((LongMemory)memory).value); break;
             case DOUBLE: builder.append(((DoubleMemory)memory).value); break;
             case STRING: builder.append(memory.toString()); break;
-            case REFERENCE: append(memory.toImmutable()); break;
+            case REFERENCE: append(memory.fast_toImmutable()); break;
             default:
                 builder.append(memory.toString());
         }

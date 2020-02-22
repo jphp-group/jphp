@@ -31,7 +31,7 @@ public interface IObject {
     }
 
     default void setProp(String name, Memory value) {
-        getProperties().putAsKeyString(name, value.toImmutable());
+        getProperties().putAsKeyString(name, value.fast_toImmutable());
     }
 
     default void setProp(String name, String value) {

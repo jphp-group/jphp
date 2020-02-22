@@ -193,7 +193,7 @@ public class MemoryUtils {
                 if (value.isArray()){
                     List<Memory> result = new ArrayList<Memory>();
                     for(Memory one : (ArrayMemory)value){
-                        result.add(one.toImmutable());
+                        result.add(one.fast_toImmutable());
                     }
                     return result.toArray(new Memory[]{});
                 } else {

@@ -33,6 +33,7 @@ class NewObjectBenchmark extends Benchmark
     {
         for ($i = 0; $i < self::DEFAULT_ITERATIONS; $i++) {
             $o1 = new stdClass();
+
             $o2 = new NewObjectBenchmark_A();
             $o3 = new NewObjectBenchmark_B();
             $o4 = new NewObjectBenchmark_C();

@@ -266,7 +266,7 @@ public class PropertyEntity extends Entity {
     public Memory getStaticValue(Environment env, TraceInfo trace) {
         return env.getOrCreateStatic(
                 specificName,
-                getDefaultValue(env).toImmutable()
+                getDefaultValue(env).fast_toImmutable()
         );
     }
 

@@ -150,7 +150,7 @@ public class LongMemory extends Memory {
         switch (memory.type){
             case INT: return pow(((LongMemory) memory).value);
             case DOUBLE: return pow(((DoubleMemory) memory).value);
-            case REFERENCE: return pow(memory.toImmutable());
+            case REFERENCE: return pow(memory.fast_toImmutable());
             default: return pow(memory.toNumeric());
         }
     }

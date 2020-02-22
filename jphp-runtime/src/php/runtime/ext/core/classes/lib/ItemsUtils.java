@@ -172,9 +172,9 @@ public class ItemsUtils extends BaseObject {
         ArrayMemory r = new ArrayMemory();
         while (iterator.next()) {
             if (withKeys)
-                r.put(iterator.getMemoryKey(), iterator.getValue().toImmutable());
+                r.put(iterator.getMemoryKey(), iterator.getValue().fast_toImmutable());
             else
-                r.add(iterator.getValue().toImmutable());
+                r.add(iterator.getValue().fast_toImmutable());
         }
 
         return r.toConstant();
@@ -206,7 +206,7 @@ public class ItemsUtils extends BaseObject {
 
         while (keyIterator.next()) {
             if (valueIterator.next()) {
-                r.refOfIndex(keyIterator.getValue()).assign(valueIterator.getValue().toImmutable());
+                r.refOfIndex(keyIterator.getValue()).assign(valueIterator.getValue().fast_toImmutable());
             } else {
                 return Memory.NULL;
             }
@@ -276,9 +276,9 @@ public class ItemsUtils extends BaseObject {
             if (arg.isTraversable()) {
                 ForeachIterator iterator = arg.getNewIterator(env);
                 while (iterator.next())
-                    r.add(iterator.getValue().toImmutable());
+                    r.add(iterator.getValue().fast_toImmutable());
             } else
-                r.add(arg.toImmutable());
+                r.add(arg.fast_toImmutable());
         }
         return r.toConstant();
     }
@@ -306,7 +306,7 @@ public class ItemsUtils extends BaseObject {
             Memory el = iterator.getValue();
             ForeachIterator innerIterator = el.getNewIterator(env);
             if (innerIterator == null || (level >= maxLevel && maxLevel > -1)) {
-                array.add(el.toImmutable());
+                array.add(el.fast_toImmutable());
             } else {
                 if (used.add(el.getPointer())) {
                     flatten(env, innerIterator, used, array, level + 1, maxLevel);
@@ -390,7 +390,7 @@ public class ItemsUtils extends BaseObject {
         Memory array  = args[0];
 
         for (int i = 1; i < args.length; i++) {
-            array.toValue(ArrayMemory.class).add(args[i].toImmutable());
+            array.toValue(ArrayMemory.class).add(args[i].fast_toImmutable());
         }
 
         return Memory.NULL;
@@ -431,7 +431,7 @@ public class ItemsUtils extends BaseObject {
         ArrayMemory result = new ArrayMemory();
 
         while (iterator.next()) {
-            result.unshift(iterator.getValue().toImmutable());
+            result.unshift(iterator.getValue().fast_toImmutable());
         }
 
         return result.toConstant();

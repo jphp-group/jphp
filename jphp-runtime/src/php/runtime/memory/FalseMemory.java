@@ -138,7 +138,7 @@ public class FalseMemory extends Memory {
     public Memory pow(Memory memory) {
         switch (memory.type){
             case DOUBLE: return Memory.CONST_INT_0;
-            case REFERENCE: return pow(memory.toImmutable());
+            case REFERENCE: return pow(memory.fast_toImmutable());
             default: return Memory.CONST_INT_0;
         }
     }

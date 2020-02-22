@@ -388,7 +388,7 @@ public class ObjectMemory extends Memory {
                             try {
                                 currentValue = iterator.current(env);
                                 if (!getReferences)
-                                    currentValue = currentValue.toImmutable();
+                                    currentValue = currentValue.fast_toImmutable();
                             } finally {
                                 if (!isNative)
                                     env.popCall();
@@ -417,7 +417,7 @@ public class ObjectMemory extends Memory {
                     if (!isNative)
                         env.pushCall(trace, ObjectMemory.this.value, null, "key", className, null);
                     try {
-                        currentKey = iterator.key(env).toImmutable();
+                        currentKey = iterator.key(env).fast_toImmutable();
                         keyInit = true;
                         return (Memory) currentKey;
                     } finally {
@@ -528,14 +528,14 @@ public class ObjectMemory extends Memory {
 
         while (iterator.next()) {
             Object key = iterator.getKey();
-            Memory value = iterator.getValue().toImmutable();
+            Memory value = iterator.getValue().fast_toImmutable();
 
             if (key instanceof String) {
                 String keyS = (String) key;
                 PropertyEntity prop = reflection.properties.get(keyS);
 
                 if (prop == null || prop.getModifier() == Modifier.PUBLIC) {
-                    result.refOfIndex(keyS).assign(iterator.getValue().toImmutable());
+                    result.refOfIndex(keyS).assign(iterator.getValue().fast_toImmutable());
                 } else {
                     if (prop.getModifier() == Modifier.PROTECTED) {
                         result.refOfIndex("\0*\0" + keyS).assign(value);
@@ -1028,7 +1028,7 @@ public class ObjectMemory extends Memory {
 
                 @Override
                 public Memory toImmutable() {
-                    return toValue().toImmutable();
+                    return toValue().fast_toImmutable();
                 }
 
                 @Override

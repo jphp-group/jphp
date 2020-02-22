@@ -934,9 +934,10 @@ public class ClassEntity extends Entity implements Cloneable {
 
         for (PropertyEntity property : getProperties()) {
             if (id == property.clazz.getId() && property.getGetter() == null) {
+                //value.isImmutable();
                 props.putAsKeyString(
                         property.getSpecificName(),
-                        property.getDefaultValue(env).toImmutable()
+                        property.getDefaultValue(env).fast_toImmutable()
                 );
             }
         }
@@ -949,7 +950,7 @@ public class ClassEntity extends Entity implements Cloneable {
                     if (property.modifier != Modifier.PROTECTED || props.getByScalar(property.getName()) == null)
                         props.getByScalarOrCreate(
                                 property.getSpecificName(),
-                                property.getDefaultValue(env).toImmutable()
+                                property.getDefaultValue(env).fast_toImmutable()
                         );
                 }
             }
@@ -977,11 +978,11 @@ public class ClassEntity extends Entity implements Cloneable {
                 PropertyEntity entity = properties.get(name);
                 if (entity != null) {
                     if (props.getByScalar(entity.getSpecificName()) == null)
-                        props.put(entity.getSpecificName(), iterator.getValue().toImmutable());
+                        props.put(entity.getSpecificName(), iterator.getValue().fast_toImmutable());
                 } else
-                    props.put(key, iterator.getValue().toImmutable());
+                    props.put(key, iterator.getValue().fast_toImmutable());
             } else
-                props.put(key, iterator.getValue().toImmutable());
+                props.put(key, iterator.getValue().fast_toImmutable());
         }
 
         if (methodMagicClone != null) {

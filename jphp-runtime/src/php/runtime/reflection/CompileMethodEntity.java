@@ -213,7 +213,7 @@ public class CompileMethodEntity extends MethodEntity {
                 MemoryOperation<?> operation = method.argumentOperations[i];
 
                 if (clazz == Memory.class) {
-                    passed[i] = isRef ? arguments[j] : (mutableValue ? arguments[j].toValue() : arguments[j].toImmutable());
+                    passed[i] = isRef ? arguments[j] : (mutableValue ? arguments[j].toValue() : arguments[j].fast_toImmutable());
                     j++;
                 } else if (operation != null) {
                     if (operation instanceof InjectMemoryOperation) {
@@ -226,7 +226,7 @@ public class CompileMethodEntity extends MethodEntity {
                     Memory[] arg = new Memory[arguments.length - i + 1];
                     if (!isRef){
                         for(int k = 0; k < arg.length; k++)
-                            arg[i] = arguments[i].toImmutable();
+                            arg[i] = arguments[i].fast_toImmutable();
                     } else {
                         System.arraycopy(arguments, j, arg, 0, arg.length);
                     }
