@@ -11,9 +11,4 @@ public class UndefinedMemory extends NullMemory {
     public Memory toImmutable() {
         return UNDEFINED;
     }
-
-    @Override
-    public boolean isUndefined() {
-        return true;
-    }
 }

@@ -306,62 +306,7 @@ public class LongMemory extends Memory {
     }
 
     @Override
-    public boolean isNull() {
-        return false;
-    }
-
-    @Override
     public boolean isNotNull() {
-        return true;
-    }
-
-    @Override
-    public boolean isArray() {
-        return false;
-    }
-
-    @Override
-    public Memory toValue() {
-        return this;
-    }
-
-    @Override
-    public Memory toImmutable() {
-        return this;
-    }
-
-    @Override
-    public boolean isUndefined() {
-        return false;
-    }
-
-    @Override
-    public boolean isString() {
-        return false;
-    }
-
-    @Override
-    public boolean isTraversable() {
-        return false;
-    }
-
-    @Override
-    public boolean isReference() {
-        return false;
-    }
-
-    @Override
-    public boolean isObject() {
-        return false;
-    }
-
-    @Override
-    public boolean isClosure() {
-        return false;
-    }
-
-    @Override
-    public boolean isNumber() {
         return true;
     }
 }

@@ -283,24 +283,4 @@ public class FalseMemory extends Memory {
     public Invoker toInvoker(Environment env) {
         return null;
     }
-
-    @Override
-    public boolean isArray() {
-        return false;
-    }
-
-    @Override
-    public Memory toValue() {
-        return this;
-    }
-
-    @Override
-    public Memory toImmutable() {
-        return this;
-    }
-
-    @Override
-    public boolean isNumber() {
-        return false;
-    }
 }

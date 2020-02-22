@@ -13,14 +13,4 @@ public class NativeMemory<T> extends ReferenceMemory {
     public T getObject() {
         return object;
     }
-
-    @Override
-    public Memory toImmutable() {
-        return this;
-    }
-
-    @Override
-    public Memory toValue() {
-        return this;
-    }
 }
