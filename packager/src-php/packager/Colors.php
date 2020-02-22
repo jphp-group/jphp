@@ -5,6 +5,7 @@ use packager\cli\Console;
 use php\lang\System;
 use php\lib\char;
 use php\lib\str;
+use system\DFFIConsole;
 
 class Colors {
     public static $ANSI_CODES = array(
@@ -36,7 +37,7 @@ class Colors {
 
     public static function withColor($str, $color)
     {
-        if (!Console::isXTerm()) {
+        if (!DFFIConsole::hasColorSupport()) {
             return $str;
         }
 

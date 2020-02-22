@@ -29,6 +29,8 @@ dependencies {
     compile project(':exts:jphp-httpclient-ext')
     compile project(':exts:jphp-git-ext')
     compile project(':exts:jphp-parser-ext')
+
+    compile fileTree(include: '*.jar', dir: 'dffi')
 }
 
 shadowJar {

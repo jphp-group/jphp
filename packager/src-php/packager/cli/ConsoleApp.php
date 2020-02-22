@@ -3,6 +3,7 @@
 namespace packager\cli;
 
 use DefaultPlugin;
+use system\DFFIConsole;
 use TemplatePlugin;
 use function flow;
 use function is_array;
@@ -59,6 +60,8 @@ class ConsoleApp
 
     function main(array $args)
     {
+        DFFIConsole::enableColors();
+        
         try {
             Repository::registerExternalRepositoryClass(GitRepository::class);
             Repository::registerExternalRepositoryClass(LocalDirRepository::class);
