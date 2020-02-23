@@ -22,6 +22,7 @@ import java.util.*;
 
 import static org.develnext.jphp.zend.ext.standard.ArrayConstants.*;
 import static php.runtime.Memory.Type.ARRAY;
+import static php.runtime.OperatorUtils.empty;
 
 public class ArrayFunctions extends FunctionsContainer {
 
@@ -586,6 +587,23 @@ public class ArrayFunctions extends FunctionsContainer {
         return result.toConstant();
     }
 
+    public static Memory array_key_first(Environment env, TraceInfo trace, Memory input) {
+        return array_key_impl(input, true);
+    }
+
+    public static Memory array_key_last(Environment env, TraceInfo trace, Memory input) {
+        return array_key_impl(input, false);
+    }
+
+    private static Memory array_key_impl(Memory input, boolean first) {
+        if (!input.isArray() || empty(input)) {
+            return Memory.NULL;
+        }
+
+        ForeachIterator it = input.toValue(ArrayMemory.class).foreachIterator(false, false);
+        return (first ? it.next() : it.end()) ? it.getMemoryKey() : Memory.NULL;
+    }
+    
     public static Memory array_pad(Environment env, TraceInfo trace, Memory input,
                                    int padSize, Memory padValue) {
         if (expecting(env, trace, 1, input, ARRAY)) {
