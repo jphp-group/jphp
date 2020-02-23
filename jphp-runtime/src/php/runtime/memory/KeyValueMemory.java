@@ -17,7 +17,14 @@ public class KeyValueMemory extends ReferenceMemory {
 
     public static Memory valueOf(Memory key, Memory value, String arrayKey) {
         KeyValueMemory memory = new KeyValueMemory(key, value);
-        memory.arrayKey = arrayKey;
+        Memory toLong = StringMemory.toLong(arrayKey);
+
+        if (toLong != null) {
+            memory.arrayKey = toLong.toLong();
+        } else {
+            memory.arrayKey = arrayKey;
+        }
+
         return memory;
     }
 

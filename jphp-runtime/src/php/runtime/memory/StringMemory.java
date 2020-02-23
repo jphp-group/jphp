@@ -37,7 +37,7 @@ public class StringMemory extends Memory {
             return false;
         } else {
             flags |= FLAG_IS_LIKE_LONG;
-            return false;
+            return true;
         }
     }
 
