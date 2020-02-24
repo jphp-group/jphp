@@ -6,6 +6,7 @@ import org.develnext.jphp.core.syntax.generators.manually.BodyGenerator;
 import org.develnext.jphp.core.syntax.generators.manually.SimpleExprGenerator;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.AmpersandRefToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.KeyValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.VariableExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
@@ -71,6 +72,13 @@ public class LambdaGenerator extends Generator<LambdaStmtToken> {
             analyzer.addScope(true);
 
             nextToken(iterator);
+
+            Token tk = nextToken(iterator);
+            if (tk instanceof AmpersandRefToken) {
+                func.setReturnReference(true);
+            } else {
+                prevToken(iterator);
+            }
 
             processArguments(func, iterator);
             nextAndExpected(iterator, KeyValueExprToken.class);

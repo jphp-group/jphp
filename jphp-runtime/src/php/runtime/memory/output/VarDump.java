@@ -117,30 +117,6 @@ public class VarDump extends Printer {
     }
 
     @Override
-    protected void printClosure(Closure closure, int level, Set<Integer> used) {
-        ClassEntity classEntity = closure.getReflection();
-
-        if (used.contains(closure.getPointer())){
-            printer.write("*RECURSION*\n");
-        } else {
-            printer.write("object(");
-            printer.write(Closure.class.getSimpleName());
-            printer.write(")#" + closure.getPointer());
-            printer.write(" (" + closure.getUses().length + ") {\n");
-
-            level += PRINT_INDENT;
-
-            used.add(closure.getPointer());
-
-            level -= PRINT_INDENT;
-            printer.write(StringUtils.repeat(' ', level));
-            printer.write("}\n");
-
-            used.remove(closure.getPointer());
-        }
-    }
-
-    @Override
     protected void printObject(ObjectMemory value, int level, Set<Integer> used) {
         ClassEntity classEntity = value.getReflection();
 

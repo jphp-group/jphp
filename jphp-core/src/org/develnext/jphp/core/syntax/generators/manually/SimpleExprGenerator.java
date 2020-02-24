@@ -62,13 +62,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return false;
     }
 
-    protected Token processLambda(Token current, ListIterator<Token> iterator, Separator separator, BraceExprToken.Kind braceKind) {
+    protected Token processLambda(Token current, ListIterator<Token> iterator, Separator separator, BraceExprToken.Kind braceKind, boolean isStatic) {
         LambdaStmtToken token = analyzer.generator(LambdaGenerator.class).getToken(current, iterator, separator, braceKind);
 
         ClosureStmtToken closureStmtToken = new ClosureStmtToken(current.getMeta());
         closureStmtToken.setFunction(token.getFunction());
         closureStmtToken.setOwnerClass(analyzer.getClazz());
         closureStmtToken.setParentFunction(token.getParentFunction());
+        closureStmtToken.setStatic(isStatic);
         analyzer.registerClosure(closureStmtToken);
 
         return closureStmtToken;
@@ -1488,8 +1489,12 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (current instanceof FunctionStmtToken) {
                 current = processClosure(current, next, iterator);
                 tokens.add(current);
+            } else if (current instanceof StaticExprToken && nextTokenAndPrev(iterator) instanceof LambdaStmtToken) {
+                current = nextToken(iterator);
+                current = processLambda(current, iterator, separator, closedBraceKind, true);
+                tokens.add(current);
             } else if (current instanceof LambdaStmtToken) {
-                current = processLambda(current, iterator, separator, closedBraceKind);
+                current = processLambda(current, iterator, separator, closedBraceKind, false);
                 tokens.add(current);
             } else if (current instanceof ListExprToken && isOpenedBrace(next, SIMPLE)){
                 current = processList(current, iterator, null, closedBraceKind, braceOpened);

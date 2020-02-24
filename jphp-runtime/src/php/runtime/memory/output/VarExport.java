@@ -139,9 +139,4 @@ public class VarExport extends Printer {
             used.remove(value.getPointer());
         }
     }
-
-    @Override
-    protected void printClosure(Closure value, int level, Set<Integer> used) {
-        printObject(new ObjectMemory(value), level, used);
-    }
 }

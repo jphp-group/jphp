@@ -1,7 +1,7 @@
 <?php
+$GLOBALS['x'] = 20;
 
 class Test {
-
     function make(): Closure
     {
         return fn() => $this;
@@ -10,6 +10,16 @@ class Test {
     function make2(): Closure
     {
         return fn() => fn() => $this;
+    }
+
+    function make3(): Closure
+    {
+        return static fn() => $this;
+    }
+
+    function make4(): Closure
+    {
+        return fn&() => $GLOBALS['x'];
     }
 }
 
@@ -26,5 +36,18 @@ $lambda = $lambda();
 if ($lambda() !== $test) {
     return "fail_2";
 }
+
+$lambda = $test->make3();
+if ($lambda() !== null) {
+    return "fail_3";
+}
+
+$lambda = $test->make4();
+$x = $lambda();
+$x = 40;
+if ($GLOBALS['x'] !== 40) {
+    return "fail_4";
+}
+
 
 return "success";

@@ -114,28 +114,6 @@ public class PrintR extends Printer {
     }
 
     @Override
-    protected void printClosure(Closure closure, int level, Set<Integer> used) {
-        ClassEntity classEntity = closure.getReflection();
-
-        writeObjectHeader(Closure.class.getSimpleName());
-        if (used.contains(closure.getPointer())){
-            printer.write(" *RECURSION*");
-        } else {
-            printer.write(StringUtils.repeat(' ', level));
-            writeOpen();
-            level += PRINT_INDENT;
-
-            used.add(closure.getPointer());
-
-            level -= PRINT_INDENT;
-            printer.write(StringUtils.repeat(' ', level));
-            writeClose();
-
-            used.remove(closure.getPointer());
-        }
-    }
-
-    @Override
     protected void printObject(ObjectMemory value, int level, Set<Integer> used) {
         ClassEntity classEntity = value.getReflection();
 

@@ -33,7 +33,6 @@ abstract public class Printer {
     abstract protected void printString(StringMemory value);
     abstract protected void printArray(ArrayMemory value, int level, Set<Integer> used);
     abstract protected void printObject(ObjectMemory value, int level, Set<Integer> used);
-    abstract protected void printClosure(Closure value, int level, Set<Integer> used);
 
     protected void printReference(ReferenceMemory reference, int level, Set<Integer> used){
         Memory value = reference.toValue();
@@ -64,11 +63,7 @@ abstract public class Printer {
                 printArray((ArrayMemory) value, level, used);
                 break;
             case OBJECT:
-                ObjectMemory tmp = (ObjectMemory)value;
-                if (tmp.value instanceof Closure)
-                    printClosure((Closure)tmp.value, level, used);
-                else
-                    printObject((ObjectMemory) value, level, used);
+                printObject((ObjectMemory) value, level, used);
                 break;
             case REFERENCE: printReference((ReferenceMemory)value, level, used); break;
             default:

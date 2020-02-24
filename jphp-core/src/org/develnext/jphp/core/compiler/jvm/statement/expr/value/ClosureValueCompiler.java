@@ -86,6 +86,11 @@ public class ClosureValueCompiler extends BaseExprCompiler<ClosureStmtToken> {
         if (returnValue){
             ClosureEntity entity = compiler.getModule().findClosure( closure.getId() );
             boolean thisExists = closure.getFunction().isThisExists();
+
+            if (closure.isStatic()) {
+                thisExists = false;
+            }
+
             boolean staticExists = closure.getFunction().isStaticExists();
 
             if (closure.getFunction().getUses().isEmpty() && !thisExists && !staticExists

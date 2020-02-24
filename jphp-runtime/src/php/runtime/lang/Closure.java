@@ -135,6 +135,17 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
         return new ObjectMemory(newClosure);
     }
 
+    @Signature
+    public Memory __debugInfo(Environment env, Memory... args) {
+        ArrayMemory r = new ArrayMemory();
+
+        if (self.isNotNull()) {
+            r.put("this", self.toImmutable());
+        }
+
+        return r;
+    }
+
     @Signature({
             @Arg(value = "closure", typeClass = "Closure"),
             @Arg(value = "newThis"),
