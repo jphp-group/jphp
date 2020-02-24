@@ -277,6 +277,7 @@ public class Tokenizer {
         List<StringExprToken.Segment> segments = new ArrayList<StringExprToken.Segment>();
 
 
+        boolean firstIter = true;
         for(; i < codeLength; i++){
             char ch = code.charAt(i);
 
@@ -288,15 +289,16 @@ public class Tokenizer {
                 break;
             }
 
-            if (checkNewLine(ch)) {
+            if (checkNewLine(ch) || firstIter) {
                 pos = 0;
                 if (endString != null){
                     int end = i + 1 + endString.length();
-                    if (end < codeLength){
-                        if (code.substring(i + 1, end).equals(endString)) {
+                    if (end < codeLength) {
+                        String substring = firstIter ? code.substring(i, end - 1) : code.substring(i + 1, end);
+                        if (substring.equals(endString)) {
                             if ((code.charAt(end) == ';' && TokenizeGrammarUtils.isNewline(code.charAt(end + 1))) || TokenizeGrammarUtils.isNewline(code.charAt(end))) {
-                                currentPosition = i + endString.length();
-                                relativePosition = endString.length();
+                                currentPosition = firstIter ? i + endString.length() - 1 : i + endString.length();
+                                relativePosition = firstIter ?  endString.length() - 1 : endString.length();
                                 ch_quote = StringExprToken.Quote.DOC;
                                 break;
                             }
@@ -304,6 +306,8 @@ public class Tokenizer {
                     }
                 }
             }
+
+            firstIter = false;
 
             if (!isMagic){
                 switch (ch) {

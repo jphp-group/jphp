@@ -69,4 +69,9 @@ public class StringsTest extends ZendJvmTestCase {
         check("ext/strings/001.phpt");
         check("ext/strings/002.phpt");
     }
+
+    @Test
+    public void testBug305() {
+        check("ext/strings/bug305.phpt", true);
+    }
 }
