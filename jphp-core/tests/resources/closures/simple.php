@@ -9,7 +9,7 @@ $func2 = function($i) use ($external){
     return $i + $external;
 };
 
-if ($func1(2) !== 3)
+if ($func1(2,) !== 3)
     return 'fail_1';
 
 if ($func2(2) !== 4)

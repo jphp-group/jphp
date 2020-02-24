@@ -1238,7 +1238,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
 
             writePushEnv();
-            writePushParameters(function.getParameters(), additional.toArray(new Memory[0]));
+            writePushParameters(function.getParameters(), additional.toArray(Memory.CONST_EMPTY_ARRAY));
             writeSysStaticCall(
                     compileClass.getNativeClass(),
                     methodEntity.getName(),

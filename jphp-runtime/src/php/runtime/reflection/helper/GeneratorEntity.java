@@ -67,13 +67,11 @@ public class GeneratorEntity extends ClassEntity {
     public IObject newObjectWithoutConstruct(Environment env) {
         IObject object;
         try {
-            object = (IObject) nativeConstructor.newInstance(env, this, env.getLateObject(), new Memory[0]);
+            object = (IObject) nativeConstructor.newInstance(env, this, env.getLateObject(), Memory.CONST_EMPTY_ARRAY);
         } catch (InvocationTargetException e){
             env.__throwException(e);
             return null;
-        } catch (InstantiationException e) {
-            throw new CriticalException(e);
-        } catch (IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException e) {
             throw new CriticalException(e);
         }
         return object;

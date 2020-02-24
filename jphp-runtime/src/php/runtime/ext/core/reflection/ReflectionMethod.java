@@ -200,7 +200,7 @@ public class ReflectionMethod extends ReflectionFunctionAbstract {
     public Memory invoke(Environment env, Memory... args) throws Throwable {
         Memory self = args[0];
 
-        Memory[] arguments = args.length == 1 ? new Memory[0] : Arrays.copyOfRange(args, 1, args.length - 1);
+        Memory[] arguments = args.length == 1 ? Memory.CONST_EMPTY_ARRAY : Arrays.copyOfRange(args, 1, args.length - 1);
         Invoker invoker;
 
         if (self.isNull()) {

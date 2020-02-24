@@ -55,7 +55,7 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
     abstract public Memory __invoke(Environment env, Memory... args) throws Throwable;
 
     public Memory[] getUses() {
-        return uses == null ? new Memory[0] : uses;
+        return uses == null ? Memory.CONST_EMPTY_ARRAY : uses;
     }
 
     @Signature({@Arg("prop"), @Arg("value")})
@@ -139,6 +139,10 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
     public Memory __debugInfo(Environment env, Memory... args) {
         ArrayMemory r = new ArrayMemory();
 
+        if (uses != null && uses.length > 0) {
+            r.put("uses", ArrayMemory.of(uses));
+        }
+
         if (self.isNotNull()) {
             r.put("this", self.toImmutable());
         }
@@ -177,7 +181,7 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
         }
 
         public ClosureInvoker(Environment env, Invoker invoker) {
-            super(env, env.fetchClass(ClosureInvoker.class), Memory.NULL, "", new Memory[0]);
+            super(env, env.fetchClass(ClosureInvoker.class), Memory.NULL, "", Memory.CONST_EMPTY_ARRAY);
             this.invoker = invoker;
         }
 

@@ -464,7 +464,11 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 }
             }
 
-            if (isClosedBrace(nextToken(iterator), SIMPLE)) {
+            Token tk = nextToken(iterator);
+            if (isClosedBrace(tk, SIMPLE)) {
+                break;
+            } else if (param == null && tk instanceof CommaToken) {
+                nextToken(iterator);
                 break;
             }
 

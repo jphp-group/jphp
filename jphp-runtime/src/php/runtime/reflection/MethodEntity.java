@@ -143,7 +143,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         closureEntity1.addMethod(m, null);
         closureEntity1.doneDeclare();
 
-        Closure tmp = new Closure(env, closureEntity1, new ObjectMemory(env.getLateObject()), clazz.getName(), new Memory[0]){
+        Closure tmp = new Closure(env, closureEntity1, new ObjectMemory(env.getLateObject()), clazz.getName(), Memory.CONST_EMPTY_ARRAY){
             @Override
             public Memory __invoke(Environment e, Memory... args) {
                 try {

@@ -4,7 +4,7 @@ $x = 'fail';
 $y = array('x' => new stdClass());
 $y['x']->prop = 'fail';
 
-unset($x, $y['x']->prop);
+unset($x, $y['x']->prop,);
 
 $foobar = 'foobar';
 unset(${'foobar'});
