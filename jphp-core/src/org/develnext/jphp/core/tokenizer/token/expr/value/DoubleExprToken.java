@@ -10,7 +10,7 @@ public class DoubleExprToken extends ValueExprToken {
 
     public DoubleExprToken(TokenMeta meta) {
         super(meta, TokenType.T_DNUMBER);
-        this.value = Double.parseDouble(meta.getWord());
+        this.value = Double.parseDouble(meta.getWord().replace("_", ""));
     }
 
     public double getValue() {

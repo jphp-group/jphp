@@ -696,7 +696,7 @@ public class Tokenizer {
                 if (e_char)
                     break;
 
-                if (i + 1 >= codeLength){
+                if (i + 1 >= codeLength) {
                     break;
                 } else {
                     if (code.charAt(i + 1) == '-' || code.charAt(i + 1) == '+' ||
@@ -714,13 +714,30 @@ public class Tokenizer {
                 // nop
             } else if (isBinary && (ch == '0' || ch == '1')) {
                 // nop
+            } else if (ch == '_') {
+                if (i + 1 >= codeLength) {
+                    break;
+                } else {
+                    char nextCh = code.charAt(i + 1);
+                    char prevCh = code.charAt(i - 1);
+
+                    if (!Character.isDigit(nextCh) && !((nextCh >= 'A' && nextCh <= 'F') || (nextCh >= 'a' && nextCh <= 'f'))) {
+                        break;
+                    }
+
+                    if (!Character.isDigit(prevCh) && !((prevCh >= 'A' && prevCh <= 'F') || (prevCh >= 'a' && prevCh <= 'f'))) {
+                        break;
+                    }
+                }
             } else if (!Character.isDigit(ch))
                 break;
         }
 
         currentPosition = i;
         TokenMeta meta = buildMeta(startPosition, startLine);
-        Class<? extends Token> tokenClazz = tokenFinder.find(meta);
+        String word = meta.getWord().replace("_", "");
+
+        Class<? extends Token> tokenClazz = tokenFinder.find(word);
 
         currentPosition -= 1;
         return buildToken(tokenClazz, meta);
