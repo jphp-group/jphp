@@ -201,12 +201,21 @@ public class TokenizerTest {
 
         token = tokenizer.nextToken();
         assertTrue(token instanceof StringExprToken);
-        assertEquals(".{$foo}", ((StringExprToken) token).getValue());
+        assertEquals("\\.{$foo}", ((StringExprToken) token).getValue());
         assertEquals(1, ((StringExprToken) token).getSegments().size());
 
         StringExprToken.Segment segment = ((StringExprToken) token).getSegments().get(0);
-        assertEquals(1, segment.from);
-        assertEquals(7, segment.to);
+        assertEquals(2, segment.from);
+        assertEquals(8, segment.to);
+    }
+
+    @Test
+    public void testEscapeBug307() throws IOException {
+        Token token;
+        Tokenizer tokenizer = new Tokenizer(new Context("\"Ymd\\THis\\Z\""));
+        token = tokenizer.nextToken();
+        assertTrue(token instanceof StringExprToken);
+        assertEquals("Ymd\\THis\\Z", ((StringExprToken) token).getValue());
     }
 
     @Test

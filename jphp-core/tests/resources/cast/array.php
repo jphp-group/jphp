@@ -21,18 +21,18 @@ if ($arr['x'] !== 1 || $arr['y'] !== 2)
     return 'fail_object';
 
 
-class Foo {
+class Xoo {
     protected $x = 20;
     private $y = 30;
     public $z = 40;
 }
-$foo = new Foo();
+$foo = new Xoo();
 $arr = (array)$foo;
 
 if ($arr["\x0*\x0x"] !== 20)
     return 'fail_object_protected';
 
-if ($arr["\x0\Foo\x0y"] !== 30)
+if ($arr["\x0Xoo\x0y"] !== 30)
     return 'fail_object_private';
 
 if ($arr['z'] !== 40)

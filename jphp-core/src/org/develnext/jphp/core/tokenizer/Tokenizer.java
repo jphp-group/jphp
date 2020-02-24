@@ -453,12 +453,14 @@ public class Tokenizer {
                             break;
                         case 'x':
                             int t = i + 1;
+                            int cnt = 0;
                             for(int j = 1; j < 5; j++){
                                 t = i + j;
                                 if (t < codeLength){
                                     char digit = code.charAt(t);
                                     if (Character.isDigit(digit) || (digit >= 'A' && digit <= 'F') || (digit >= 'a' && digit <= 'f')){
-                                        // nop;
+                                        cnt++;
+                                        if (cnt == 3) break; // only \xhh
                                     } else {
                                         break;
                                     }
@@ -478,8 +480,12 @@ public class Tokenizer {
                             break;
                         case '$':
                         case '"':
+                            slash = false;
+                            sb.append(ch); break;
+
                         default:
                             slash = false;
+                            sb.append("\\");
                             sb.append(ch); break;
                     }
                 } else {
