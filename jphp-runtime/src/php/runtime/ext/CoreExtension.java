@@ -85,7 +85,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerClass(scope,
                 CharUtils.class, StrUtils.class, BinUtils.class, NumUtils.class, ItemsUtils.class,
                 MirrorUtils.class, FsUtils.class, OldBinUtils.class, OldItemsUtils.class, OldNumUtils.class, OldMirrorUtils.class,
-                RxUtils.class
+                RxUtils.class, WeakReference.class
         );
 
         registerClass(scope,
