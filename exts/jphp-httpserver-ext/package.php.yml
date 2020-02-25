@@ -1,6 +1,6 @@
 
 name: jphp-httpserver-ext
-version: 1.0.0
+version: 1.1.0
 
 
 plugins: [Doc, Hub]
@@ -12,3 +12,6 @@ doc:
   langs: {en: English, ru: Русский}
 
 
+history:
+  1.1.0:
+    - Upgrade jetty to 9.4.26.v20200117

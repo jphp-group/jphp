@@ -377,7 +377,7 @@ public class PHttpServer extends BaseObject {
     public void runInBackground() throws Exception {
         server.setErrorHandler(new ErrorHandler() {
             @Override
-            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException {
+            public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
                 super.handle(target, baseRequest, request, response);
             }
         });

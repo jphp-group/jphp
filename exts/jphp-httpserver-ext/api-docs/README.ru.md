@@ -3,12 +3,12 @@
 ---
 
 ## jphp-httpserver-ext
-> версия 1.0.0, создано с помощью JPPM.
+> версия 1.1.0, создано с помощью JPPM.
 
 
 ### Установка
 ```
-jppm add jphp-httpserver-ext@1.0.0
+jppm add jphp-httpserver-ext@1.1.0
 ```
 
 ### АПИ
