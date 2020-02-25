@@ -121,11 +121,23 @@ class Packager
         return $package->getTasks();
     }
 
+    public function loadPackageLock($dir)
+    {
+        $this->packageLock->load($dir);
+    }
+
+    public function removeDepFromPackageLock($depName)
+    {
+        return $this->packageLock->removePackage($depName);
+    }
+
     public function install(Package $source, Vendor $vendor, bool $forceUpdate = false)
     {
         fs::makeDir($vendor->getDir());
 
         $thPool = null; //ThreadPool::create(4, 8);
+
+        //$this->loadPackageLock($vendor->getDir() . "/../");
 
         $tree = $this->fetchDependencyTree($source, '', null, $thPool);
         $devTree = $this->fetchDependencyTree($source, 'dev', null, $thPool);
@@ -138,7 +150,6 @@ class Packager
             $thPool->shutdown();
         }
 
-        $this->packageLock->load($vendor->getDir() . "/../");
         $this->packageLoader->clean();
 
         $usedPackages = [];

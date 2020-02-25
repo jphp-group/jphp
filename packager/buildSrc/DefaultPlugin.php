@@ -251,6 +251,7 @@ class DefaultPlugin
                 Console::log("The vendor dir has been cleared.");
             }
 
+            $event->packager()->loadPackageLock("./");
             $event->packager()->install($event->package(), $vendor, $app->isFlag('f', 'force'));
         }
     }
@@ -412,6 +413,8 @@ class DefaultPlugin
      */
     function deps(Event $event)
     {
+        $event->packager()->loadPackageLock("./");
+
         $tree = $event->packager()->fetchDependencyTree($event->package(), '');
         $devTree = $event->packager()->fetchDependencyTree($event->package(), 'dev');
 
@@ -540,21 +543,61 @@ class DefaultPlugin
 
     /**
      * @jppm-need-package true
-     * @jppm-description clean repo cache and install dependencies.
+     * @jppm-description update one or all dependencies in package-lock file
      * @param Event $event
      */
     function update(Event $event)
     {
-        Tasks::deleteFile("./package-lock.php.yml");
-        Tasks::cleanDir($event->package()->getAny('config.vendor-dir', './vendor'));
+        $library = null;
+        foreach ($event->args() as $arg) {
+            $library = $arg;
+            break;
+        }
 
-        $event->packager()->getRepo()->cleanCache();
-        Tasks::run('install', [], ...$event->flags());
+        if ($library) {
+            $vendor = new Vendor($event->package()->getAny('config.vendor-dir', './vendor'));
+
+            $dep = $event->package()->getDeps()[$library];
+            if (!$dep) {
+                $dep = $event->package()->getDevDeps()[$library];
+            }
+
+            $pkg = $dep == null ? null : $vendor->getPackage($library);
+
+            if (!$dep || !$pkg) {
+                Console::error("-> failed to update {0}, the package doesn't exist in deps or devDeps", $library);
+                exit(-1);
+            } else {
+                $event->packager()->loadPackageLock("./");
+                if (!$event->packager()->removeDepFromPackageLock($library)) {
+                    Console::warn("package-lock.php.yml hasn't '{0}' dep", Colors::withColor($library, 'yellow'));
+                }
+
+                Console::info(
+                    "updating {0}@{1} (pattern = {2})",
+                    Colors::withColor($library, 'yellow'),
+                    $pkg->getVersion(),
+                    $dep
+                );
+
+                $event->packager()->getRepo()->cleanCache();
+                $event->packager()->install($event->package(), $vendor, false, false);
+            }
+
+            $event->packager()->loadPackageLock("./");
+        } else {
+            Tasks::deleteFile("./package-lock.php.yml");
+            Tasks::cleanDir($event->package()->getAny('config.vendor-dir', './vendor'));
+
+            $event->packager()->getRepo()->cleanCache();
+            Tasks::run('install', [], ...$event->flags());
+        }
     }
 
     /**
      * @jppm-description manage local repository.
      * @param Event $event
+     * @throws Exception
      */
     function repo(Event $event)
     {

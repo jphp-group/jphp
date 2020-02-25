@@ -28,6 +28,8 @@ use php\time\Time;
 use php\time\Timer;
 use php\util\SharedValue;
 use semver\SemVersion;
+use function _print;
+use function var_dump;
 
 /**
  * Class Repository

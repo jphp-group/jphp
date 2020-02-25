@@ -5,6 +5,7 @@ namespace packager;
 use php\io\File;
 use php\io\IOException;
 use php\lib\fs;
+use semver\SemVersion;
 
 class Vendor
 {

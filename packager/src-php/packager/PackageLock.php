@@ -25,6 +25,16 @@ class PackageLock
         ];
     }
 
+    public function removePackage($pkgName): bool
+    {
+        if ($this->dependencies[$pkgName]) {
+            unset($this->dependencies[$pkgName]);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * @param string $pkgName
      * @return null|string

@@ -4,7 +4,7 @@ version: 1.0.0
 plugins: [App]
 
 deps:
-  jphp-core: '*'
+  jphp-core: ~1.1.1
   jphp-zend-ext: '*'
 
 app:

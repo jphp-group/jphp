@@ -40,7 +40,7 @@ class Console
         $stream = System::out();
 
         foreach ($args as $i => $arg) {
-            $message = str::replace($message, "\{$i\}", $arg);
+            $message = str::replace($message, "{{$i}}", $arg);
         }
 
         $stream->write($message);
