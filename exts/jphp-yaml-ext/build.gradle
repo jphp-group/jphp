@@ -2,7 +2,7 @@
 
 dependencies {
     provided project(':jphp-runtime')
-    compile group: 'org.yaml', name: 'snakeyaml', version: '1.21'
+    compile group: 'org.yaml', name: 'snakeyaml', version: '1.25'
 
     testCompile 'junit:junit:4.+'
     testCompile project(':exts:jphp-zend-ext')

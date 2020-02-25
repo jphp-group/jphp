@@ -3,13 +3,13 @@
 ---
 
 ## jphp-yaml-ext
-> версия 1.0.1, создано с помощью JPPM.
+> версия 1.1.0, создано с помощью JPPM.
 
 Library for working YAML format.
 
 ### Установка
 ```
-jppm add jphp-yaml-ext@1.0.1
+jppm add jphp-yaml-ext@1.1.0
 ```
 
 ### АПИ

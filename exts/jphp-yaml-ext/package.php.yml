@@ -1,6 +1,6 @@
 
 name: jphp-yaml-ext
-version: 1.0.1
+version: 1.1.0
 description: Library for working YAML format.
 
 
@@ -10,3 +10,7 @@ doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'
   stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
+
+history:
+  1.1.0:
+    - Upgrad snakeyaml version to 1.25.
