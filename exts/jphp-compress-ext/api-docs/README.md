@@ -3,13 +3,13 @@
 ---
 
 ## jphp-compress-ext
-> version 1.0.0, created by JPPM.
+> version 1.1.0, created by JPPM.
 
 Compress library, supports tar, bz2, gz, zip and lz4 formats.
 
 ### Install
 ```
-jppm add jphp-compress-ext@1.0.0
+jppm add jphp-compress-ext@1.1.0
 ```
 
 ### API

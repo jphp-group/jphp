@@ -6,7 +6,7 @@ dependencies {
     provided project(":jphp-runtime")
 
     // dependencies ....
-    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.16.1'
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.20'
     // -----------------
 
     testCompile 'junit:junit:4.+'

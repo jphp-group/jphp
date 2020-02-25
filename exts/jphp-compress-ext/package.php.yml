@@ -1,6 +1,6 @@
 
 name: jphp-compress-ext
-version: 1.0.0
+version: 1.1.0
 description: Compress library, supports tar, bz2, gz, zip and lz4 formats.
 
 plugins: [Doc, Hub]
@@ -9,3 +9,7 @@ doc:
   url-prefix: 'https://github.com/jphp-compiler/jphp/blob/master/exts/%name%/api-docs/'
   stub-dirs: ['./src/main/resources/JPHP-INF/sdk']
   langs: {en: English, ru: Русский}
+
+history:
+  1.1.0:
+    - Upgrade apache common compress to 1.20
