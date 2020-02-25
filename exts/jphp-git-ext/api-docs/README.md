@@ -3,13 +3,13 @@
 ---
 
 ## jphp-git-ext
-> version 1.0.0, created by JPPM.
+> version 2.0.0, created by JPPM.
 
 Git VCS Library.
 
 ### Install
 ```
-jppm add jphp-git-ext@1.0.0
+jppm add jphp-git-ext@2.0.0
 ```
 
 ### API
