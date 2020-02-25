@@ -1,16 +1,24 @@
 package php.runtime.reflection;
 
 import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.invoke.InvokeArgumentHelper;
 import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.IObject;
+import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.UninitializedMemory;
+import php.runtime.memory.support.MemoryOperation;
 import php.runtime.reflection.support.Entity;
+import php.runtime.reflection.support.ReflectionUtils;
+import php.runtime.reflection.support.TypeChecker;
 
 import java.lang.reflect.Field;
 
@@ -31,6 +39,9 @@ public class PropertyEntity extends Entity {
     protected MethodEntity getter;
     protected MethodEntity setter;
 
+    protected TypeChecker typeChecker;
+    protected boolean nullable = false;
+
     protected boolean hiddenInDebugInfo = false;
 
     public PropertyEntity(Context context) {
@@ -43,6 +54,89 @@ public class PropertyEntity extends Entity {
 
     public void setPrototype(PropertyEntity prototype) {
         this.prototype = prototype;
+    }
+
+    public TypeChecker getTypeChecker() {
+        return typeChecker;
+    }
+
+    public void setTypeChecker(TypeChecker typeChecker) {
+        this.typeChecker = typeChecker;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
+    }
+
+    public void setTypeClass(String typeClass) {
+        typeChecker = typeClass == null ? null : TypeChecker.of(typeClass);
+    }
+
+    public void setTypeNativeClass(Class<?> typeNativeClass) {
+        Class<?> baseWrapper = MemoryOperation.getWrapper(typeNativeClass);
+
+        if (baseWrapper == null) {
+            throw new CriticalException("Support only wrapper classes");
+        }
+
+        typeChecker = TypeChecker.of(ReflectionUtils.getClassName(baseWrapper));
+    }
+
+    public Class<? extends Enum> getTypeEnum() {
+        return typeChecker instanceof TypeChecker.EnumClass ? ((TypeChecker.EnumClass) typeChecker).getTypeEnum() : null;
+    }
+
+    public void setTypeEnum(Class<? extends Enum> typeEnum) {
+        this.typeChecker = typeEnum == null ? null : TypeChecker.ofEnum(typeEnum);
+    }
+
+    public void setType(String type) {
+        HintType _type = HintType.of(type);
+        this.typeChecker = _type == null ? null : TypeChecker.of(_type);
+    }
+
+    public HintType getType() {
+        return typeChecker instanceof TypeChecker.Simple ? ((TypeChecker.Simple) typeChecker).getType() : HintType.ANY;
+    }
+
+    public String getTypeClass() {
+        return typeChecker instanceof TypeChecker.ClassName ? ((TypeChecker.ClassName) typeChecker).getTypeClass() : null;
+    }
+
+    public String getTypeClassLower() {
+        return typeChecker instanceof TypeChecker.ClassName ? ((TypeChecker.ClassName) typeChecker).getTypeClassLower() : null;
+    }
+
+    public void setType(HintType type) {
+        this.typeChecker = type == null ? null : TypeChecker.of(type);
+    }
+
+    public boolean checkTypeHinting(Environment env, Memory value) {
+        return checkTypeHinting(env, value, (String) null);
+    }
+
+    public boolean checkTypeHinting(Environment env, Memory value, String staticClassName) {
+        if (typeChecker != null) {
+            return typeChecker.check(
+                    env, value, nullable, staticClassName
+            );
+        }
+
+        return true;
+    }
+
+    public Memory applyTypeHinting(Environment env, Memory value, boolean strict) {
+        if (typeChecker != null) {
+            return typeChecker.apply(
+                    env, value, nullable, strict
+            );
+        }
+
+        return null;
     }
 
     public boolean isDefault() {
@@ -259,8 +353,57 @@ public class PropertyEntity extends Entity {
         return propertyEntity;
     }
 
+    public void checkDefaultValue(Environment env) {
+        if (defaultValue != null && !defaultValue.isUninitialized()) {
+            if (!checkTypeHinting(env, defaultValue)) {
+                String mustBe = typeChecker.getHumanString();
+
+                if (!nullable && defaultValue.isNull()) {
+                    env.exception(trace,
+                            BaseTypeError.class,
+                            "Default value for property of type %s may not be null. Use the nullable type ?%s to allow null default value",
+                            mustBe, mustBe
+                    );
+                } else {
+                    env.exception(trace,
+                            BaseTypeError.class,
+                            "Default value for property of type %s can only be %s",
+                            mustBe, mustBe
+                    );
+                }
+            }
+        }
+    }
+
+    public Memory typedValue(Environment env, TraceInfo trace, Memory value) {
+        if (typeChecker != null) {
+            if (!checkTypeHinting(env, value)) {
+                ModuleEntity module = env.getModuleManager().findModule(trace);
+
+                Memory memory = applyTypeHinting(env, value, module != null && module.isStrictTypes());
+
+                if (memory != null) {
+                    value = memory;
+                } else {
+                    String mustBe = typeChecker.getHumanString();
+                    if (nullable) {
+                        mustBe = mustBe + " or null";
+                    }
+
+                    env.exception(trace,
+                            BaseTypeError.class,
+                            "Typed property %s::$%s must be %s, %s used",
+                            getClazz().getName(), getName(), mustBe, InvokeArgumentHelper.getGiven(value)
+                    );
+                }
+            }
+        }
+
+        return value;
+    }
+
     public Memory assignValue(Environment env, TraceInfo trace, Object object, String name, Memory value) {
-        return ((IObject) object).getProperties().refOfIndex(name).assign(value);
+        return ((IObject) object).getProperties().refOfIndex(name).assign(typedValue(env, trace, value));
     }
 
     public Memory getStaticValue(Environment env, TraceInfo trace) {

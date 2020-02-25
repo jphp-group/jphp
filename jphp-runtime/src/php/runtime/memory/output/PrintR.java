@@ -86,7 +86,7 @@ public class PrintR extends Printer {
             int size = value.size();
             while (iterator.next()){
                 Memory el = iterator.getValue();
-                if (el == Memory.UNDEFINED) continue;
+                if (el.isUndefined() || el.isUninitialized()) continue;
 
                 printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
                 Memory key = iterator.getMemoryKey();
@@ -176,6 +176,10 @@ public class PrintR extends Printer {
                 int size = classEntity.properties.size();
 
                 while (iterator.next()){
+                    Memory iteratorValue = iterator.getValue();
+
+                    if (iteratorValue.isUninitialized()) continue;
+
                     printer.write(StringUtils.repeat(' ', level * PRINT_INDENT));
 
                     Object key = iterator.getKey();
@@ -208,7 +212,7 @@ public class PrintR extends Printer {
                     }
 
                     printer.write("] => ");
-                    print(iterator.getValue(), level + 1, used);
+                    print(iteratorValue, level + 1, used);
                     writeSeparator(i == size - 1);
                     i++;
                 }

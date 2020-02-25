@@ -36,6 +36,13 @@ public class VarDump extends Printer {
     }
 
     @Override
+    protected void printUninitialized(UninitializedMemory value) {
+        printer.write("uninitialized(");
+        printer.write(value.getArg());
+        printer.write(")\n");
+    }
+
+    @Override
     protected void printFalse() {
         printer.write("bool(false)\n");
     }

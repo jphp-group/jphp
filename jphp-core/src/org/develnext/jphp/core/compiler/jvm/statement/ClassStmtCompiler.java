@@ -30,6 +30,7 @@ import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.*;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.UninitializedMemory;
 import php.runtime.reflection.*;
 import php.runtime.reflection.helper.GeneratorEntity;
 
@@ -365,6 +366,21 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setName(property.getVariable().getName());
                 prop.setModifier(property.getModifier());
                 prop.setStatic(property.isStatic());
+
+                prop.setNullable(property.isNullable());
+                prop.setType(property.getHintType());
+
+                if (property.getValue() == null && prop.getType() != null) {
+                    value = UninitializedMemory.valueOf(prop.getType().toString());
+                }
+
+                if (property.getHintTypeClass() != null) {
+                    prop.setTypeClass(property.getHintTypeClass().getName());
+                    if (property.getValue() == null) {
+                        value = UninitializedMemory.valueOf(prop.getTypeClass());
+                    }
+                }
+
                 prop.setDefaultValue(value);
                 prop.setDefault(property.getValue() != null);
                 prop.setTrace(property.toTraceInfo(compiler.getContext()));
@@ -375,6 +391,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
                 ClassEntity.PropertyResult result = entity.addProperty(prop);
                 result.check(compiler.getEnvironment());
+
+                if (value != null) {
+                    prop.checkDefaultValue(compiler.getEnvironment());
+                }
 
                 if (value == null && property.getValue() != null) {
                     if (property.getValue().isSingle() && ValueExprToken.isConstable(property.getValue().getSingle(), true))

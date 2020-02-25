@@ -25,7 +25,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         super(analyzer);
     }
 
-    protected final static Set<String> scalarTypeHints = new HashSet<String>(){{
+    public final static Set<String> scalarTypeHints = new HashSet<String>(){{
         add("array");
         add("callable");
         add("iterable");
@@ -37,11 +37,11 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         add("self");
     }};
 
-    protected final static Set<String> disallowScalarTypeHints = new HashSet<String>(){{
+    public final static Set<String> disallowScalarTypeHints = new HashSet<String>(){{
         add("void");
     }};
 
-    protected final static Set<String> jphp_scalarTypeHints = new HashSet<String>(){{
+    public final static Set<String> jphp_scalarTypeHints = new HashSet<String>(){{
         add("scalar");
         add("number");
         add("string");

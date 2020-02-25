@@ -83,13 +83,13 @@ abstract public class TypeChecker {
 
             switch (type) {
                 case INT:
-                    return LongMemory.valueOf(value.toLong());
+                    return StringMemory.toLong(value.toString(), false);
                 case STRING:
                     return StringMemory.valueOf(value.toString());
                 case BOOLEAN:
                     return TrueMemory.valueOf(value.toBoolean());
                 case DOUBLE:
-                    return DoubleMemory.valueOf(value.toDouble());
+                    return StringMemory.toNumeric(value.toString(), false, null);
             }
 
             return null;

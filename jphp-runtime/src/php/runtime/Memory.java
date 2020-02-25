@@ -134,6 +134,10 @@ abstract public class Memory implements Comparable<Memory> {
         return toValue() == UNDEFINED;
     }
 
+    public boolean isUninitialized(){
+        return toValue().getClass() == UninitializedMemory.class;
+    }
+
     public boolean isShortcut(){
         return false;
     }

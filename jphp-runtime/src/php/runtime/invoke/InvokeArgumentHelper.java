@@ -283,8 +283,7 @@ public class InvokeArgumentHelper {
         return args;
     }
 
-    public static void invalidType(Environment env, TraceInfo trace, ParameterEntity param, int index, Memory passed,
-                                   String originClassName, String originMethodName) {
+    public static String getGiven(Memory passed) {
         String given;
         if (passed == null) {
             given = "none";
@@ -293,6 +292,13 @@ public class InvokeArgumentHelper {
         } else {
             given = passed.getRealType().toString();
         }
+
+        return given;
+    }
+
+    public static void invalidType(Environment env, TraceInfo trace, ParameterEntity param, int index, Memory passed,
+                                   String originClassName, String originMethodName) {
+        String given = getGiven(passed);
 
         String method = originMethodName == null ? originClassName : originClassName + "::" + originMethodName;
 

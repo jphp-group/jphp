@@ -95,6 +95,9 @@ public class ClassEntity extends Entity implements Cloneable {
 
     protected boolean isStatic;
 
+    //protected boolean isWrapped = true;
+    protected ClassWrapper wrapper;
+
     protected static final ClassEntity magicSignatureClass =
             new ClassEntity(new ClassWrapper(null, MagicSignatureClass.class));
 
@@ -111,6 +114,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public ClassEntity(ClassWrapper wrapper) {
         this((Context) null);
+        this.wrapper = wrapper;
         wrapper.onWrap(this);
     }
 
@@ -1274,7 +1278,7 @@ public class ClassEntity extends Entity implements Cloneable {
                 return entity.assignValue(env, trace, object, property, memory);
             }
 
-            return value.assign(memory);
+            return value.assign(entity == null ? memory : entity.typedValue(env, trace, memory));
         }
         return memory;
     }
@@ -1564,8 +1568,16 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         }
 
-        if (value != null)
+        if (value != null) {
+            if (value.isUninitialized()) {
+                env.error(trace,
+                        "Typed property %s::$%s must not be accessed before initialization",
+                        entity.getClazz().getName(), property
+                );
+            }
+
             return value;
+        }
 
         if (methodMagicGet != null) {
             Memory result;
