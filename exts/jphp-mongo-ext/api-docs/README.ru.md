@@ -3,13 +3,13 @@
 ---
 
 ## jphp-mongo-ext
-> версия 1.0.3, создано с помощью JPPM.
+> версия 1.1.0, создано с помощью JPPM.
 
 Library for working with MongoDB.
 
 ### Установка
 ```
-jppm add jphp-mongo-ext@1.0.3
+jppm add jphp-mongo-ext@1.1.0
 ```
 
 ### АПИ

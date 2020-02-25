@@ -2,7 +2,7 @@ dependencies {
     provided project(":jphp-runtime")
 
     // dependencies ....
-    compile 'org.mongodb:mongodb-driver:3.6.3'
+    compile 'org.mongodb:mongodb-driver:3.12.1'
     // -----------------
 
     testCompile 'junit:junit:4.+'
