@@ -3,13 +3,13 @@
 ---
 
 ## jphp-core
-> version 1.1.3, created by JPPM.
+> version 1.1.5, created by JPPM.
 
 Compiler and Launcher for JPHP.
 
 ### Install
 ```
-jppm add jphp-core@1.1.3
+jppm add jphp-core@1.1.5
 ```
 
 ### API
