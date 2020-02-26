@@ -2983,8 +2983,8 @@ public class StringFunctions extends FunctionsContainer {
         }
 
         long millis = System.currentTimeMillis();
-        final int seconds = (int) millis / 1000;
-        final int micros = (int) millis % 0x100000;
+        final int seconds = (int) (millis / 1000);
+        final int micros = (int) (millis % 0x100000);
 
         if (moreEntropy) {
             return String.format("%s%08x%05x%.8f", prefix, seconds, micros, MathFunctions.RANDOM.nextDouble());
