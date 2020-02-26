@@ -22,6 +22,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import php.runtime.Memory;
 import php.runtime.common.Function;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -358,11 +359,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             // PROPERTIES
             for (ClassVarStmtToken property : statement.getProperties()) {
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
-                Memory value = Memory.NULL;
+                Memory value = null;
                 if (property.getValue() != null)
                     value = expressionStmtCompiler.writeExpression(property.getValue(), true, true, false);
 
                 PropertyEntity prop = new PropertyEntity(compiler.getContext());
+                prop.setTrace(property.toTraceInfo(compiler.getContext()));
+
                 prop.setName(property.getVariable().getName());
                 prop.setModifier(property.getModifier());
                 prop.setStatic(property.isStatic());
@@ -370,20 +373,22 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setNullable(property.isNullable());
                 prop.setType(property.getHintType());
 
-                if (property.getValue() == null && prop.getType() != null) {
-                    value = UninitializedMemory.valueOf(prop.getType().toString());
+                switch (prop.getType()) {
+                    case VOID:
+                    case CALLABLE:
+                        compiler.getEnvironment().error(
+                                prop.getTrace(),
+                                "Property %s::$%s cannot have type %s",
+                                entity.getName(), prop.getName(), prop.getType()
+                        );
+                        break;
                 }
 
                 if (property.getHintTypeClass() != null) {
                     prop.setTypeClass(property.getHintTypeClass().getName());
-                    if (property.getValue() == null) {
-                        value = UninitializedMemory.valueOf(prop.getTypeClass());
-                    }
                 }
 
-                prop.setDefaultValue(value);
                 prop.setDefault(property.getValue() != null);
-                prop.setTrace(property.toTraceInfo(compiler.getContext()));
 
                 if (property.getDocComment() != null) {
                     prop.setDocComment(new DocumentComment(property.getDocComment().getComment()));
@@ -392,9 +397,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 ClassEntity.PropertyResult result = entity.addProperty(prop);
                 result.check(compiler.getEnvironment());
 
-                if (value != null) {
-                    prop.checkDefaultValue(compiler.getEnvironment());
-                }
+                prop.setDefaultTypedValue(value, compiler.getEnvironment());
 
                 if (value == null && property.getValue() != null) {
                     if (property.getValue().isSingle() && ValueExprToken.isConstable(property.getValue().getSingle(), true))

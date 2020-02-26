@@ -1,6 +1,7 @@
 package php.runtime.reflection.support;
 
 import php.runtime.Memory;
+import php.runtime.Memory.Type;
 import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
@@ -83,13 +84,25 @@ abstract public class TypeChecker {
 
             switch (type) {
                 case INT:
-                    return StringMemory.toLong(value.toString(), false);
+                    switch (value.getRealType()) {
+                        case BOOL:
+                        case DOUBLE:
+                            return LongMemory.valueOf(value.toLong());
+                        default:
+                            return StringMemory.toLong(value.toString(), false);
+                    }
                 case STRING:
                     return StringMemory.valueOf(value.toString());
                 case BOOLEAN:
                     return TrueMemory.valueOf(value.toBoolean());
                 case DOUBLE:
-                    return StringMemory.toNumeric(value.toString(), false, null);
+                    Memory memory = StringMemory.toNumeric(value.toString(), false, null);
+
+                    if (memory.getRealType() == Type.INT) {
+                        return DoubleMemory.valueOf(memory.toLong());
+                    }
+
+                    return memory;
             }
 
             return null;

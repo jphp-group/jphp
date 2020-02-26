@@ -69,9 +69,9 @@ abstract public class Memory implements Comparable<Memory> {
         public String toString(){
             switch (this){
                 case ARRAY: return "array";
-                case BOOL: return "boolean";
+                case BOOL: return "bool";
                 case DOUBLE: return "float";
-                case INT: return "integer";
+                case INT: return "int";
                 case NULL: return "NULL";
                 case OBJECT: return "object";
                 case STRING: return "string";

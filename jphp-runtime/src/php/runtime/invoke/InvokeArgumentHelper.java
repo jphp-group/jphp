@@ -284,11 +284,16 @@ public class InvokeArgumentHelper {
     }
 
     public static String getGiven(Memory passed) {
+        return getGiven(passed, false);
+    }
+
+    public static String getGiven(Memory passed, boolean _short) {
         String given;
         if (passed == null) {
             given = "none";
         } else if (passed.isObject()) {
-            given = "instance of " + passed.toValue(ObjectMemory.class).getReflection().getName();
+            String name = passed.toValue(ObjectMemory.class).getReflection().getName();
+            given = _short ? name : "instance of " + name;
         } else {
             given = passed.getRealType().toString();
         }

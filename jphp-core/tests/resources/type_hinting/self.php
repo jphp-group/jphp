@@ -65,8 +65,8 @@ object(A)#%d (0) {
 NULL
 Argument 1 passed to A::test() must be an instance of A, instance of stdClass given, called in %s on line %d, position %d and defined
 
-Argument 1 passed to A::test() must be an instance of A, integer given, called in %s on line %d, position %d and defined
+Argument 1 passed to A::test() must be an instance of A, int given, called in %s on line %d, position %d and defined
 
 Argument 1 passed to A::test2() must be an instance of A or null, instance of stdClass given, called in %s on line %d, position %d and defined
 
-Argument 1 passed to A::test2() must be an instance of A or null, integer given, called in %s on line %d, position %d and defined
+Argument 1 passed to A::test2() must be an instance of A or null, int given, called in %s on line %d, position %d and defined

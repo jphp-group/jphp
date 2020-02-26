@@ -9,12 +9,17 @@ import php.runtime.env.Environment;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 @Name("ReflectionType")
 public class ReflectionType extends BaseObject {
     private Memory name;
     private boolean allowsNull;
     private boolean isBuiltin;
+
+    public ReflectionType(Environment env, boolean allowsNull, TypeChecker typeChecker) {
+        this(env, typeChecker.getSignature(), allowsNull, typeChecker.isBuiltin());
+    }
 
     public ReflectionType(Environment env, String name, boolean allowsNull, boolean isBuiltin) {
         super(env);

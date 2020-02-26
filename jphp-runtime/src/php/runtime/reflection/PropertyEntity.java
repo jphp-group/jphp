@@ -14,8 +14,10 @@ import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.lang.IObject;
 import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.UninitializedMemory;
 import php.runtime.memory.support.MemoryOperation;
+import php.runtime.memory.support.ObjectPropertyMemory;
 import php.runtime.reflection.support.Entity;
 import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.reflection.support.TypeChecker;
@@ -180,11 +182,24 @@ public class PropertyEntity extends Entity {
         if (defaultValue == null) {
             Memory r = env.getStatic(isStatic ? specificName : internalName);
             return r == null ? Memory.NULL : r;
-        } else
+        } else {
             return defaultValue;
+        }
+    }
+
+    public void setDefaultTypedValue(Memory defaultValue, Environment env) {
+        this.setDefaultValue(env == null || defaultValue == null ? null : typedDefaultValue(env, defaultValue));
     }
 
     public void setDefaultValue(Memory defaultValue) {
+        if (defaultValue == null) {
+            if (getType() != HintType.ANY) {
+                defaultValue = UninitializedMemory.valueOf(getType().toString());
+            } else if (getTypeClass() != null) {
+                defaultValue = UninitializedMemory.valueOf(getTypeClass());
+            }
+        }
+
         this.defaultValue = defaultValue;
     }
 
@@ -353,26 +368,33 @@ public class PropertyEntity extends Entity {
         return propertyEntity;
     }
 
-    public void checkDefaultValue(Environment env) {
-        if (defaultValue != null && !defaultValue.isUninitialized()) {
+    protected Memory typedDefaultValue(Environment env, Memory defaultValue) {
+        if (typeChecker != null && defaultValue != null && !defaultValue.isUninitialized()) {
             if (!checkTypeHinting(env, defaultValue)) {
-                String mustBe = typeChecker.getHumanString();
+                ModuleEntity module = env.getModuleManager().findModule(trace);
+                Memory memory = applyTypeHinting(env, defaultValue, module != null && module.isStrictTypes());
 
-                if (!nullable && defaultValue.isNull()) {
-                    env.exception(trace,
-                            BaseTypeError.class,
-                            "Default value for property of type %s may not be null. Use the nullable type ?%s to allow null default value",
-                            mustBe, mustBe
-                    );
-                } else {
-                    env.exception(trace,
-                            BaseTypeError.class,
-                            "Default value for property of type %s can only be %s",
-                            mustBe, mustBe
-                    );
+                if (memory == null) {
+                    String mustBe = typeChecker.getSignature();
+
+                    if (!nullable && defaultValue.isNull()) {
+                        env.error(trace,
+                                "Default value for property of type %s may not be null. Use the nullable type ?%s to allow null default value",
+                                mustBe, mustBe
+                        );
+                    } else {
+                        env.error(trace,
+                                "Cannot use %s as default value for property %s::$%s of type %s",
+                                InvokeArgumentHelper.getGiven(defaultValue, true), getClazz().getName(), getName(), mustBe
+                        );
+                    }
                 }
+
+                return memory;
             }
         }
+
+        return defaultValue;
     }
 
     public Memory typedValue(Environment env, TraceInfo trace, Memory value) {
@@ -385,15 +407,15 @@ public class PropertyEntity extends Entity {
                 if (memory != null) {
                     value = memory;
                 } else {
-                    String mustBe = typeChecker.getHumanString();
+                    String mustBe = typeChecker.getSignature();
                     if (nullable) {
                         mustBe = mustBe + " or null";
                     }
 
                     env.exception(trace,
                             BaseTypeError.class,
-                            "Typed property %s::$%s must be %s, %s used",
-                            getClazz().getName(), getName(), mustBe, InvokeArgumentHelper.getGiven(value)
+                            "Cannot assign %s to property %s::$%s of type %s",
+                            InvokeArgumentHelper.getGiven(value, true), getClazz().getName(), getName(), mustBe
                     );
                 }
             }
@@ -420,11 +442,19 @@ public class PropertyEntity extends Entity {
 
         ArrayMemory props = ((IObject) object).getProperties();
 
-        Memory result = props.getByScalar(specificName);
+        ReferenceMemory result = props.getByScalar(specificName);
         if (result == null) {
             result = props.getByScalar(name);
         }
 
+        if (result != null && isTyped()) {
+            return new ObjectPropertyMemory(env, trace, result, this);
+        }
+
         return result;
+    }
+
+    public boolean isTyped() {
+        return typeChecker != null;
     }
 }
