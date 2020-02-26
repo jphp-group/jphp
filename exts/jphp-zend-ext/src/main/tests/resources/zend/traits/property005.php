@@ -28,6 +28,5 @@ $t = new TraitsTest;
 $t->hello = "foo";
 ?>
 --EXPECTF--
-Strict Standards: 'Notice' and 'THello1' define the same property ($hello) in the composition of Notice. This might be incompatible, to improve maintainability consider using accessor methods in traits instead. Class was composed in %s on line %d at pos %d
 
-Fatal error: 'TraitsTest' and 'THello1' define the same property ($hello) in the composition of TraitsTest in %s on line %d, position %d
+Fatal error: TraitsTest and THello1 define the same property ($hello) in the composition of TraitsTest. However, the definition differs and is considered incompatible. Class was composed in %s on line %d, position %d

@@ -473,4 +473,12 @@ public class PropertyEntity extends Entity {
     public boolean isTyped() {
         return typeChecker != null;
     }
+
+    public boolean isSameTyped(PropertyEntity el) {
+        if (typeChecker == null && el.typeChecker == null) {
+            return true;
+        }
+
+        return typeChecker != null && typeChecker.identical(el.typeChecker);
+    }
 }

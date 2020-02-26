@@ -19,7 +19,7 @@ class B extends A {
 }
 PHP);
 
+echo "===DONE===";
 ?>
-===DONE===
 --EXPECT--
 ===DONE===

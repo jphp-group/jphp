@@ -111,9 +111,7 @@ final public class Messages {
     public final static Item ERR_INVALID_ARRAY_ELEMENT_TYPE = new Item("All array elements must be instances of %s class, %s given");
 
     public final static Item ERR_TRAIT_METHOD_COLLISION = new Item("Trait method '%s' has not been applied, because there are collision in '%s' and '%s' traits on %s");
-    public final static Item ERR_TRAIT_SAME_PROPERTY = new Item("'%s' and '%s' define the same property ($%s) in the composition of %s");
-    public final static Item ERR_TRAIT_SAME_PROPERTY_STRICT = new Item("'%s' and '%s' define the same property ($%s) in the composition of %s. " +
-            "This might be incompatible, to improve maintainability consider using accessor methods in traits instead. Class was composed");
+    public final static Item ERR_TRAIT_SAME_PROPERTY = new Item("%s and %s define the same property ($%s) in the composition of %s. However, the definition differs and is considered incompatible. Class was composed");
 
     public final static Item ERR_TRAIT_MULTIPLE_RULE =
             new Item("Failed to evaluate a trait precedence (%s). Method of trait '%s' was defined to be excluded multiple times");

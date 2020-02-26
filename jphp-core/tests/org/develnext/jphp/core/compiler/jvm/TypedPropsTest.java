@@ -303,4 +303,9 @@ public class TypedPropsTest extends JvmCompilerCase {
     public void testTest_array_promotion_does_not_violate_type_restrictions() {
         check("typed_props/typed_properties_083.phpt", true);
     }
+
+    @Test
+    public void testImportant_properties_with_different_types_from_traits() {
+        check("typed_props/typed_properties_085.phpt", true);
+    }
 }

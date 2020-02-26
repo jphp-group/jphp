@@ -22,4 +22,4 @@ $t->hello = "foo";
 ?>
 --EXPECTF--
 
-Fatal error: 'THello1' and 'THello2' define the same property ($hello) in the composition of TraitsTest in %s on line %d, position %d
+Fatal error: THello1 and THello2 define the same property ($hello) in the composition of TraitsTest. However, the definition differs and is considered incompatible. Class was composed in %s on line %d, position %d

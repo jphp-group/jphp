@@ -989,8 +989,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                         isFatal = true;
                     else if (origin.getDefaultValue() == null) {
                         // nop
-                    } else if (!origin.getDefaultValue().identical(el.getDefaultValue()))
+                    } else if (!origin.getDefaultValue().identical(el.getDefaultValue())) {
                         isFatal = true;
+                    } else if (!origin.isSameTyped(el)) {
+                        isFatal = true;
+                    }
 
                     if (isFatal) {
                         env.error(
@@ -1001,12 +1004,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                                 )
                         );
                     } else {
-                        env.error(
+                        /*env.error(
                                 entity.getTrace(), ErrorType.E_STRICT,
                                 Messages.ERR_TRAIT_SAME_PROPERTY_STRICT.fetch(
                                         ownerName, trait.getName(), el.getName(), entity.getName()
                                 )
-                        );
+                        );*/
                     }
                 }
             }
