@@ -30,6 +30,10 @@ public class DateFormatTest {
         return createFromFormat(format, date);
     }
 
+    private static ZonedDateTime create(String format, String date, ZonedDateTime dateTime) {
+        return createFromFormat(format, date, dateTime);
+    }
+
     private static LocalDateTime local(String format, String date) {
         return createFromFormat(format, date).toLocalDateTime();
     }
@@ -37,7 +41,7 @@ public class DateFormatTest {
     @Test
     public void dayOfMonth() {
         ZonedDateTime now = now();
-        assertThat(create("d", "28")).isEqualToIgnoringNanos(now.withDayOfMonth(28));
+        assertThat(create("d", "28", now)).isEqualToIgnoringNanos(now.withDayOfMonth(28));
 
         Stream.of(
                 Pair.of("d", "5"),
@@ -45,7 +49,7 @@ public class DateFormatTest {
                 Pair.of("j", "05"),
                 Pair.of("j", "5")
         )
-                .map(pair -> create(pair.getA(), pair.getB()))
+                .map(pair -> create(pair.getA(), pair.getB(), now))
                 .forEach(dateTime -> assertThat(dateTime).isEqualToIgnoringNanos(now.withDayOfMonth(5)));
     }
 
