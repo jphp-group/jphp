@@ -1204,6 +1204,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (callCache != null && entity != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
         }
 
         if (entity == null) {
@@ -1335,7 +1338,19 @@ public class ClassEntity extends Entity implements Cloneable {
                 return entity.assignValue(env, trace, object, property, memory);
             }
 
-            return value.assign(entity == null ? memory : entity.typedValue(env, trace, memory));
+            if (entity != null && entity.isTyped()) {
+                if (!memory.isImmutable()) {
+                    env.error(
+                            trace, "Unable to assign by ref for typed property %s::$%s, jphp will not support this feature",
+                            entity.getClazz().getName(),
+                            entity.getName()
+                    );
+                }
+
+                return value.assign(entity.typedValue(env, trace, memory));
+            } else {
+                return value.assign(entity == null ? memory : entity.typedValue(env, trace, memory));
+            }
         }
         return memory;
     }
@@ -1450,6 +1465,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (entity != null && callCache != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity contex = env.getLastClassOnStack();
+            entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
         }
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
@@ -1508,6 +1526,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (saveCache && entity != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != context) {
+            context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.findStaticProperty(property) : findStaticProperty(property);
         }
 
         if (entity == null) {
@@ -1547,6 +1568,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (callCache != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
         }
 
         if (entity == null) {
@@ -1609,6 +1633,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (callCache != null && entity != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
         }
 
         if (entity == null) {
@@ -1671,7 +1698,7 @@ public class ClassEntity extends Entity implements Cloneable {
                 InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
                 result = methodMagicGet.invokeDynamic(object, env, trace, args);
 
-                if (entity != null && entity.isTyped()) {
+                if (entity != null && entity.isTyped() && accessFlag == 0) {
                     result = entity.typedValue(env, trace, result);
                 }
             } finally {

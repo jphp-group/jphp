@@ -47,6 +47,17 @@ public class ObjectPropertyMemory extends ShortcutMemory {
     }
 
     @Override
+    public Memory assignRef(Memory reference) {
+        env.error(
+                trace, "Unable to assign by ref for typed property %s::$%s, jphp will not support this feature",
+                property.getClazz().getName(),
+                property.getName()
+        );
+
+        return super.assignRef(reference);
+    }
+
+    @Override
     public Memory assign(Memory memory) {
         memory = property.typedValue(env, trace, memory);
         return super.assign(memory);

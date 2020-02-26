@@ -21,18 +21,9 @@ $a = new A;
 $a->prop = new B;
 var_dump($a);
 
-$a = new A;
-$prop = &$a->prop;
-$a->prop = new B;
-var_dump($a);
-
 ?>
 --EXPECTF--
-object(A)#1 (1) {
-  ["prop"]=>
-  string(4) "test"
-}
 object(A)#%d (1) {
   ["prop"]=>
-  &string(4) "test"
+  string(4) "test"
 }

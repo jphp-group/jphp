@@ -94,11 +94,17 @@ public class ReflectionClass extends Reflection {
     public Memory getDefaultProperties(Environment env, Memory... args) {
         ArrayMemory result = new ArrayMemory();
         for (PropertyEntity e : entity.getStaticProperties()) {
-            result.put(e.getName(), e.getDefaultValue(env));
+            Memory defaultValue = e.getDefaultValue(env);
+            if (!defaultValue.isUninitialized()) {
+                result.put(e.getName(), defaultValue);
+            }
         }
 
         for (PropertyEntity e : entity.getProperties()) {
-            result.put(e.getName(), e.getDefaultValue(env));
+            Memory defaultValue = e.getDefaultValue(env);
+            if (!defaultValue.isUninitialized()) {
+                result.put(e.getName(), defaultValue);
+            }
         }
 
         return result.toConstant();

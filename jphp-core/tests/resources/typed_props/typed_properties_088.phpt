@@ -19,12 +19,12 @@ test(new A);
 test(new B);
 
 ?>
---EXPECT--
-object(A)#1 (1) {
+--EXPECTF--
+object(A)#%d (1) {
   ["prop"]=>
   int(42)
 }
-object(B)#1 (1) {
+object(B)#%d (1) {
   ["prop"]=>
   string(2) "42"
 }

@@ -308,4 +308,39 @@ public class TypedPropsTest extends JvmCompilerCase {
     public void testImportant_properties_with_different_types_from_traits() {
         check("typed_props/typed_properties_085.phpt", true);
     }
+
+    @Test
+    public void testCheck_for_correct_invalidation_of_prop_info_cache_slots() {
+        check("typed_props/typed_properties_088.phpt", true);
+        check("typed_props/typed_properties_089.phpt", true);
+        //check("typed_props/typed_properties_090.phpt", true);
+        //check("typed_props/typed_properties_092.phpt", true);
+        //check("typed_props/typed_properties_093.phpt", true);
+        //check("typed_props/typed_properties_094.phpt", true);
+        //check("typed_props/typed_properties_095.phpt", true);
+        //check("typed_props/typed_properties_096.phpt", true);
+        //check("typed_props/typed_properties_097.phpt", true);
+    }
+
+    @Test
+    public void testOther() {
+        check("typed_props/typed_properties_097.phpt", true);
+        //check("typed_props/typed_properties_098.phpt", true);
+        //check("typed_props/typed_properties_099.phpt", true);
+        check("typed_props/typed_properties_100.phpt", true);
+        check("typed_props/typed_properties_101.phpt", true);
+        //check("typed_props/typed_properties_102.phpt", true);
+        //check("typed_props/typed_properties_103.phpt", true);
+        //check("typed_props/typed_properties_104.phpt", true);
+        check("typed_props/typed_properties_105.phpt", true);
+        //check("typed_props/typed_properties_106.phpt", true);
+    }
+
+    @Test
+    public void testOnlyJphp() {
+        check("typed_props/jphp_typed_props_001.phpt", true);
+        check("typed_props/jphp_typed_props_002.phpt", true);
+        check("typed_props/jphp_typed_props_003.phpt", true);
+        check("typed_props/jphp_typed_props_004.phpt", true);
+    }
 }

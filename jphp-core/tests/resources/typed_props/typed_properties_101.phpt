@@ -10,7 +10,6 @@ class Test {
 
     public function dump() {
         var_dump($this);
-        debug_zval_dump($this);
     }
 }
 
@@ -19,15 +18,7 @@ $test->dump();
 
 ?>
 --EXPECTF--
-object(Test)#1 (0) {
-  ["public"]=>
-  uninitialized(bool)
-  ["protected":protected]=>
-  uninitialized(float)
-  ["private":"Test":private]=>
-  uninitialized(string)
-}
-object(Test)#1 (0) refcount(%d){
+object(Test)#%d (0) {
   ["public"]=>
   uninitialized(bool)
   ["protected":protected]=>
