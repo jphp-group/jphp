@@ -26,6 +26,7 @@ import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.memory.support.ArrayMapEntryMemory;
 import php.runtime.memory.support.ObjectPropertyMemory;
+import php.runtime.reflection.ClassEntity.InvalidProperty.Kind;
 import php.runtime.reflection.support.Entity;
 import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.reflection.support.TypeChecker;
@@ -711,8 +712,21 @@ public class ClassEntity extends Entity implements Cloneable {
                 if (prototype.isProtected() && property.isPrivate()) {
                     result.addError(InvalidProperty.Kind.MUST_BE_PROTECTED, property);
                 }
+
                 if (prototype.isPublic() && !property.isPublic()) {
                     result.addError(InvalidProperty.Kind.MUST_BE_PUBLIC, property);
+                }
+            }
+
+            if (!prototype.isPrivate()) {
+                if (property.isTyped() && !prototype.isTyped()) {
+                    property.setPrototype(prototype);
+                    result.addError(Kind.TYPE_MUST_BE_NOT_DEFINED, property);
+                } else {
+                    if (prototype.isTyped() && !prototype.getTypeChecker().identical(property.getTypeChecker())) {
+                        property.setPrototype(prototype);
+                        result.addError(Kind.INVALID_TYPE, property);
+                    }
                 }
             }
 
@@ -1772,7 +1786,14 @@ public class ClassEntity extends Entity implements Cloneable {
     }
 
     public static class InvalidProperty {
-        public enum Kind {MUST_BE_PROTECTED, MUST_BE_PUBLIC, STATIC_AS_NON_STATIC, NON_STATIC_AS_STATIC}
+        public enum Kind {
+            MUST_BE_PROTECTED,
+            MUST_BE_PUBLIC,
+            STATIC_AS_NON_STATIC,
+            NON_STATIC_AS_STATIC,
+            INVALID_TYPE,
+            TYPE_MUST_BE_NOT_DEFINED
+        }
 
         public final Kind kind;
         public final PropertyEntity property;
@@ -1871,6 +1892,25 @@ public class ClassEntity extends Entity implements Cloneable {
                                         el.property.getPrototype().getName(),
                                         el.property.clazz.getName(),
                                         el.property.getName()
+                                ),
+                                el.property.getTrace()
+                        );
+                        break;
+                    case INVALID_TYPE:
+                        e = new FatalException(
+                                Messages.ERR_TYPED_PROP_INVALID_TYPE_OF_INHERITANCE.fetch(
+                                        el.property.clazz.getName(), el.property.getName(),
+                                        el.property.getPrototype().getTypeChecker().getSignature(),
+                                        el.property.getPrototype().getClazz().getName()
+                                ),
+                                el.property.getTrace()
+                        );
+                        break;
+                    case TYPE_MUST_BE_NOT_DEFINED:
+                        e = new FatalException(
+                                Messages.ERR_TYPED_PROP_TYPE_MUST_BE_NOT_DEFINED_OF_INHERITANCE.fetch(
+                                        el.property.clazz.getName(), el.property.getName(),
+                                        el.property.getPrototype().getClazz().getName()
                                 ),
                                 el.property.getTrace()
                         );

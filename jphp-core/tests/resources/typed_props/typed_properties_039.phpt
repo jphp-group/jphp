@@ -25,7 +25,8 @@ var_dump($objs);
 
 ?>
 --EXPECTF--
-Fatal error: Uncaught TypeError: Cannot assign A to property A::$foo of type int in %s:%d
-Stack trace:
+
+Fatal error: Uncaught TypeError: Cannot assign A to property A::$foo of type int in %s on line 15, position %d
+Stack Trace:
 #0 {main}
-  thrown in %s on line %d
+  thrown in %s on line 15

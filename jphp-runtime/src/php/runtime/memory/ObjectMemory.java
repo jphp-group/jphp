@@ -453,6 +453,18 @@ public class ObjectMemory extends Memory {
                         if (!child.next())
                             return false;
 
+                        if (child.getValue().isUninitialized()) {
+                            boolean found = false;
+                            while (child.next()) {
+                                if (!child.getValue().isUninitialized()) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if (!found) return false;
+                        }
+
                         Object key = child.getKey();
                         if (key instanceof String) {
                             String keyS = (String) key;

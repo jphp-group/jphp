@@ -6,13 +6,13 @@ class Foobar {
     public int $foo = 1;
     public int $bar = 3;
     public int $baz = 5;
-    //public int $qux = PHP_INT_MAX;
+    public int $qux = PHP_INT_MAX;
 
     public function &fetch() {
         yield $this->foo;
         yield $this->bar;
         yield $this->baz;
-        //yield $this->qux;
+        yield $this->qux;
     }
 };
 $foo = new Foobar;
@@ -26,11 +26,5 @@ try {
 var_dump($foo);
 ?>
 --EXPECTF--
-object(Foobar)#%d (3) {
-  ["foo"]=>
-  int(2)
-  ["bar"]=>
-  int(4)
-  ["baz"]=>
-  int(6)
-}
+
+Fatal error: Unable to assign by ref for typed property Foobar::$foo, jphp will not support this feature in %s on line 9, position %d

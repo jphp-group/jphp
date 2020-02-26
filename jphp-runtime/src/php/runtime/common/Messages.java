@@ -3,7 +3,6 @@ package php.runtime.common;
 import java.util.IllegalFormatException;
 
 final public class Messages {
-
     private Messages(){}
 
     public final static Item ERR_FILE_NOT_FOUND = new Item("File not found - %s");
@@ -131,6 +130,10 @@ final public class Messages {
 
     public final static Item ERR_TIMEZONE_NULL_BYTE = new Item("%s: Timezone must not contain null bytes");
     public final static Item ERR_WRONG_PARAM_TYPE = new Item("%s expects parameter %d to be %s, %s given");
+
+
+    public static final Item ERR_TYPED_PROP_INVALID_TYPE_OF_INHERITANCE = new Item("Type of %s::$%s must be %s (as in class %s)");
+    public static final Item ERR_TYPED_PROP_TYPE_MUST_BE_NOT_DEFINED_OF_INHERITANCE = new Item("Type of %s::$%s must not be defined (as in class %s)");
 
     public static class Item {
         private String message;

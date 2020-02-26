@@ -2,7 +2,7 @@
 Test typed properties passed to typed function
 --FILE--
 <?php
-$foo = new class {
+class Foobar {
     public ?int $bar = 42;
     public int $baz;
 
@@ -12,6 +12,8 @@ $foo = new class {
         }
     }
 };
+
+$foo = new Foobar();
 
 function foo(?int &$a) {
     var_dump($a);

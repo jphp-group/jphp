@@ -14,4 +14,5 @@ class Bar extends Foo {
 }
 ?>
 --EXPECTF--
-Fatal error: Type of Bar::$qux must be Whatever (as in class Foo) in %s on line 11
+
+Fatal error: Type of Bar::$qux must be Whatever (as in class Foo) in %s on line 10, position %d

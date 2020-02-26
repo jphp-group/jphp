@@ -36,11 +36,10 @@ public class TypedPropsTest extends JvmCompilerCase {
     }
 
     @Test
-    @Ignore
     public void testPropertiesInheritance() {
-        /*check("typed_props/typed_properties_006.phpt", true);
+        check("typed_props/typed_properties_006.phpt", true);
         check("typed_props/typed_properties_007.phpt", true);
-        check("typed_props/typed_properties_008.phpt", true);*/
+        check("typed_props/typed_properties_008.phpt", true);
     }
 
     @Test
@@ -138,7 +137,34 @@ public class TypedPropsTest extends JvmCompilerCase {
 
     @Test
     public void testYieldReferenceGuard() {
-        //check("typed_props/typed_properties_033.phpt", true);
+        check("typed_props/typed_properties_033.phpt", true);
+    }
+
+    @Test
+    public void testRefs() {
+        check("typed_props/typed_properties_033.phpt", true);
+        // check("typed_props/typed_properties_034.phpt", true); // TODO FIX
+    }
+
+    @Test
+    public void testInheritanceMustNotChangeType() {
+        check("typed_props/typed_properties_035.phpt", true);
+    }
+
+    @Test
+    public void testUninitialized() {
+        check("typed_props/typed_properties_036.phpt", true);
+        check("typed_props/typed_properties_037.phpt", true);
+    }
+
+    @Test
+    public void testOverflow() {
+        check("typed_props/typed_properties_038.phpt", true);
+    }
+
+    @Test
+    public void testMismatchedProperty() {
+        check("typed_props/typed_properties_039.phpt", true);
     }
 
 }

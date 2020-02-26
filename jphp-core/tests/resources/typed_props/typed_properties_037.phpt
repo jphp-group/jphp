@@ -2,13 +2,14 @@
 Test typed properties var_dump uninitialized
 --FILE--
 <?php
-$foo = new class {
+$foo = new Foobar(); class Foobar {
     public int $bar = 10, $qux;
 };
 
 var_dump($foo);
+?>
 --EXPECTF--
-object(class@anonymous)#%d (1) {
+object(Foobar)#%d (2) {
   ["bar"]=>
   int(10)
   ["qux"]=>
