@@ -17,8 +17,8 @@ EOF
 $obj = new A;
 var_dump($obj);
 ?>
---EXPECT--
-object(A)#1 (0) {
+--EXPECTF--
+object(A)#%d (0) {
   ["a1"]=>
   uninitialized(A)
   ["b1"]=>

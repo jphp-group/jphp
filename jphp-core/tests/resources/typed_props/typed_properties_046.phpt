@@ -11,12 +11,12 @@ function foo() {
 }
 
 function bar() {
-    return str_repeat("b", 3);
+    return \php\lib\str::repeat("b", 3);
 }
 
 for ($i = 0; $i < 5; $i++) {
     try {
-        foo()->{bar()} = str_repeat("a", 3);
+        foo()->{bar()} = \php\lib\str::repeat("a", 3);
     } catch (Throwable $e) {
         echo $e->getMessage() . "\n";
     }

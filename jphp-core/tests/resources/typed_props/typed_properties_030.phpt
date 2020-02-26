@@ -19,7 +19,9 @@ unset($foo->bar); # ok
 var_dump($foo->bar); # not okay, __get is nasty
 ?>
 --EXPECTF--
-Fatal error: Uncaught TypeError: Cannot assign string to property Foo::$bar of type int in %s:%d
-Stack trace:
-#0 {main}
-  thrown in %s on line %d
+
+Fatal error: Uncaught TypeError: Cannot assign string to property Foo::$bar of type int in %s on line 16, position %d
+Stack Trace:
+#0 Foo->__get() called at %s
+#1 {main}
+  thrown in %s on line 16

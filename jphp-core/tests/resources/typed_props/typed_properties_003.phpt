@@ -12,4 +12,7 @@ $var = &$thing->int;
 ?>
 --EXPECTF--
 
-Fatal error: Typed property Foobar::$int must not be accessed before initialization in %s on line %d, position %d
+Fatal error: Uncaught Error: Typed property Foobar::$int must not be accessed before initialization in %s on line 8, position %d
+Stack Trace:
+#0 {main}
+  thrown in %s on line 8

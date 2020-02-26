@@ -114,7 +114,7 @@ public class PropertyEntity extends Entity {
     }
 
     public void setType(HintType type) {
-        this.typeChecker = type == null ? null : TypeChecker.of(type);
+        this.typeChecker = type == null || type == HintType.ANY ? null : TypeChecker.of(type);
     }
 
     public boolean checkTypeHinting(Environment env, Memory value) {
@@ -188,17 +188,33 @@ public class PropertyEntity extends Entity {
     }
 
     public void setDefaultTypedValue(Memory defaultValue, Environment env) {
-        this.setDefaultValue(env == null || defaultValue == null ? null : typedDefaultValue(env, defaultValue));
+        if (defaultValue == null) {
+            setDefaultValue(getUninitializedValue());
+        } else {
+            this.setDefaultValue(env == null ? null : typedDefaultValue(env, defaultValue));
+        }
+    }
+
+    public Memory getUninitializedValue() {
+        String arg = null;
+        if (getType() != HintType.ANY) {
+            arg = getType().toString();
+        } else if (getTypeClass() != null) {
+            arg = getTypeClass();
+        }
+
+        if (arg != null) {
+            return UninitializedMemory.valueOf((nullable ? "?" : "") + arg);
+        }
+
+        return Memory.NULL;
     }
 
     public void setDefaultValue(Memory defaultValue) {
-        if (defaultValue == null) {
-            if (getType() != HintType.ANY) {
-                defaultValue = UninitializedMemory.valueOf(getType().toString());
-            } else if (getTypeClass() != null) {
-                defaultValue = UninitializedMemory.valueOf(getTypeClass());
-            }
-        }
+        /*if (defaultValue == null) {
+            Memory uninitializedValue = getUninitializedValue();
+            defaultValue = uninitializedValue == Memory.NULL ? null : uninitializedValue;
+        }*/
 
         this.defaultValue = defaultValue;
     }
@@ -409,7 +425,7 @@ public class PropertyEntity extends Entity {
                 } else {
                     String mustBe = typeChecker.getSignature();
                     if (nullable) {
-                        mustBe = mustBe + " or null";
+                        mustBe = "?" + mustBe;
                     }
 
                     env.exception(trace,

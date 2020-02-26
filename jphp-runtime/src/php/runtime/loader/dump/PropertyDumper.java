@@ -45,6 +45,15 @@ public class PropertyDumper extends Dumper<PropertyEntity> {
         // trace
         print.writeTrace(debugInformation ? entity.getTrace() : null);
 
+        // ?nullable
+        print.writeBoolean(entity.isNullable());
+
+        // hint type
+        print.writeEnum(entity.getType());
+
+        // hint class type
+        print.writeName(entity.getTypeClass());
+
         // def
         print.writeBoolean(entity.isDefault());
 
@@ -70,6 +79,16 @@ public class PropertyDumper extends Dumper<PropertyEntity> {
         property.setModifier(data.readModifier());
         property.setName(data.readName());
         property.setTrace(data.readTrace(context));
+
+        // typed
+        property.setNullable(data.readBoolean());
+        property.setType(data.readHintType());
+        String typeClass = data.readName();
+
+        if (typeClass != null && !typeClass.isEmpty()) {
+            property.setTypeClass(typeClass);
+        }
+
         property.setDefault(data.readBoolean());
         property.setDefaultValue(data.readMemory());
 

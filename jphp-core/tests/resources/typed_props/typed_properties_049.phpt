@@ -7,4 +7,5 @@ class Foo {
 }
 ?>
 --EXPECTF--
-Fatal error: Default value for property of type int may not be null. Use the nullable type ?int to allow null default value in %s on line %d
+
+Fatal error: Default value for property of type int may not be null. Use the nullable type ?int to allow null default value in %s on line 3, position %d

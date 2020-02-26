@@ -120,9 +120,8 @@ public class TypedPropsTest extends JvmCompilerCase {
     }
 
     @Test
-    public void testMagic() {
-        // TODO
-        // check("typed_props/typed_properties_030.phpt", true);
+    public void testMagicGetTyped() {
+        check("typed_props/typed_properties_030.phpt", true);
     }
 
     @Test
@@ -167,4 +166,141 @@ public class TypedPropsTest extends JvmCompilerCase {
         check("typed_props/typed_properties_039.phpt", true);
     }
 
+    @Test
+    public void testGetMagicOnUnset() {
+        check("typed_props/typed_properties_040.phpt", true);
+    }
+
+    @Test
+    public void testWeakConversionOfStrings() {
+        check("typed_props/typed_properties_041.phpt", true);
+        check("typed_props/typed_properties_042.phpt", true);
+    }
+
+    @Test // SKIP, jphp doesn't support
+    public void testRefsMisc() {
+       // check("typed_props/typed_properties_043.phpt", true);
+       // check("typed_props/typed_properties_044.phpt", true);
+    }
+
+    @Test
+    public void testMemory_leaks_on_wrong_assignment_to_typed() {
+        check("typed_props/typed_properties_046.phpt", true);
+    }
+
+    @Test
+    public void testNullable_typed_property() {
+        check("typed_props/typed_properties_047.phpt", true);
+    }
+
+    @Test
+    public void testParent_private_property_types_must_be_ignored() {
+        check("typed_props/typed_properties_048.phpt", true);
+    }
+
+    @Test
+    public void testNullable_typed_property2() {
+        check("typed_props/typed_properties_049.phpt", true);
+    }
+
+    @Test
+    public void testWeak_casts_must_not_overwrite_source_variables() {
+        check("typed_props/typed_properties_050.phpt", true);
+    }
+
+    @Test
+    public void testWeak_casts_must_not_leak() {
+        check("typed_props/typed_properties_051.phpt", true);
+    }
+
+    @Test
+    public void testClass_properties_declared_in_eval_must_not_leak() {
+        check("typed_props/typed_properties_052.phpt", true);
+    }
+
+    @Test
+    public void testTyped_properties_disallow_callable() {
+        check("typed_props/typed_properties_053.phpt", true);
+    }
+
+    @Test
+    public void testTyped_properties_disallow_callable_nullable_variant() {
+        check("typed_props/typed_properties_054.phpt", true);
+    }
+
+    @Test
+    public void testTest_assign_to_typed_property_taken_by_reference() {
+        check("typed_props/typed_properties_055.phpt", true);
+    }
+
+    @Test
+    public void testType_change_in_assign_op_use_after_free() {
+        check("typed_props/typed_properties_056.phpt", true);
+    }
+
+    @Test
+    public void testType_change_in_pre_post_increment_use_after_free() {
+        check("typed_props/typed_properties_057.phpt", true);
+    }
+
+    @Test
+    public void testConstants_in_default_values_of_properties() {
+        check("typed_props/typed_properties_058.phpt", true);
+    }
+
+    @Test
+    public void testNullable_typed_properties_in_traits() {
+        check("typed_props/typed_properties_059.phpt", true);
+    }
+
+    @Test
+    public void testTest_typed_properties_work_fine_with_simple_inheritance() {
+        check("typed_props/typed_properties_060.phpt", true);
+    }
+
+    @Test
+    public void testTyped_property_on_overloaded_by_ref_property() {
+        //check("typed_props/typed_properties_061.phpt", true);
+        //check("typed_props/typed_properties_062.phpt", true);
+        //check("typed_props/typed_properties_063.phpt", true);
+        //check("typed_props/typed_properties_064.phpt", true);
+        //check("typed_props/typed_properties_065.phpt", true);
+        //check("typed_props/typed_properties_065.phpt", true);
+        //check("typed_props/typed_properties_066.phpt", true);
+        //check("typed_props/typed_properties_067.phpt", true);
+        //check("typed_props/typed_properties_068.phpt", true);
+        //check("typed_props/typed_properties_069.phpt", true);
+        //check("typed_props/typed_properties_070.phpt", true);
+        //check("typed_props/typed_properties_071.phpt", true);
+        //check("typed_props/typed_properties_072.phpt", true);
+    }
+
+    @Test
+    public void testTyped_property_must_cast_when_used_with__get() {
+        check("typed_props/typed_properties_072.phpt", true);
+        //check("typed_props/typed_properties_073.phpt", true);
+        //check("typed_props/typed_properties_074.phpt", true);
+        //check("typed_props/typed_properties_075.phpt", true);
+        //check("typed_props/typed_properties_075.phpt", true);
+        //check("typed_props/typed_properties_076.phpt", true);
+    }
+
+    @Test
+    public void testConverted_values_shall_be_returned_and_not_the_original_value_upon_property_assignment() {
+        check("typed_props/typed_properties_077.phpt", true);
+        //check("typed_props/typed_properties_078.phpt", true);
+        //check("typed_props/typed_properties_079.phpt", true);
+    }
+
+    @Test
+    public void testAccess_to_typed_static_properties_before_initialization() {
+        check("typed_props/typed_properties_080.phpt", true);
+        //check("typed_props/typed_properties_081.phpt", true);
+        //check("typed_props/typed_properties_082.phpt", true);
+    }
+
+    @Test
+    public void testTest_array_promotion_does_not_violate_type_restrictions() {
+        check("typed_props/typed_properties_083.phpt", true);
+    }
 }

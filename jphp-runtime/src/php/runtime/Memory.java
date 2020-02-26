@@ -72,7 +72,7 @@ abstract public class Memory implements Comparable<Memory> {
                 case BOOL: return "bool";
                 case DOUBLE: return "float";
                 case INT: return "int";
-                case NULL: return "NULL";
+                case NULL: return "null";
                 case OBJECT: return "object";
                 case STRING: return "string";
                 default:

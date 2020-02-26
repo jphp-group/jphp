@@ -5,7 +5,7 @@ Typed property on overloaded by-ref property
 --FILE--
 <?php
 
-$a = new class {
+$a = new Foobar; class Foobar {
     public int $foo = 1;
 
     function &__get($x) {

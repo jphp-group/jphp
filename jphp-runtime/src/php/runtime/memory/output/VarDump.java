@@ -150,7 +150,16 @@ public class VarDump extends Printer {
             printer.write("object(");
             printer.write(classEntity.getName());
             printer.write(")#" + value.getPointer());
-            printer.write(" (" + arr.size() + ") {\n");
+
+            int size = arr.size();
+
+            for (ReferenceMemory referenceMemory : arr) {
+                if (referenceMemory.isUninitialized()) {
+                    size--;
+                }
+            }
+
+            printer.write(" (" + size + ") {\n");
 
             level += 1;
 

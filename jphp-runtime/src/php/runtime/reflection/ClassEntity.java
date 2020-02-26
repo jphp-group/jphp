@@ -19,6 +19,7 @@ import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.invoke.cache.PropertyCallCache;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
+import php.runtime.lang.exception.BaseError;
 import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.lang.support.MagicSignatureClass;
 import php.runtime.memory.ArrayMemory;
@@ -1355,9 +1356,7 @@ public class ClassEntity extends Entity implements Cloneable {
         }
 
         ArrayMemory props = object.getProperties();
-        if (props == null
-                || accessFlag != 0
-                || props.removeByScalar(entity == null ? property : entity.specificName) == null) {
+        if (props == null || accessFlag != 0 || props.removeByScalar(entity == null ? property : entity.specificName) == null) {
             if (methodMagicUnset != null) {
                 if (context != null && context.getId() == methodMagicUnset.getClazz().getId()) {
                     if (env.peekCall(0).flags == FLAG_UNSET) {
@@ -1377,6 +1376,10 @@ public class ClassEntity extends Entity implements Cloneable {
                 }
                 return Memory.NULL;
             }
+        }
+
+        if (entity != null && entity.isTyped() && props != null && accessFlag == 0) {
+            props.putAsKeyString(entity.specificName, entity.getUninitializedValue());
         }
 
         if (accessFlag != 0)
@@ -1521,10 +1524,12 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         }
 
+        Memory value = entity.getStaticValue(env, trace);
+
         if (entity.isTyped()) {
-            return new ObjectPropertyMemory(env, trace, (ReferenceMemory) entity.getStaticValue(env, trace), entity);
+            return new ObjectPropertyMemory(env, trace, (ReferenceMemory) value, entity);
         } else {
-            return entity.getStaticValue(env, trace);
+            return value;
         }
     }
 
@@ -1583,7 +1588,11 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         }
 
-        return value;
+        if (entity != null && entity.isTyped()) {
+            return new ObjectPropertyMemory(env, trace, (ReferenceMemory) value, entity);
+        } else {
+            return value;
+        }
     }
 
     public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property,
@@ -1630,13 +1639,16 @@ public class ClassEntity extends Entity implements Cloneable {
 
         if (value != null) {
             if (value.isUninitialized()) {
-                env.error(trace,
-                        "Typed property %s::$%s must not be accessed before initialization",
-                        entity.getClazz().getName(), property
-                );
+                if (methodMagicGet == null) {
+                    env.exception(trace,
+                            BaseError.class,
+                            "Typed property %s::$%s must not be accessed before initialization",
+                            entity.getClazz().getName(), property
+                    );
+                }
+            } else {
+                return value;
             }
-
-            return value;
         }
 
         if (methodMagicGet != null) {
@@ -1658,6 +1670,10 @@ public class ClassEntity extends Entity implements Cloneable {
 
                 InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
                 result = methodMagicGet.invokeDynamic(object, env, trace, args);
+
+                if (entity != null && entity.isTyped()) {
+                    result = entity.typedValue(env, trace, result);
+                }
             } finally {
                 env.popCall();
             }

@@ -9,7 +9,7 @@ class A {
 }
 
 $o = new A;
-$o->foo = "1" . str_repeat("0", 2);
+$o->foo = "1" . \php\lib\str::repeat("0", 2);
 try {
     $x = ++$o->foo;
 } catch (Throwable $e) {

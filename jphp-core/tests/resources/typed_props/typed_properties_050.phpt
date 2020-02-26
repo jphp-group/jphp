@@ -11,8 +11,8 @@ $o->a = $b;
 var_dump($o, $a);
 
 ?>
---EXPECT--
-object(A)#1 (1) {
+--EXPECTF--
+object(A)#%d (1) {
   ["a"]=>
   int(1)
 }

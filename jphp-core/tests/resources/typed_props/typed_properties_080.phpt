@@ -10,17 +10,17 @@ class Test {
 
     static function run() {
         try {
-            self::$a;
+            $x = self::$a;
         } catch (Error $e) {
             echo $e->getMessage(), "\n";
         }
         try {
-            self::$b;
+            $x = self::$b;
         } catch (Error $e) {
             echo $e->getMessage(), "\n";
         }
         try {
-            self::$c;
+            $x = self::$c;
         } catch (Error $e) {
             echo $e->getMessage(), "\n";
         }

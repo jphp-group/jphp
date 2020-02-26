@@ -379,7 +379,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                         compiler.getEnvironment().error(
                                 prop.getTrace(),
                                 "Property %s::$%s cannot have type %s",
-                                entity.getName(), prop.getName(), prop.getType()
+                                entity.getName(), prop.getName(), (prop.isNullable() ? "?" : "") + prop.getType()
                         );
                         break;
                 }
@@ -400,9 +400,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 prop.setDefaultTypedValue(value, compiler.getEnvironment());
 
                 if (value == null && property.getValue() != null) {
-                    if (property.getValue().isSingle() && ValueExprToken.isConstable(property.getValue().getSingle(), true))
+                    if (property.getValue().isSingle() && ValueExprToken.isConstable(property.getValue().getSingle(), true)) {
+                        prop.setDefaultValue(null);
                         dynamicProperties.add(property);
-                    else
+                    } else
                         compiler.getEnvironment().error(
                                 property.getVariable().toTraceInfo(compiler.getContext()),
                                 ErrorType.E_COMPILE_ERROR,

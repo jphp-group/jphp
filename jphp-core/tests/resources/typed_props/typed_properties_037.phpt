@@ -9,7 +9,7 @@ $foo = new Foobar(); class Foobar {
 var_dump($foo);
 ?>
 --EXPECTF--
-object(Foobar)#%d (2) {
+object(Foobar)#%d (1) {
   ["bar"]=>
   int(10)
   ["qux"]=>

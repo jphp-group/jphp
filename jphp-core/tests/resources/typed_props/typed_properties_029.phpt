@@ -16,4 +16,4 @@ $foo->bar = "1";
 Fatal error: Uncaught TypeError: Cannot assign string to property Foo::$bar of type int in %s on line 9, position %d
 Stack Trace:
 #0 {main}
-  thrown in D:\dev\personal\jphp\jphp-core\build\resources\test\resources\typed_props\typed_properties_029.phpt on line 9
+  thrown in %s on line 9

@@ -4,6 +4,7 @@ import php.runtime.Memory;
 import php.runtime.env.TraceInfo;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.UninitializedMemory;
 import php.runtime.memory.helper.ClassConstantMemory;
 import php.runtime.memory.helper.ConstantMemory;
 
@@ -50,6 +51,10 @@ public class DumpOutputStream extends DataOutputStream {
             writeInt(-3);
             writeUTF(((ClassConstantMemory) memory).getClassName());
             writeUTF(((ClassConstantMemory) memory).getName());
+            return;
+        } else if (memory instanceof UninitializedMemory) {
+            writeInt(-4);
+            writeUTF(((UninitializedMemory) memory).getArg());
             return;
         }
 

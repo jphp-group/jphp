@@ -16,8 +16,8 @@ class A {
 $x = new A;
 var_dump($x);
 ?>
---EXPECT--
-object(A)#1 (0) {
+--EXPECTF--
+object(A)#%d (0) {
   ["a2"]=>
   uninitialized(int)
   ["b2"]=>

@@ -20,7 +20,8 @@ var_dump($foo->bar);
 --EXPECTF--
 string(3) "bar"
 
-Fatal error: Uncaught TypeError: Cannot assign null to property Foo::$bar of type int in %s:%d
-Stack trace:
-#0 {main}
-  thrown in %s on line %d
+Fatal error: Uncaught TypeError: Cannot assign null to property Foo::$bar of type int in %s on line 15, position %d
+Stack Trace:
+#0 Foo->__get() called at %s
+#1 {main}
+  thrown in %s on line 15

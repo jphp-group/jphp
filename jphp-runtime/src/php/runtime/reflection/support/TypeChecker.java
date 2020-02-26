@@ -126,7 +126,11 @@ abstract public class TypeChecker {
                             return StringMemory.toLong(value.toString(), false);
                     }
                 case STRING:
-                    return StringMemory.valueOf(value.toString());
+                    if (value.isObject() && ((ObjectMemory) value).getReflection().methodMagicToString == null) {
+                        return null;
+                    } else {
+                        return StringMemory.valueOf(value.toString());
+                    }
                 case BOOLEAN:
                     return TrueMemory.valueOf(value.toBoolean());
                 case DOUBLE:

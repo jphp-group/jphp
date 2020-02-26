@@ -17,8 +17,8 @@ var_dump($test);
 var_dump($test->val);
 
 ?>
---EXPECT--
-object(Test)#1 (0) {
+--EXPECTF--
+object(Test)#%d (0) {
   ["val"]=>
   uninitialized(int)
 }

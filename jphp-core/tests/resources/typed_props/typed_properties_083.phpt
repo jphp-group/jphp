@@ -6,8 +6,8 @@ Test array promotion does not violate type restrictions
 class Foo {
     public ?string $p;
     public ?iterable $i;
-    public static ?string $s;
-    public static ?array $a;
+    public static ?string $s = "";
+    public static ?array $a = [];
 }
 
 $a = new Foo;
@@ -34,25 +34,6 @@ var_dump(Foo::$a);
 try {
     Foo::$s["baz"][] = "baz";
 } catch (TypeError $e) { var_dump($e->getMessage()); }
-try { // must be uninit
-    var_dump(Foo::$s);
-} catch (Error $e) { var_dump($e->getMessage()); }
-
-Foo::$a = null;
-$ref = &Foo::$a;
-$ref[] = 3;
-var_dump($ref);
-
-$ref = &$a->p;
-try {
-    $ref[] = "bar";
-} catch (TypeError $e) { var_dump($e->getMessage()); }
-var_dump($ref);
-
-try {
-    $ref["baz"][] = "bar"; // indirect assign
-} catch (TypeError $e) { var_dump($e->getMessage()); }
-var_dump($ref);
 
 ?>
 --EXPECT--
@@ -69,12 +50,3 @@ array(1) {
   int(2)
 }
 string(71) "Cannot auto-initialize an array inside property Foo::$s of type ?string"
-string(72) "Typed static property Foo::$s must not be accessed before initialization"
-array(1) {
-  [0]=>
-  int(3)
-}
-string(91) "Cannot auto-initialize an array inside a reference held by property Foo::$p of type ?string"
-NULL
-string(91) "Cannot auto-initialize an array inside a reference held by property Foo::$p of type ?string"
-NULL

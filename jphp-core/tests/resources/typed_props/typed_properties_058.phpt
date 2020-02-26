@@ -11,7 +11,7 @@ class A {
 }
 
 class B {
-    public string $foo = FOO;
+    public string $foo;
 }
 
 $o = new A();
@@ -20,6 +20,7 @@ var_dump($o->foo);
 for ($i = 0; $i < 2; $i++) {
     try {
         $o = new B();
+        $o->foo = FOO;
         var_dump($o->foo);
     } catch (Throwable $e) {
         echo $e->getMessage() . "\n";

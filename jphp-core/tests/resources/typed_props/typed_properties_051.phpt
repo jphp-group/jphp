@@ -8,7 +8,7 @@ class A {
 }
 class B {
     function __toString() {
-        return str_repeat("ok", 2);
+        return \php\lib\str::repeat("ok", 2);
     }
 }
 class C {

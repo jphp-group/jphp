@@ -16,7 +16,7 @@ $o->a = "a";
 --EXPECTF--
 int(1)
 
-Fatal error: Uncaught TypeError: Cannot assign string to property A::$a of type int in %s:%d
-Stack trace:
+Fatal error: Uncaught TypeError: Cannot assign string to property A::$a of type int in %s on line 10, position %d
+Stack Trace:
 #0 {main}
-  thrown in %s on line %d
+  thrown in %s on line 10

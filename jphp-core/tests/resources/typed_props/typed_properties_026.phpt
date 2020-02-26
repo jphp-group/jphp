@@ -18,4 +18,8 @@ var_dump((new Baz)->get());
 ?>
 --EXPECTF--
 
-Fatal error: Typed property Baz::$baz must not be accessed before initialization in %s on line 10, position %d
+Fatal error: Uncaught Error: Typed property Baz::$baz must not be accessed before initialization in %s on line 10, position %d
+Stack Trace:
+#0 Baz->get() called at %s
+#1 {main}
+  thrown in %s on line 10
