@@ -1323,6 +1323,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         result.setParameters(parameters);
 
         if (isRef) {
+            if (previous instanceof StaticAccessExprToken && !((StaticAccessExprToken) previous).isGetStaticField()) {
+                unexpectedToken(current);
+            }
+
             result = new ArrayGetRefExprToken(result);
             ((ArrayGetRefExprToken)result).setShortcut(true);
 
@@ -1333,6 +1337,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             next = iterator.next();
 
             if (next instanceof AssignableOperatorToken || lastPush){
+                if (previous instanceof StaticAccessExprToken && !((StaticAccessExprToken) previous).isGetStaticField()) {
+                    unexpectedToken(next);
+                }
+
                 result = new ArrayGetRefExprToken(result);
 
                 if (var != null && analyzer.getFunction() != null) {
@@ -1451,7 +1459,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         StringBuilderExprToken.class,
                         CallOperatorToken.class,
                         ArrayPushExprToken.class) ||
-                        (previous instanceof StaticAccessExprToken && ((StaticAccessExprToken)previous).isGetStaticField())){
+                        (previous instanceof StaticAccessExprToken)){
                     // array
                     current = processArrayToken(previous, current, iterator);
                     if (previous instanceof DynamicAccessExprToken && current instanceof ArrayGetRefExprToken){

@@ -74,7 +74,9 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
                         Memory.class, String.class, String.class, String.class, Environment.class, TraceInfo.class,
                         ConstantCallCache.class, Integer.TYPE, boolean.class
                 );
-                expr.setStackPeekAsImmutable();
+
+                expr.writePopImmutable();
+                //expr.setStackPeekAsImmutable();
             } else {
                 if (token.getFieldExpr() != null) {
                     expr.writeExpression(token.getFieldExpr(), true, false);

@@ -16,6 +16,11 @@ public class ConstantMemory extends ReferenceMemory {
     }
 
     @Override
+    public boolean isDisallowReferenceOps() {
+        return true;
+    }
+
+    @Override
     public Memory toImmutable(Environment env, TraceInfo trace) {
         return env.__getConstant(name, lowerName, trace);
     }

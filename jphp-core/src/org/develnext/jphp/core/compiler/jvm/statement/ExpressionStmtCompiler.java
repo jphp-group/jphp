@@ -2587,6 +2587,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPop();
             writePush(L = o.getToken(), true, false);
             writePopBoxing();
+        } else if (o.getMemory() != null) {
+            stackPop();
+            writePushMemory(o.getMemory());
+            writePopBoxing();
         }
 
         String methodName = operator instanceof ArrayGetRefExprToken ? "refOfIndex" : "valueOfIndex";

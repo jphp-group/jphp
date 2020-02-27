@@ -25,6 +25,11 @@ public class ClassConstantMemory extends ReferenceMemory {
     }
 
     @Override
+    public boolean isDisallowReferenceOps() {
+        return true;
+    }
+
+    @Override
     public Memory toImmutable(Environment env, TraceInfo trace) {
         ClassEntity classEntity = env.fetchClass(className, classLowerName, true);
         if (classEntity == null) {

@@ -17,4 +17,11 @@ public class ConstantsTest extends JvmCompilerCase {
     public void testCommon(){
         check("constants/constants_001.php");
     }
+
+    @Test
+    public void testAccessToClassConst(){
+        check("constants/constants_002.phpt", true);
+        check("constants/constants_003.phpt", true);
+        check("constants/constants_004.phpt", true);
+    }
 }
