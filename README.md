@@ -39,8 +39,17 @@ Our project started in October 2013. There were a few reasons for that:
 + Optional Hot Reloading for classes and functions
 + Ability to use on **Android** OS : [jphp-android](https://github.com/VenityStudio/jphp-android)
 
-**What JPHP supports from PHP 7.0, 7.1?**
-+ All features.
+**What JPHP supports from PHP 7.2?**
++ All features except RFC: Parameter Type Widening
+
+**What JPHP supports from PHP 7.3?**
++ All features except RFC: Flexible Heredoc and Nowdoc Syntaxes
+
+**What JPHP supports from PHP 7.4?**
++ Typed Properties 2.0
++ Weak References
++ Arrow Functions 2.0 (+ multiple line syntax)
++ Allow throwing exceptions from __toString()
 
 ### Own Extensions
 - [Standard Library](jphp-runtime/api-docs) - own runtime standard library
