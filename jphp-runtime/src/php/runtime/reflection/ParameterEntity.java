@@ -254,7 +254,11 @@ public class ParameterEntity extends Entity {
         return isReference;
     }
 
-    public String getSignatureString(){
+    public String getSignatureString() {
+        return getSignatureString(false);
+    }
+
+    public String getSignatureString(boolean withDef){
         StringBuilder sb = new StringBuilder();
 
         if (typeChecker != null) {
@@ -269,6 +273,17 @@ public class ParameterEntity extends Entity {
             sb.append("&");
 
         sb.append("$").append(name);
+
+        if (withDef && (isDefaultValueAvailable() || getDefaultValueConstName() != null)) {
+            sb.append(" = ");
+
+            if (getDefaultValueConstName() != null) {
+                sb.append(getDefaultValueConstName());
+            } else {
+                sb.append(getDefaultValue());
+            }
+        }
+
         return sb.toString();
     }
 

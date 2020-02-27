@@ -2169,7 +2169,7 @@ public class ClassEntity extends Entity implements Cloneable {
                         }
                         e = new FatalException(
                                 Messages.ERR_INVALID_METHOD_SIGNATURE.fetch(
-                                        el.method.getSignatureString(true), prototype.getSignatureString(true)
+                                        el.method.getSignatureString(true, true), prototype.getSignatureString(true, true)
                                 ),
                                 el.method.getTrace()
                         );

@@ -126,6 +126,13 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testAbstractInheritance() {
+        check("classes/abstract_inheritance_001.phpt", true);
+        check("classes/abstract_inheritance_002.phpt", true);
+        check("classes/abstract_inheritance_003.phpt", true);
+    }
+
+    @Test
     public void testBugs() {
         check("classes/bug107.php");
         check("classes/bug123.php");

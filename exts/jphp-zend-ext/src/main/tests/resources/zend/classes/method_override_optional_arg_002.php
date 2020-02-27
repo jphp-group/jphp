@@ -15,7 +15,7 @@ class B extends A {
 
 $b = new B();
 $b->foo();
-// TODO: Strict Standards: Declaration of B::foo() should be compatible with A::foo($arg = 1) in %s on line %d
 ?>
 --EXPECTF--
+Warning: Declaration of B::foo() should be compatible with A::foo($arg = 1) in %s on line 8 at pos %d
 foo

@@ -20,9 +20,10 @@ public class MongoTest extends MongoJvmTestCase {
     @Before
     public void before() {
         MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
-        builder.connectTimeout(5000);
-        builder.socketTimeout(5000);
+        builder.connectTimeout(3000);
+        builder.socketTimeout(3000);
         builder.maxWaitTime(2000);
+        builder.serverSelectionTimeout(2000);
         MongoClient client = new MongoClient(new ServerAddress(), builder.build());
         try {
             client.getAddress();

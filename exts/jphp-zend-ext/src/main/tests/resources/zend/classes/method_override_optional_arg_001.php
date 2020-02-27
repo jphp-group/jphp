@@ -29,5 +29,6 @@ $b->foo(1);
 // TODO: Strict Standards: Declaration of C::foo() should be compatible with A::foo($arg1 = 1) in %s on line %d
 ?>
 --EXPECTF--
+Warning: Declaration of C::foo() should be compatible with A::foo($arg1 = 1) in %s on line 16 at pos %d
 int(1)
 int(3)

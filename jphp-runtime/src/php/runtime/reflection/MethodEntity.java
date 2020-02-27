@@ -363,7 +363,11 @@ public class MethodEntity extends AbstractFunctionEntity {
         return classLowerName.hashCode() + methodLowerName.hashCode();
     }
 
-    public String getSignatureString(boolean withArgs){
+    public String getSignatureString(boolean withArgs) {
+        return getSignatureString(withArgs, false);
+    }
+
+    public String getSignatureString(boolean withArgs, boolean withDefs){
         String ownerName = getClazz().getName();
         if (getTrait() != null)
             ownerName = getTrait().getName();
@@ -373,7 +377,7 @@ public class MethodEntity extends AbstractFunctionEntity {
         int i = 0;
         if (parameters != null && withArgs)
         for(ParameterEntity param : parameters){
-            sb.append(param.getSignatureString());
+            sb.append(param.getSignatureString(withDefs));
             if (i != parameters.length - 1)
                 sb.append(", ");
 
@@ -421,12 +425,21 @@ public class MethodEntity extends AbstractFunctionEntity {
                 sb.append(":");
                 sb.append(signature);
             }
+
+            return signature = sb.toString();
         }
 
-        return signature = sb.toString();
+        return sb.toString();
     }
 
     public boolean isImplementableSignatureFor(MethodEntity parentMethod) {
+        int p_count = parameters == null ? 0 : parameters.length;
+        int p_parent_count = parentMethod.parameters == null ? 0 : parentMethod.parameters.length;
+
+        if (p_count < p_parent_count) {
+            return false;
+        }
+
         if (getSignature().equals(parentMethod.getSignature())) {
             return true;
         } else {
