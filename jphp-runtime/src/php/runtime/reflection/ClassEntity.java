@@ -100,6 +100,8 @@ public class ClassEntity extends Entity implements Cloneable {
 
     protected boolean isStatic;
 
+    private boolean anonymous;
+
     //protected boolean isWrapped = true;
     protected ClassWrapper wrapper;
 
@@ -121,6 +123,14 @@ public class ClassEntity extends Entity implements Cloneable {
         this((Context) null);
         this.wrapper = wrapper;
         wrapper.onWrap(this);
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
     }
 
     public void setExtension(Extension extension) {
@@ -146,6 +156,19 @@ public class ClassEntity extends Entity implements Cloneable {
         }
 
         return what;
+    }
+
+    @Override
+    public String getName() {
+        if (isAnonymous()) {
+            return "class@anonymous";
+        }
+
+        return super.getName();
+    }
+
+    public String getAnonymousName() {
+        return name;
     }
 
     @Override
@@ -728,11 +751,11 @@ public class ClassEntity extends Entity implements Cloneable {
         if (prototype != null) {
             if (property.getPrototype() != null) {
                 if (prototype.isProtected() && property.isPrivate()) {
-                    result.addError(InvalidProperty.Kind.MUST_BE_PROTECTED, property);
+                    result.addError(Kind.MUST_BE_PROTECTED, property);
                 }
 
                 if (prototype.isPublic() && !property.isPublic()) {
-                    result.addError(InvalidProperty.Kind.MUST_BE_PUBLIC, property);
+                    result.addError(Kind.MUST_BE_PUBLIC, property);
                 }
             }
 
@@ -757,12 +780,12 @@ public class ClassEntity extends Entity implements Cloneable {
             if (prototype.isStatic() && !property.isStatic()) {
                 if (overridden) {
                     property.setPrototype(prototype);
-                    result.addError(InvalidProperty.Kind.STATIC_AS_NON_STATIC, property);
+                    result.addError(Kind.STATIC_AS_NON_STATIC, property);
                 }
             } else if (property.isStatic() && !prototype.isStatic()) {
                 if (overridden) {
                     property.setPrototype(prototype);
-                    result.addError(InvalidProperty.Kind.NON_STATIC_AS_STATIC, property);
+                    result.addError(Kind.NON_STATIC_AS_STATIC, property);
                 }
             }
         }
@@ -1910,7 +1933,7 @@ public class ClassEntity extends Entity implements Cloneable {
             this.properties.add(prop);
         }
 
-        public void addError(InvalidProperty.Kind kind, PropertyEntity prop) {
+        public void addError(Kind kind, PropertyEntity prop) {
             add(InvalidProperty.error(kind, prop));
         }
 

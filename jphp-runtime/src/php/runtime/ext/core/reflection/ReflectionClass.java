@@ -59,7 +59,7 @@ public class ReflectionClass extends Reflection {
 
     @Signature
     public Memory getName(Environment env, Memory... args) {
-        return new StringMemory(entity.getName());
+        return new StringMemory(entity.isAnonymous() ? entity.getAnonymousName() : entity.getName());
     }
 
     @Signature(@Arg("name"))

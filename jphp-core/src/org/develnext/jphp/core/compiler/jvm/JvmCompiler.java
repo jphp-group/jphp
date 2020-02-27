@@ -205,6 +205,23 @@ public class JvmCompiler extends AbstractCompiler {
                 externalCode.add(new ExprStmtToken(getEnvironment(), getContext(), token));
         }
 
+        // write anon classes
+        for (ClassStmtToken aClass : analyzer.getClasses()) {
+            if (aClass.isAnonymous()) {
+                ClassStmtCompiler cmp = new ClassStmtCompiler(this, aClass);
+                ClassEntity entity = cmp.compile();
+                entity.setStatic(true);
+                entity.setAnonymous(true);
+                module.addClass(entity);
+
+                if (cmp.isInitDynamicExists()){
+                    externalCode.add(new ExprStmtToken(getEnvironment(), getContext(),
+                            new ClassInitEnvironment((ClassStmtToken)aClass, entity)
+                    ));
+                }
+            }
+        }
+
         return externalCode;
     }
 

@@ -56,9 +56,10 @@ public class ClassDumper extends Dumper<ClassEntity> {
 
         printer.writeBoolean(entity.isAbstract());
         printer.writeBoolean(entity.isFinal());
+        printer.writeBoolean(entity.isAnonymous());
 
         // print name
-        printer.writeName(entity.getName());
+        printer.writeName(entity.isAnonymous() ? entity.getAnonymousName() : entity.getName());
         printer.writeName(entity.getCompiledInternalName());
 
         printer.writeTrace(debugInformation ? entity.getTrace() : null);
@@ -155,6 +156,7 @@ public class ClassDumper extends Dumper<ClassEntity> {
         entity.setType(data.readClassType());
         entity.setAbstract(data.readBoolean());
         entity.setFinal(data.readBoolean());
+        entity.setAnonymous(data.readBoolean());
         entity.setName(data.readName());
         entity.setInternalName(data.readName());
         entity.setTrace(data.readTrace(context));

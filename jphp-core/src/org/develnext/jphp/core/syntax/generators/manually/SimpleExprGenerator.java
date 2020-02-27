@@ -6,10 +6,7 @@ import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.syntax.ExpressionInfo;
 import org.develnext.jphp.core.syntax.Scope;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
-import org.develnext.jphp.core.syntax.generators.ExprGenerator;
-import org.develnext.jphp.core.syntax.generators.FunctionGenerator;
-import org.develnext.jphp.core.syntax.generators.Generator;
-import org.develnext.jphp.core.syntax.generators.LambdaGenerator;
+import org.develnext.jphp.core.syntax.generators.*;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.core.tokenizer.token.BreakToken;
@@ -830,11 +827,22 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         NewExprToken result = (NewExprToken)current;
         Token next = nextToken(iterator);
 
-        if (!isTokenClass(next, StaticExprToken.class, ParentExprToken.class, SelfExprToken.class)) {
+        if (!isTokenClass(next, StaticExprToken.class, ParentExprToken.class, SelfExprToken.class, ClassStmtToken.class)) {
             next = makeSensitive(next);
         }
 
-        if (next instanceof NameToken){
+        boolean skipArgs = false;
+        if (next instanceof ClassStmtToken) {
+            ((ClassStmtToken) next).setAnonymous(true);
+            ClassStmtToken token = analyzer.generator(ClassGenerator.class).getToken(next, iterator);
+            FulledNameToken name = new FulledNameToken(TokenMeta.of(token.getFulledName(), token));
+            result.setName(name);
+            result.setParameters(token.getParameters());
+
+            analyzer.registerClass(token);
+            skipArgs = true;
+
+        } else if (next instanceof NameToken){
             FulledNameToken nameToken = analyzer.getRealName((NameToken)next);
             result.setName(nameToken);
 
@@ -885,22 +893,24 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         } else
             unexpectedToken(next);
 
-        next = nextToken(iterator);
-        if (isOpenedBrace(next, SIMPLE)){
-            ExprStmtToken param;
-            List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
-            do {
-                param = analyzer.generator(SimpleExprGenerator.class)
-                        .getToken(nextToken(iterator), iterator, true, SIMPLE);
+        if (!skipArgs) {
+            next = nextToken(iterator);
+            if (isOpenedBrace(next, SIMPLE)) {
+                ExprStmtToken param;
+                List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
+                do {
+                    param = analyzer.generator(SimpleExprGenerator.class)
+                            .getToken(nextToken(iterator), iterator, true, SIMPLE);
 
-                if (param != null)
-                    parameters.add(param);
-            } while (param != null);
-            nextToken(iterator);
-            result.setParameters(parameters);
-        } else {
-            result.setParameters(new ArrayList<ExprStmtToken>());
-            iterator.previous();
+                    if (param != null)
+                        parameters.add(param);
+                } while (param != null);
+                nextToken(iterator);
+                result.setParameters(parameters);
+            } else {
+                result.setParameters(new ArrayList<ExprStmtToken>());
+                iterator.previous();
+            }
         }
 
         if (analyzer.getFunction() != null){

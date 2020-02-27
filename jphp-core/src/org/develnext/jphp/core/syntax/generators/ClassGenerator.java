@@ -22,6 +22,8 @@ import php.runtime.reflection.ClassEntity;
 
 import java.util.*;
 
+import static org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind.SIMPLE;
+
 public class ClassGenerator extends Generator<ClassStmtToken> {
 
 
@@ -620,19 +622,48 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
         ClassStmtToken result = processDefine(current, iterator);
 
         if (result != null) {
-            if (analyzer.getClazz() != null)
+            if (analyzer.getClazz() != null && !result.isAnonymous())
                 unexpectedToken(current);
 
+            ClassStmtToken oldClazz = analyzer.getClazz();
             analyzer.setClazz(result);
-            result.setNamespace(analyzer.getNamespace());
 
-            processName(result, iterator);
+            if (result.isAnonymous()) {
+                result.setName(NameToken.valueOf("class@anonymous/in/" + UUID.randomUUID().toString().replace("-", "")));
+                processArguments(result, iterator);
+            } else {
+                result.setNamespace(analyzer.getNamespace());
+                processName(result, iterator);
+            }
+
             processExtends(result, iterator);
             processImplements(result, iterator);
             processBody(result, iterator);
-            analyzer.setClazz(null);
+
+            analyzer.setClazz(oldClazz);
         }
 
         return result;
+    }
+
+    private void processArguments(ClassStmtToken result, ListIterator<Token> iterator) {
+        Token next = nextToken(iterator);
+
+        if (isOpenedBrace(next, SIMPLE)) {
+            ExprStmtToken param;
+            List<ExprStmtToken> parameters = new ArrayList<ExprStmtToken>();
+            do {
+                param = analyzer.generator(SimpleExprGenerator.class)
+                        .getToken(nextToken(iterator), iterator, true, SIMPLE);
+
+                if (param != null)
+                    parameters.add(param);
+            } while (param != null);
+            nextToken(iterator);
+            result.setParameters(parameters);
+        } else {
+            result.setParameters(new ArrayList<ExprStmtToken>());
+            iterator.previous();
+        }
     }
 }

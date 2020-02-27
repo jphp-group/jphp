@@ -133,6 +133,14 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testAnonClasses() {
+        check("classes/anon_classes_001.phpt", true);
+        check("classes/anon_classes_002.phpt", true);
+        check("classes/anon_classes_003.phpt", true);
+        check("classes/anon_classes_004.phpt", true);
+    }
+
+    @Test
     public void testBugs() {
         check("classes/bug107.php");
         check("classes/bug123.php");

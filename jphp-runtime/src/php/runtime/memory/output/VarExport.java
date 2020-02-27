@@ -130,7 +130,7 @@ public class VarExport extends Printer {
             used.add(value.getPointer());
 
             ClassEntity entity = value.getReflection();
-            printer.write(entity.getName());
+            printer.write(entity.isAnonymous() ? entity.getAnonymousName() : entity.getName());
             printer.write("::");
             printer.write("__set_state(");
             printArray(value.value.getProperties(), 0, used, true);

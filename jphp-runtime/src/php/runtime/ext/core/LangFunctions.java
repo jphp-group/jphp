@@ -813,6 +813,8 @@ public class LangFunctions extends FunctionsContainer {
     }
 
     public static Memory get_class(Environment env, TraceInfo trace, Memory object) {
+        ClassEntity classEntity = null;
+
         if (object.isNull()) {
             if (object == Memory.UNDEFINED) {
                 return Memory.FALSE;
@@ -829,11 +831,20 @@ public class LangFunctions extends FunctionsContainer {
                     MethodEntity method = item.classEntity.findMethod(item.function);
                     if (method == null)
                         return Memory.FALSE;
-                    return new StringMemory(method.getClazz().getName());
+
+                    classEntity = method.getClazz();
                 }
             }
         } else if (expecting(env, trace, 1, object, Memory.Type.OBJECT)) {
-            return new StringMemory(object.toValue(ObjectMemory.class).getReflection().getName());
+            classEntity = object.toValue(ObjectMemory.class).getReflection();
+        }
+
+        if (classEntity != null) {
+            if (classEntity.isAnonymous()) {
+                return new StringMemory(classEntity.getAnonymousName());
+            }
+
+            return new StringMemory(classEntity.getName());
         }
 
         return Memory.FALSE;

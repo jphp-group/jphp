@@ -31,6 +31,9 @@ public class ClassStmtToken extends StmtToken {
 
     private ClassEntity.Type classType = ClassEntity.Type.CLASS;
 
+    private boolean anonymous = false;
+    private List<ExprStmtToken> parameters;
+
     protected ClassStmtToken(TokenMeta meta, TokenType type) {
         super(meta, type);
         properties = new ArrayList<ClassVarStmtToken>();
@@ -41,6 +44,14 @@ public class ClassStmtToken extends StmtToken {
 
     public ClassStmtToken(TokenMeta meta) {
         this(meta, TokenType.T_CLASS);
+    }
+
+    public boolean isAnonymous() {
+        return anonymous;
+    }
+
+    public void setAnonymous(boolean anonymous) {
+        this.anonymous = anonymous;
     }
 
     public boolean isInterface() {
@@ -224,6 +235,14 @@ public class ClassStmtToken extends StmtToken {
 
     public void setDocComment(CommentToken docComment) {
         this.docComment = docComment;
+    }
+
+    public void setParameters(List<ExprStmtToken> parameters) {
+        this.parameters = parameters;
+    }
+
+    public List<ExprStmtToken> getParameters() {
+        return parameters;
     }
 
     protected static class MethodName {

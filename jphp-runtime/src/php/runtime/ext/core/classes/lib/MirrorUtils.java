@@ -37,6 +37,11 @@ public class MirrorUtils extends BaseObject {
     public static Memory typeOf(Environment env, Memory... args) {
         if (args[0].isObject()) {
             ClassEntity entity = args[0].toValue(ObjectMemory.class).getReflection();
+            
+            if (entity.isAnonymous()) {
+                return StringMemory.valueOf(args[1].toBoolean() ? entity.getAnonymousName().toLowerCase() : entity.getAnonymousName());
+            }
+
             return StringMemory.valueOf(args[1].toBoolean() ? entity.getLowerName() : entity.getName());
         } else {
             return Memory.FALSE;
