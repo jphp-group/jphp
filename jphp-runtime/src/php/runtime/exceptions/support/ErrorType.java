@@ -1,7 +1,26 @@
 package php.runtime.exceptions.support;
 
+import static php.runtime.common.Messages.MSG_E_ALL;
+import static php.runtime.common.Messages.MSG_E_COMPILE_ERROR;
+import static php.runtime.common.Messages.MSG_E_COMPILE_WARNING;
+import static php.runtime.common.Messages.MSG_E_CORE_ERROR;
+import static php.runtime.common.Messages.MSG_E_CORE_WARNING;
+import static php.runtime.common.Messages.MSG_E_DEPRECATED;
+import static php.runtime.common.Messages.MSG_E_ERROR;
+import static php.runtime.common.Messages.MSG_E_NOTICE;
+import static php.runtime.common.Messages.MSG_E_PARSE;
+import static php.runtime.common.Messages.MSG_E_RECOVERABLE_ERROR;
+import static php.runtime.common.Messages.MSG_E_STRICT;
+import static php.runtime.common.Messages.MSG_E_UNKNOWN;
+import static php.runtime.common.Messages.MSG_E_USER_DEPRECATED;
+import static php.runtime.common.Messages.MSG_E_USER_ERROR;
+import static php.runtime.common.Messages.MSG_E_USER_NOTICE;
+import static php.runtime.common.Messages.MSG_E_USER_WARNING;
+import static php.runtime.common.Messages.MSG_E_WARNING;
+
 import java.util.HashMap;
 import java.util.Map;
+import php.runtime.common.Messages;
 
 public enum ErrorType {
     E_ERROR(1),
@@ -36,24 +55,25 @@ public enum ErrorType {
 
     public String getTypeName(){
         switch (this){
-            case E_DEPRECATED: return "Deprecated";
-            case E_STRICT: return "Strict Standards";
-            case E_NOTICE: return "Notice";
-            case E_ALL: return "Message";
-            case E_COMPILE_ERROR: return "Compile error";
-            case E_COMPILE_WARNING: return "Compile warning";
-            case E_CORE_ERROR: return "Core error";
-            case E_CORE_WARNING: return "Core warning";
-            case E_ERROR: return "Fatal error";
-            case E_PARSE: return "Parse error";
-            case E_RECOVERABLE_ERROR: return "Recoverable error";
-            case E_USER_DEPRECATED: return "User deprecated";
-            case E_USER_ERROR: return "User error";
-            case E_USER_NOTICE: return "User notice";
-            case E_USER_WARNING: return "User warning";
-            case E_WARNING: return "Warning";
+            case E_DEPRECATED: return MSG_E_DEPRECATED.toString();
+            case E_STRICT: return MSG_E_STRICT.toString();
+            case E_NOTICE: return MSG_E_NOTICE.toString();
+            case E_ALL: return MSG_E_ALL.toString();
+            case E_COMPILE_ERROR: return MSG_E_COMPILE_ERROR.toString();
+            case E_COMPILE_WARNING: return MSG_E_COMPILE_WARNING.toString();
+            case E_CORE_ERROR: return MSG_E_CORE_ERROR.toString();
+            case E_CORE_WARNING: return MSG_E_CORE_WARNING.toString();
+            case E_ERROR: return MSG_E_ERROR.toString();
+            case E_PARSE: return MSG_E_PARSE.toString();
+            case E_RECOVERABLE_ERROR: return MSG_E_RECOVERABLE_ERROR.toString();
+            case E_USER_DEPRECATED: return MSG_E_USER_DEPRECATED.toString();
+            case E_USER_ERROR: return MSG_E_USER_ERROR.toString();
+            case E_USER_NOTICE: return MSG_E_USER_NOTICE.toString();
+            case E_USER_WARNING: return MSG_E_USER_WARNING.toString();
+            case E_WARNING: return MSG_E_WARNING.toString();
         }
-        return "Unknown";
+
+        return MSG_E_UNKNOWN.toString();
     }
 
     public boolean isHandled(){

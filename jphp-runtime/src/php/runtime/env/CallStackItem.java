@@ -1,6 +1,7 @@
 package php.runtime.env;
 
 import php.runtime.Memory;
+import php.runtime.common.Messages;
 import php.runtime.lang.Closure;
 import php.runtime.lang.IObject;
 import php.runtime.memory.ArrayMemory;
@@ -132,7 +133,7 @@ public class CallStackItem {
             if (i != 0)
                 sb.append("\n");
 
-            sb.append("#").append(i).append(" {main}");
+            sb.append("#").append(i).append(" ").append(Messages.MSG_MAIN_SYMBOL);
         }
 
         return sb.toString();
@@ -141,7 +142,7 @@ public class CallStackItem {
     public String getWhere() {
         StringBuilder sb = new StringBuilder();
         if (object instanceof Closure)
-            sb.append("{closure}");
+            sb.append(Messages.MSG_CLOSURE_SYMBOL);
         else if (clazz != null){
             sb.append(clazz);
             if (object == null)
@@ -153,7 +154,7 @@ public class CallStackItem {
         } else if (function != null){
             sb.append(function);
         } else
-            sb.append("<internal>");
+            sb.append(Messages.MSG_INTERNAL_SYMBOL);
 
         return sb.toString();
     }
@@ -161,7 +162,7 @@ public class CallStackItem {
     public String toString(boolean withArgs) {
         StringBuilder sb = new StringBuilder();
         if (object instanceof Closure)
-            sb.append("{closure}");
+            sb.append(Messages.MSG_CLOSURE_SYMBOL);
         else if (clazz != null){
             sb.append(clazz);
             if (object == null)
@@ -173,7 +174,7 @@ public class CallStackItem {
         } else if (function != null){
             sb.append(function);
         } else
-            sb.append("<internal>");
+            sb.append(Messages.MSG_INTERNAL_SYMBOL);
 
         sb.append("(");
         if (withArgs) {
@@ -192,11 +193,8 @@ public class CallStackItem {
         }
         sb.append(")");
         if (trace != null && trace != TraceInfo.UNKNOWN) {
-            sb.append(" called at [");
-            sb.append(trace.getFileName());
-            sb.append(":");
-            sb.append(trace.getStartLine() + 1);
-            sb.append("]");
+            sb.append(" ");
+            sb.append(Messages.MSG_CALLED_AT.fetch(trace.getFileName(), trace.getStartLine() + 1));
         }
 
         return sb.toString();

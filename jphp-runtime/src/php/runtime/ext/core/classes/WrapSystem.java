@@ -1,6 +1,9 @@
 package php.runtime.ext.core.classes;
 
 import php.runtime.Memory;
+import php.runtime.common.Messages;
+import php.runtime.common.l10n.L10NMessages;
+import php.runtime.common.l10n.Messages_RU;
 import php.runtime.env.Environment;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.lang.BaseObject;
@@ -167,6 +170,21 @@ final public class WrapSystem extends BaseObject {
             env.getScope().getClassLoader().addLibrary(file.toURI().toURL());
         } catch (Throwable t) {
             throw new IOException("Error, could not add URL to system classloader, " + t.getMessage());
+        }
+    }
+
+    @Signature
+    public static void setEngineLanguage(Memory nameOrClass) throws Throwable {
+        Messages.ERR_FILE_NOT_FOUND.fetch(); // fix loading when static
+
+        if (nameOrClass.isNull() || "en".equals(nameOrClass.toString())) {
+            Messages.localize(null);
+        } else {
+            L10NMessages messages = L10NMessages.get(nameOrClass.toString());
+            if (messages == null) {
+                throw new IllegalArgumentException(nameOrClass + " language is not found in engine");
+            }
+            Messages.localize(messages);
         }
     }
 }

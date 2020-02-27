@@ -32,9 +32,12 @@ abstract public class SystemMessage {
 
     public String getDebugMessage(){
         return getType().getTypeName() + ": " + getMessage()
-                + " in '" + trace.trace.getFileName() + "'"
-                + " on line " + (trace.trace.getStartLine() + 1)
-                + " at pos " + (trace.trace.getStartPosition() + 1);
+                + " "
+                + Messages.MSG_IN_ON_LINE_AT_POS.fetch(
+                        trace.trace.getFileName(),
+                    trace.trace.getStartLine() + 1,
+                    trace.trace.getStartPosition() + 1
+                );
     }
 
     abstract public ErrorType getType();
