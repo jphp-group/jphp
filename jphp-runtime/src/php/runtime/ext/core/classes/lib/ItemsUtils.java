@@ -216,6 +216,14 @@ public class ItemsUtils extends BaseObject {
     }
 
     @Signature({
+            @Arg(value = "array", type = HintType.ARRAY),
+            @Arg(value = "key")
+    })
+    public static Memory hasKey(Environment env, Memory... args) {
+        return args[0].toValue(ArrayMemory.class).get(args[1]) == null ? Memory.FALSE : Memory.TRUE;
+    }
+
+    @Signature({
             @Arg(value = "collection", type = HintType.TRAVERSABLE),
             @Arg(value = "value"),
             @Arg(value = "strict", optional = @Optional("false"))

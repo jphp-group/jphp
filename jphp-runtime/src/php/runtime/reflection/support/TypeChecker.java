@@ -1,6 +1,9 @@
 package php.runtime.reflection.support;
 
+import java.util.HashMap;
+import java.util.Map;
 import php.runtime.Memory;
+import php.runtime.Memory.Type;
 import php.runtime.common.HintType;
 import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
@@ -22,27 +25,54 @@ abstract public class TypeChecker {
         return false;
     }
 
+    public boolean identical(TypeChecker typeChecker) {
+        return this == typeChecker;
+    }
+
     public static TypeChecker of(HintType type) {
-        return new Simple(type);
+        return Simple.valueOf(type);
     }
 
     public static TypeChecker of(String className) {
-        return new ClassName(className);
+        return ClassName.valueOf(className);
     }
 
     public static TypeChecker of(Class<?> typeNativeClass) {
-        return new NativeClass(typeNativeClass);
+        return NativeClass.valueOf(typeNativeClass);
     }
 
     public static TypeChecker ofEnum(Class<? extends Enum> enumClass) {
-        return new EnumClass(enumClass);
+        return EnumClass.valueOf(enumClass);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
+
+        if (getClass() == obj.getClass()) {
+            return identical((TypeChecker) obj);
+        } else {
+            return false;
+        }
     }
 
     public static class Simple extends TypeChecker {
-        protected HintType type;
+        protected final HintType type;
+
+        private static final Map<HintType, Simple> cache;
+        static {
+            cache = new HashMap<>();
+            for (HintType hintType : HintType.values()) {
+                cache.put(hintType, new Simple(hintType));
+            }
+        }
 
         public Simple(HintType type) {
             this.type = type;
+        }
+
+        public static Simple valueOf(HintType type) {
+            return cache.get(type);
         }
 
         public HintType getType() {
@@ -65,6 +95,11 @@ abstract public class TypeChecker {
         }
 
         @Override
+        public boolean identical(TypeChecker typeChecker) {
+            return typeChecker instanceof Simple && type == ((Simple) typeChecker).type;
+        }
+
+        @Override
         public Memory apply(Environment env, Memory value, boolean nullable, boolean strict) {
             if (nullable && value.isNull()) {
                 return value;
@@ -83,13 +118,29 @@ abstract public class TypeChecker {
 
             switch (type) {
                 case INT:
-                    return LongMemory.valueOf(value.toLong());
+                    switch (value.getRealType()) {
+                        case BOOL:
+                        case DOUBLE:
+                            return LongMemory.valueOf(value.toLong());
+                        default:
+                            return StringMemory.toLong(value.toString(), false);
+                    }
                 case STRING:
-                    return StringMemory.valueOf(value.toString());
+                    if (value.isObject() && ((ObjectMemory) value).getReflection().methodMagicToString == null) {
+                        return null;
+                    } else {
+                        return StringMemory.valueOf(value.toString());
+                    }
                 case BOOLEAN:
                     return TrueMemory.valueOf(value.toBoolean());
                 case DOUBLE:
-                    return DoubleMemory.valueOf(value.toDouble());
+                    Memory memory = StringMemory.toNumeric(value.toString(), false, null);
+
+                    if (memory.getRealType() == Type.INT) {
+                        return DoubleMemory.valueOf(memory.toLong());
+                    }
+
+                    return memory;
             }
 
             return null;
@@ -147,12 +198,18 @@ abstract public class TypeChecker {
     }
 
     public static class ClassName extends TypeChecker {
-        protected String typeClass;
-        protected String typeClassLower;
+        protected final String typeClass;
+        protected final String typeClassLower;
+
+        private final static Map<String, ClassName> cache = new HashMap<>();
 
         public ClassName(String typeClass) {
             this.typeClass = typeClass;
             this.typeClassLower = typeClass.toLowerCase();
+        }
+
+        public static ClassName valueOf(String typeClass) {
+            return cache.computeIfAbsent(typeClass, s -> new ClassName(typeClass));
         }
 
         public String getTypeClass() {
@@ -171,6 +228,11 @@ abstract public class TypeChecker {
         @Override
         public String getHumanString() {
             return "an instance of " + getTypeClass();
+        }
+
+        @Override
+        public boolean identical(TypeChecker typeChecker) {
+            return typeChecker instanceof ClassName && typeClassLower.equals(((ClassName) typeChecker).typeClassLower);
         }
 
         @Override
@@ -194,10 +256,16 @@ abstract public class TypeChecker {
     }
 
     public static class NativeClass extends TypeChecker {
-        protected Class<?> typeNativeClass;
+        protected final Class<?> typeNativeClass;
+
+        private final static Map<Class<?>, NativeClass> cache = new HashMap<>();
 
         public NativeClass(Class<?> typeNativeClass) {
             this.typeNativeClass = typeNativeClass;
+        }
+
+        public static NativeClass valueOf(Class<?> typeNativeClass) {
+            return cache.computeIfAbsent(typeNativeClass, s -> new NativeClass(typeNativeClass));
         }
 
         @Override
@@ -208,6 +276,11 @@ abstract public class TypeChecker {
         @Override
         public String getHumanString() {
             return "an instance of " + ReflectionUtils.getClassName(typeNativeClass);
+        }
+
+        @Override
+        public boolean identical(TypeChecker typeChecker) {
+            return typeChecker instanceof NativeClass && ((NativeClass) typeChecker).typeNativeClass == typeNativeClass;
         }
 
         @Override
@@ -236,14 +309,25 @@ abstract public class TypeChecker {
     }
 
     public static class EnumClass extends TypeChecker {
-        protected Class<? extends Enum> typeEnum;
+        protected final Class<? extends Enum> typeEnum;
+
+        private final static Map<Class<? extends Enum>, EnumClass> cache = new HashMap<>();
 
         public EnumClass(Class<? extends Enum> typeEnum) {
             this.typeEnum = typeEnum;
         }
 
+        public static EnumClass valueOf(Class<? extends Enum> typeEnum) {
+            return cache.computeIfAbsent(typeEnum, s -> new EnumClass(typeEnum));
+        }
+
         public Class<? extends Enum> getTypeEnum() {
             return typeEnum;
+        }
+
+        @Override
+        public boolean identical(TypeChecker typeChecker) {
+            return typeChecker instanceof EnumClass && typeEnum == ((EnumClass) typeChecker).typeEnum;
         }
 
         @Override

@@ -6,10 +6,7 @@ import php.runtime.common.LangMode;
 import php.runtime.common.Modifier;
 import php.runtime.env.Context;
 import php.runtime.env.TraceInfo;
-import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.DoubleMemory;
-import php.runtime.memory.LongMemory;
-import php.runtime.memory.StringMemory;
+import php.runtime.memory.*;
 import php.runtime.memory.helper.ClassConstantMemory;
 import php.runtime.memory.helper.ConstantMemory;
 import php.runtime.reflection.ClassEntity;
@@ -97,6 +94,8 @@ public class DumpInputStream extends DataInputStream {
             return new ConstantMemory(readUTF());
         if (tmp == -3)
             return new ClassConstantMemory(readUTF(), readUTF());
+        if (tmp == -4)
+            return UninitializedMemory.valueOf(readUTF());
 
         if (tmp >= 0 && tmp < Memory.Type.values().length){
             Memory.Type type = Memory.Type.values()[tmp];

@@ -8,14 +8,13 @@ import org.develnext.jphp.core.tokenizer.token.SemicolonToken;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.CommaToken;
+import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.AssignExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ValueIfElseToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
-import php.runtime.common.LangMode;
-import php.runtime.common.Messages;
-import php.runtime.common.Modifier;
+import php.runtime.common.*;
 import org.develnext.jphp.core.common.Separator;
-import php.runtime.common.StringUtils;
 import php.runtime.env.Package;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
@@ -24,6 +23,12 @@ import php.runtime.reflection.ClassEntity;
 import java.util.*;
 
 public class ClassGenerator extends Generator<ClassStmtToken> {
+
+
+    public final static Set<String> disallowScalarTypesForProps = new HashSet<String>(){{
+        add("void");
+        add("callable");
+    }};
 
     @SuppressWarnings("unchecked")
     private final static Class<? extends Token>[] modifiers = new Class[]{
@@ -145,12 +150,31 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
     }
 
     protected List<ClassVarStmtToken> processProperty(ClassStmtToken clazz, VariableExprToken current,
-                                                      List<Token> modifiers,
+                                                      List<Token> modifiers, ValueExprToken type, boolean nullable,
                                                       ListIterator<Token> iterator){
         Token next = current;
         Token prev = null;
         Set<VariableExprToken> variables = new LinkedHashSet<VariableExprToken>();
         List<ExprStmtToken> initValues = new ArrayList<>();
+
+        NameToken hintTypeClass = null;
+        HintType hintType = null;
+
+        if (type != null) {
+            if (type instanceof NameToken) {
+                String word = ((NameToken) type).getName().toLowerCase();
+                /*if (disallowScalarTypesForProps.contains(word)) {
+                    unexpectedToken(next, "valid type");
+                } else */if (FunctionGenerator.scalarTypeHints.contains(word)) {
+                    hintType = HintType.of(word);
+                } else {
+                    hintType = FunctionGenerator.jphp_scalarTypeHints.contains(word) ? null : HintType.of(word);
+
+                    if (hintType == null)
+                        hintTypeClass = analyzer.getRealName((NameToken) type);
+                }
+            }
+        }
 
         ExprStmtToken initValue = null;
 
@@ -200,6 +224,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                 if (!(prev instanceof VariableExprToken))
                     unexpectedToken(next);
                 break;
+            } else {
+                unexpectedToken(next);
             }
 
             prev = next;
@@ -215,6 +241,10 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
             classVar.setValue(initValues.get(i));
             classVar.setVariable(variable);
             classVar.setClazz(clazz);
+
+            classVar.setHintType(hintType);
+            classVar.setHintTypeClass(hintTypeClass);
+            classVar.setNullable(nullable);
 
             result.add(classVar);
             i++;
@@ -374,6 +404,8 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
                 List<Token> modifiers = new ArrayList<Token>();
                 CommentToken lastComment = null;
+                ValueExprToken type = null;
+                Boolean nullable = null;
 
                 boolean breakByClose = false;
 
@@ -430,7 +462,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         }
 
                         List<ClassVarStmtToken> vars = processProperty(
-                                result, (VariableExprToken) current, modifiers, iterator
+                                result, (VariableExprToken) current, modifiers, type, nullable != null && nullable, iterator
                         );
 
                         if (lastComment != null) {
@@ -443,6 +475,7 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
 
                         properties.addAll(vars);
                         modifiers.clear();
+                        type = null;
                     } else if (current instanceof FunctionStmtToken) {
                         FunctionStmtToken function = analyzer.generator(FunctionGenerator.class).getToken(current, iterator);
 
@@ -494,8 +527,17 @@ public class ClassGenerator extends Generator<ClassStmtToken> {
                         break;
                     } else if (current instanceof CommentToken){
                         lastComment = (CommentToken) current;
-                    } else
+                    } else if ((current instanceof NameToken || current instanceof SelfExprToken) && type == null) {
+                        type = (ValueExprToken) current;
+                    } else if (current instanceof ValueIfElseToken) {
+                        nullable = true;
+                        Token nxt = nextTokenAndPrev(iterator);
+                        if (!nxt.isNamedToken()) {
+                            unexpectedToken(nxt);
+                        }
+                    } else {
                         unexpectedToken(current);
+                    }
                 }
 
                 if (!breakByClose) { // bug-fix from DN.

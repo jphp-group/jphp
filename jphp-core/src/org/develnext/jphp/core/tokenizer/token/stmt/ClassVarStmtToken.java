@@ -1,6 +1,8 @@
 package org.develnext.jphp.core.tokenizer.token.stmt;
 
 import org.develnext.jphp.core.tokenizer.token.CommentToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
+import php.runtime.common.HintType;
 import php.runtime.common.Modifier;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
@@ -10,6 +12,10 @@ public class ClassVarStmtToken extends StmtToken {
     private boolean isStatic;
     private Modifier modifier;
 
+    private HintType hintType;
+    private NameToken hintTypeClass;
+    private boolean nullable;
+
     private VariableExprToken variable;
     private ExprStmtToken value;
     private CommentToken docComment;
@@ -17,6 +23,30 @@ public class ClassVarStmtToken extends StmtToken {
 
     public ClassVarStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_VAR);
+    }
+
+    public HintType getHintType() {
+        return hintType;
+    }
+
+    public void setHintType(HintType hintType) {
+        this.hintType = hintType;
+    }
+
+    public NameToken getHintTypeClass() {
+        return hintTypeClass;
+    }
+
+    public void setHintTypeClass(NameToken hintTypeClass) {
+        this.hintTypeClass = hintTypeClass;
+    }
+
+    public boolean isNullable() {
+        return nullable;
+    }
+
+    public void setNullable(boolean nullable) {
+        this.nullable = nullable;
     }
 
     public Modifier getModifier() {

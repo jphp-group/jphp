@@ -22,6 +22,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import php.runtime.Memory;
 import php.runtime.common.Function;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -30,6 +31,7 @@ import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.*;
 import php.runtime.lang.BaseObject;
+import php.runtime.memory.UninitializedMemory;
 import php.runtime.reflection.*;
 import php.runtime.reflection.helper.GeneratorEntity;
 
@@ -357,17 +359,36 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
             // PROPERTIES
             for (ClassVarStmtToken property : statement.getProperties()) {
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
-                Memory value = Memory.NULL;
+                Memory value = null;
                 if (property.getValue() != null)
                     value = expressionStmtCompiler.writeExpression(property.getValue(), true, true, false);
 
                 PropertyEntity prop = new PropertyEntity(compiler.getContext());
+                prop.setTrace(property.toTraceInfo(compiler.getContext()));
+
                 prop.setName(property.getVariable().getName());
                 prop.setModifier(property.getModifier());
                 prop.setStatic(property.isStatic());
-                prop.setDefaultValue(value);
+
+                prop.setNullable(property.isNullable());
+                prop.setType(property.getHintType());
+
+                switch (prop.getType()) {
+                    case VOID:
+                    case CALLABLE:
+                        compiler.getEnvironment().error(
+                                prop.getTrace(),
+                                "Property %s::$%s cannot have type %s",
+                                entity.getName(), prop.getName(), (prop.isNullable() ? "?" : "") + prop.getType()
+                        );
+                        break;
+                }
+
+                if (property.getHintTypeClass() != null) {
+                    prop.setTypeClass(property.getHintTypeClass().getName());
+                }
+
                 prop.setDefault(property.getValue() != null);
-                prop.setTrace(property.toTraceInfo(compiler.getContext()));
 
                 if (property.getDocComment() != null) {
                     prop.setDocComment(new DocumentComment(property.getDocComment().getComment()));
@@ -376,10 +397,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 ClassEntity.PropertyResult result = entity.addProperty(prop);
                 result.check(compiler.getEnvironment());
 
+                prop.setDefaultTypedValue(value, compiler.getEnvironment());
+
                 if (value == null && property.getValue() != null) {
-                    if (property.getValue().isSingle() && ValueExprToken.isConstable(property.getValue().getSingle(), true))
+                    if (property.getValue().isSingle() && ValueExprToken.isConstable(property.getValue().getSingle(), true)) {
+                        prop.setDefaultValue(null);
                         dynamicProperties.add(property);
-                    else
+                    } else
                         compiler.getEnvironment().error(
                                 property.getVariable().toTraceInfo(compiler.getContext()),
                                 ErrorType.E_COMPILE_ERROR,
@@ -965,8 +989,11 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                         isFatal = true;
                     else if (origin.getDefaultValue() == null) {
                         // nop
-                    } else if (!origin.getDefaultValue().identical(el.getDefaultValue()))
+                    } else if (!origin.getDefaultValue().identical(el.getDefaultValue())) {
                         isFatal = true;
+                    } else if (!origin.isSameTyped(el)) {
+                        isFatal = true;
+                    }
 
                     if (isFatal) {
                         env.error(
@@ -977,12 +1004,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                                 )
                         );
                     } else {
-                        env.error(
+                        /*env.error(
                                 entity.getTrace(), ErrorType.E_STRICT,
                                 Messages.ERR_TRAIT_SAME_PROPERTY_STRICT.fetch(
                                         ownerName, trait.getName(), el.getName(), entity.getName()
                                 )
-                        );
+                        );*/
                     }
                 }
             }

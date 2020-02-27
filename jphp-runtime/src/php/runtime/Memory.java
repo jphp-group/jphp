@@ -69,10 +69,10 @@ abstract public class Memory implements Comparable<Memory> {
         public String toString(){
             switch (this){
                 case ARRAY: return "array";
-                case BOOL: return "boolean";
+                case BOOL: return "bool";
                 case DOUBLE: return "float";
-                case INT: return "integer";
-                case NULL: return "NULL";
+                case INT: return "int";
+                case NULL: return "null";
                 case OBJECT: return "object";
                 case STRING: return "string";
                 default:
@@ -134,6 +134,10 @@ abstract public class Memory implements Comparable<Memory> {
         return toValue() == UNDEFINED;
     }
 
+    public boolean isUninitialized(){
+        return toValue().getClass() == UninitializedMemory.class;
+    }
+
     public boolean isShortcut(){
         return false;
     }
@@ -156,6 +160,14 @@ abstract public class Memory implements Comparable<Memory> {
     }
 
     public float toFloat() { return (float) toDouble(); }
+
+    final public String getGivenString() {
+        return getGivenString(false);
+    }
+
+    public String getGivenString(boolean shortVariant) {
+        return getRealType().toString();
+    }
 
     public Memory toArray() {
         ArrayMemory result = new ArrayMemory();
@@ -248,6 +260,10 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory newKeyValueRight(double memory){ return new KeyValueMemory(new DoubleMemory(memory), this.toValue()); }
     public Memory newKeyValueRight(boolean memory){ return new KeyValueMemory(memory ? TRUE : FALSE, this.toValue()); }
     public Memory newKeyValueRight(String memory){ return new KeyValueMemory(new StringMemory(memory), this.toValue()); }
+
+    public boolean isDisallowReferenceOps() {
+        return false;
+    }
 
     public boolean isObject() { return type == Type.OBJECT; }
     public boolean isClosure() { return false; }

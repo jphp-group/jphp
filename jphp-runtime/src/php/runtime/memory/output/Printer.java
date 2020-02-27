@@ -33,6 +33,9 @@ abstract public class Printer {
     abstract protected void printString(StringMemory value);
     abstract protected void printArray(ArrayMemory value, int level, Set<Integer> used);
     abstract protected void printObject(ObjectMemory value, int level, Set<Integer> used);
+    protected void printUninitialized(UninitializedMemory value) {
+        printNull();
+    }
 
     protected void printReference(ReferenceMemory reference, int level, Set<Integer> used){
         Memory value = reference.toValue();
@@ -48,7 +51,11 @@ abstract public class Printer {
         switch (value.type){
             case NULL:
                 //if (value != Memory.UNDEFINED)
+                if (value.isUninitialized()) {
+                    printUninitialized((UninitializedMemory) value);
+                } else {
                     printNull();
+                }
                 break;
             case BOOL:
                 if (value instanceof TrueMemory)

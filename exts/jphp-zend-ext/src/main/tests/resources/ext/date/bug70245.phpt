@@ -10,4 +10,4 @@ try {
 }
 ?>
 --EXPECT--
-strtotime() expects parameter 2 to be integer, object given
+strtotime() expects parameter 2 to be int, object given

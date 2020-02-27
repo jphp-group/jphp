@@ -51,6 +51,16 @@ class arr
     }
 
     /**
+     * @param array $array
+     * @param $key
+     * @return bool
+     */
+    public static function hasKey(array $array, $key): bool
+    {
+        return false;
+    }
+
+    /**
      * Converts $collection to array
      * --RU--
      * Конвертирует коллекцию в массив

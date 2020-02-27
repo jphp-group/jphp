@@ -4,7 +4,6 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.StringUtils;
-import php.runtime.env.Context;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.support.ErrorType;
@@ -13,7 +12,6 @@ import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.Generator;
 import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.memory.ArrayMemory;
-import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.reflection.ClassEntity;
@@ -26,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvokeArgumentHelper {
+
     private static final String INVALID_TYPE_MESSAGE = "Only arrays and Traversables can be unpacked";
 
     private static Memory[] argsToPassed(Environment env, TraceInfo trace, Memory[] args, ParameterEntity[] parameters) {
@@ -59,8 +58,10 @@ public class InvokeArgumentHelper {
 
         if (param.isReference()) {
             if (!arg.isReference() && !arg.isObject()) {
-                env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
+                env.error(trace, ErrorType.E_ERROR, Messages.ERR_ONLY_REF_CAN_BE_PASSED);
                 return new ReferenceMemory(arg);
+            } else if (arg.isDisallowReferenceOps()) {
+                env.error(trace, ErrorType.E_ERROR, Messages.ERR_PASS_DISALLOWED_MEMORY_AS_REF, arg.getGivenString());
             }
 
             return arg;
@@ -140,13 +141,13 @@ public class InvokeArgumentHelper {
                             ForeachIterator iterator = arg.getNewIterator(env, param.isReference(), false);
 
                             if (iterator == null) {
-                                env.warning(trace, INVALID_TYPE_MESSAGE);
+                                env.warning(trace, Messages.ERR_ONLY_ARR_AND_TRAV_CAN_UNPACKED);
                             } else {
                                 makeVariadic(iterator, variadicArgs, param, env, trace, _i, originClassName, originMethodName);
                             }
                         } else {
                             if (variadicMemoryExists) {
-                                env.error(trace, "Cannot use positional argument after argument unpacking");
+                                env.error(trace, Messages.ERR_CANNOT_USE_POS_ARG_AFTER_UNPACK.fetch());
                             }
 
                             arg = typeHintArg(env, trace, param, arg, _i + 1, originClassName, originMethodName, staticClassName);
@@ -181,7 +182,7 @@ public class InvokeArgumentHelper {
 
 
     private static void makeImmutable(Memory[] passed, ParameterEntity[] parameters) {
-        for (int j = parameters.length ; j < passed.length; j++) {
+        for (int j = parameters.length; j < passed.length; j++) {
             passed[j] = passed[j].fast_toImmutable();
         }
     }
@@ -215,7 +216,7 @@ public class InvokeArgumentHelper {
                 ForeachIterator foreachIterator = arg.getNewIterator(env, !isGenerator, false);
 
                 if (foreachIterator == null || (!isGenerator && !arg.isTraversable())) {
-                    env.warning(trace, INVALID_TYPE_MESSAGE);
+                    env.warning(trace, Messages.ERR_ONLY_ARR_AND_TRAV_CAN_UNPACKED);
                 } else {
                     boolean isRef;
 
@@ -240,7 +241,7 @@ public class InvokeArgumentHelper {
                 }
             } else {
                 if (variadicMemoryExists) {
-                    env.error(trace, "Cannot use positional argument after argument unpacking");
+                    env.error(trace, Messages.ERR_CANNOT_USE_POS_ARG_AFTER_UNPACK.fetch());
                 }
 
                 if (varPassed != null) {
@@ -283,16 +284,24 @@ public class InvokeArgumentHelper {
         return args;
     }
 
-    public static void invalidType(Environment env, TraceInfo trace, ParameterEntity param, int index, Memory passed,
-                                   String originClassName, String originMethodName) {
+    public static String getGiven(Memory passed) {
+        return getGiven(passed, false);
+    }
+
+    public static String getGiven(Memory passed, boolean _short) {
         String given;
         if (passed == null) {
             given = "none";
-        } else if (passed.isObject()) {
-            given = "instance of " + passed.toValue(ObjectMemory.class).getReflection().getName();
         } else {
-            given = passed.getRealType().toString();
+            return passed.getGivenString(_short);
         }
+
+        return given;
+    }
+
+    public static void invalidType(Environment env, TraceInfo trace, ParameterEntity param, int index, Memory passed,
+                                   String originClassName, String originMethodName) {
+        String given = getGiven(passed);
 
         String method = originMethodName == null ? originClassName : originClassName + "::" + originMethodName;
 
@@ -305,68 +314,63 @@ public class InvokeArgumentHelper {
                     names[i] = fields[i].getName();
                 }
 
+                String namesStr = StringUtils.join(names, ", ");
                 env.exception(param.getTrace(), WrapJavaExceptions.IllegalArgumentException.class,
-                        "Argument %s passed to %s() must be a string belonging to the range [" + StringUtils.join(names, ", ") + "] as string, called in %s on line %d, position %d and defined",
-                        index,
-                        method,
+                        Messages.ERR_INVALID_RANGE_ARGUMENT_PASSED.fetch(
+                                index,
+                                method,
+                                namesStr,
 
-                        trace.getFileName(),
-                        trace.getStartLine() + 1,
-                        trace.getStartPosition() + 1
+                                trace.getFileName(),
+                                trace.getStartLine() + 1,
+                                trace.getStartPosition() + 1
+                        )
                 );
             } else if (param.getTypeHintingChecker() != null) {
                 env.exception(
                         param.getTrace(),
                         BaseTypeError.class,
-                        "Argument %s passed to %s() must be %s, called in %s on line %d, position %d and defined",
-                        index,
-                        method,
-                        param.getTypeHintingChecker().getNeeded(env, passed),
+                        Messages.ERR_INVALID_TYPE_ARGUMENT_PASSED.fetch(
+                                index,
+                                method,
+                                param.getTypeHintingChecker().getNeeded(env, passed),
 
-                        trace.getFileName(),
-                        trace.getStartLine() + 1,
-                        trace.getStartPosition() + 1
+                                trace.getFileName(),
+                                trace.getStartLine() + 1,
+                                trace.getStartPosition() + 1
+                        )
                 );
             } else {
                 env.exception(
                         param.getTrace(),
                         BaseTypeError.class,
-                        "Argument %s passed to %s() must be of the type %s, %s given, called in %s on line %d, position %d and defined",
-                        index,
-                        method,
-                        param.getType().toString(), given,
+                        Messages.ERR_INVALID_SIMPLE_TYPE_ARGUMENT_PASSED.fetch(
+                                index,
+                                method,
+                                param.getType().toString(), given,
 
-                        trace.getFileName(),
-                        trace.getStartLine() + 1,
-                        trace.getStartPosition() + 1
+                                trace.getFileName(),
+                                trace.getStartLine() + 1,
+                                trace.getStartPosition() + 1
+                        )
                 );
             }
         } else {
             ClassEntity need = env.fetchClass(param.getTypeClass(), false);
-            String what = "";
-            if (need == null || need.isClass()) {
-                what = "be an instance of";
-            } else if (need.isInterface()) {
-                what = "implement interface";
-            }
-
-            what = what + " " + param.getTypeClass();
-
-            if (param.isNullableOrDefaultNull()) {
-                what += " or null";
-            }
+            String what = ClassEntity.getNeededString(need, param);
 
             env.exception(
                     param.getTrace(),
                     BaseTypeError.class,
-                    "Argument %s passed to %s() must %s, %s given, called in %s on line %d, position %d and defined",
-                    index,
-                    method,
+                    Messages.ERR_INVALID_OBJ_ARGUMENT_PASSED.fetch(
+                            index,
+                            method,
 
-                    what, given,
-                    trace.getFileName(),
-                    trace.getStartLine() + 1,
-                    trace.getStartPosition() + 1
+                            what, given,
+                            trace.getFileName(),
+                            trace.getStartLine() + 1,
+                            trace.getStartPosition() + 1
+                    )
             );
         }
     }
@@ -374,8 +378,10 @@ public class InvokeArgumentHelper {
     public static Memory makeValue(ParameterEntity param, Memory arg, Environment env, TraceInfo trace) {
         if (param.isReference()) {
             if (!arg.isReference() && !arg.isObject()) {
-                env.error(trace, ErrorType.E_ERROR, "Only variables can be passed by reference");
+                env.error(trace, ErrorType.E_ERROR, Messages.ERR_ONLY_REF_CAN_BE_PASSED);
                 arg = new ReferenceMemory(arg);
+            } else if (arg.isDisallowReferenceOps()) {
+                env.error(trace, ErrorType.E_ERROR, Messages.ERR_PASS_DISALLOWED_MEMORY_AS_REF, arg.getGivenString());
             }
         } else {
             arg = param.isMutable() ? arg.fast_toImmutable() : arg.toValue();

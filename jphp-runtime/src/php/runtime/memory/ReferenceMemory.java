@@ -623,10 +623,12 @@ public class ReferenceMemory extends Memory {
 
     @Override
     public Memory toValue(){
-        switch (getValue().type){
-            case REFERENCE: return getValue().toValue();
+        Memory value = getValue();
+        switch (value.type){
+            case REFERENCE:
+                return value == this ? value : value.toValue();
             default:
-                return getValue();
+                return value;
         }
     }
 

@@ -62,6 +62,12 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
+    public String getGivenString(boolean shortVariant) {
+        String name = getReflection().getName();
+        return shortVariant ? name : "instance of " + name;
+    }
+
+    @Override
     public boolean isObject() {
         return true;
     }
@@ -452,6 +458,18 @@ public class ObjectMemory extends Memory {
                     while (true) {
                         if (!child.next())
                             return false;
+
+                        if (child.getValue().isUninitialized()) {
+                            boolean found = false;
+                            while (child.next()) {
+                                if (!child.getValue().isUninitialized()) {
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if (!found) return false;
+                        }
 
                         Object key = child.getKey();
                         if (key instanceof String) {

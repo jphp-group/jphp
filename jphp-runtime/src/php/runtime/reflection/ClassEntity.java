@@ -2,6 +2,7 @@ package php.runtime.reflection;
 
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.ConcurrentEnvironment;
@@ -18,11 +19,15 @@ import php.runtime.invoke.ObjectInvokeHelper;
 import php.runtime.invoke.cache.PropertyCallCache;
 import php.runtime.lang.ForeachIterator;
 import php.runtime.lang.IObject;
+import php.runtime.lang.exception.BaseError;
+import php.runtime.lang.exception.BaseTypeError;
 import php.runtime.lang.support.MagicSignatureClass;
 import php.runtime.memory.ArrayMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.memory.support.ArrayMapEntryMemory;
+import php.runtime.memory.support.ObjectPropertyMemory;
+import php.runtime.reflection.ClassEntity.InvalidProperty.Kind;
 import php.runtime.reflection.support.Entity;
 import php.runtime.reflection.support.ReflectionUtils;
 import php.runtime.reflection.support.TypeChecker;
@@ -95,6 +100,9 @@ public class ClassEntity extends Entity implements Cloneable {
 
     protected boolean isStatic;
 
+    //protected boolean isWrapped = true;
+    protected ClassWrapper wrapper;
+
     protected static final ClassEntity magicSignatureClass =
             new ClassEntity(new ClassWrapper(null, MagicSignatureClass.class));
 
@@ -111,6 +119,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public ClassEntity(ClassWrapper wrapper) {
         this((Context) null);
+        this.wrapper = wrapper;
         wrapper.onWrap(this);
     }
 
@@ -120,6 +129,23 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public String getCompiledInternalName() {
         return super.getInternalName();
+    }
+
+    public static String getNeededString(ClassEntity need, ParameterEntity param) {
+        String what = "";
+        if (need == null || need.isClass()) {
+            what = Messages.ERR_INVALID_OBJ_ARGUMENT_PASSED_BE_INSTANCE.fetch();
+        } else if (need.isInterface()) {
+            what = Messages.ERR_INVALID_OBJ_ARGUMENT_PASSED_INTERFACE.fetch();
+        }
+
+        what = what + " " + param.getTypeClass();
+
+        if (param.isNullableOrDefaultNull()) {
+            what += " " + Messages.ERR_INVALID_OBJ_ARGUMENT_PASSED_OR_NULL.fetch();
+        }
+
+        return what;
     }
 
     @Override
@@ -665,12 +691,12 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public void addDynamicStaticProperty(Environment env, String name, Memory value) {
         PropertyEntity prop = staticProperties.get(name);
-        env.getOrCreateStatic(prop.specificName, value);
+        env.getOrCreateStatic(prop.specificName, prop.typedValue(env, prop.getTrace(), value));
     }
 
     public void addDynamicProperty(Environment env, String name, Memory value) {
         PropertyEntity prop = properties.get(name);
-        env.getOrCreateStatic(prop.getInternalName(), value);
+        env.getOrCreateStatic(prop.getInternalName(), prop.typedValue(env, prop.getTrace(), value));
     }
 
     public PropertyResult addProperty(PropertyEntity property) {
@@ -704,8 +730,21 @@ public class ClassEntity extends Entity implements Cloneable {
                 if (prototype.isProtected() && property.isPrivate()) {
                     result.addError(InvalidProperty.Kind.MUST_BE_PROTECTED, property);
                 }
+
                 if (prototype.isPublic() && !property.isPublic()) {
                     result.addError(InvalidProperty.Kind.MUST_BE_PUBLIC, property);
+                }
+            }
+
+            if (!prototype.isPrivate()) {
+                if (property.isTyped() && !prototype.isTyped()) {
+                    property.setPrototype(prototype);
+                    result.addError(Kind.TYPE_MUST_BE_NOT_DEFINED, property);
+                } else {
+                    if (prototype.isTyped() && !prototype.getTypeChecker().identical(property.getTypeChecker())) {
+                        property.setPrototype(prototype);
+                        result.addError(Kind.INVALID_TYPE, property);
+                    }
                 }
             }
 
@@ -997,8 +1036,8 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
-                return new StringMemory(o1.concat(o2));
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
+                return StringMemory.valueOf(o1.concat(o2));
             }
         }, callCache, cacheIndex);
     }
@@ -1008,9 +1047,22 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 if (oldValue != null)
                     oldValue.assign(o1.toValue());
+
+                if (prop != null && prop.isTyped() && prop.getType() == HintType.INT) {
+                    long x = o1.toLong(), y = o2.toLong();
+                    long r = x + y;
+
+                    if (((x ^ r) & (y ^ r)) < 0L) {
+                        env.exception(trace,
+                                BaseTypeError.class,
+                                "Cannot math add for property %s::$%s of type int past its maximal value",
+                                prop.getClazz().getName(), prop.getName()
+                        );
+                    }
+                }
 
                 return o1.plus(o2);
             }
@@ -1022,9 +1074,22 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 if (oldValue != null)
                     oldValue.assign(o1.toValue());
+
+                if (prop != null && prop.isTyped() && prop.getType() == HintType.INT) {
+                    long x = o1.toLong(), y = o2.toLong();
+                    long r = x - y;
+
+                    if (((x ^ y) & (x ^ r)) < 0L) {
+                        env.exception(trace,
+                                BaseTypeError.class,
+                                "Cannot math subtract for property %s::$%s of type int past its minimal value",
+                                prop.getClazz().getName(), prop.getName()
+                        );
+                    }
+                }
 
                 return o1.minus(o2);
             }
@@ -1036,7 +1101,20 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
+                if (prop != null && prop.isTyped() && prop.getType() == HintType.INT) {
+                    long x = o1.toLong(), y = o2.toLong();
+                    try {
+                        Math.multiplyExact(x, y);
+                    } catch (ArithmeticException e) {
+                        env.exception(trace,
+                                BaseTypeError.class,
+                                "Cannot math multiply property %s::$%s of type int past its overflow value",
+                                prop.getClazz().getName(), prop.getName()
+                        );
+                    }
+                }
+
                 return o1.mul(o2);
             }
         }, callCache, cacheIndex);
@@ -1047,7 +1125,7 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 return o1.div(o2);
             }
         }, callCache, cacheIndex);
@@ -1058,7 +1136,7 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 return o1.mod(o2);
             }
         }, callCache, cacheIndex);
@@ -1069,7 +1147,7 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 return o1.bitAnd(o2);
             }
         }, callCache, cacheIndex);
@@ -1080,7 +1158,7 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 return o1.bitOr(o2);
             }
         }, callCache, cacheIndex);
@@ -1091,7 +1169,7 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 return o1.bitXor(o2);
             }
         }, callCache, cacheIndex);
@@ -1102,7 +1180,7 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 return o1.bitShr(o2);
             }
         }, callCache, cacheIndex);
@@ -1113,7 +1191,7 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
         return setProperty(env, trace, object, property, memory, new SetterCallback() {
             @Override
-            public Memory invoke(Memory o1, Memory o2) {
+            public Memory invoke(PropertyEntity prop, Memory o1, Memory o2) {
                 return o1.bitShl(o2);
             }
         }, callCache, cacheIndex);
@@ -1143,6 +1221,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (callCache != null && entity != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
         }
 
         if (entity == null) {
@@ -1164,7 +1245,7 @@ public class ClassEntity extends Entity implements Cloneable {
         if (entity != null) {
             if (entity.setter != null) {
                 if (callback != null)
-                    memory = callback.invoke(getProperty(env, trace, object, property, null, 0), memory);
+                    memory = callback.invoke(entity, getProperty(env, trace, object, property, null, 0), memory);
 
                 try {
                     ObjectInvokeHelper.invokeMethod(object, entity.setter, env, trace, new Memory[]{memory}, false);
@@ -1211,7 +1292,7 @@ public class ClassEntity extends Entity implements Cloneable {
                             env.popCall();
                         }
                     }
-                    memory = callback.invoke(o1, memory);
+                    memory = callback.invoke(entity, o1, memory);
                 }
 
                 try {
@@ -1231,7 +1312,7 @@ public class ClassEntity extends Entity implements Cloneable {
                 }*/
 
                 if (callback != null)
-                    memory = callback.invoke(Memory.NULL, memory);
+                    memory = callback.invoke(entity, Memory.NULL, memory);
 
                 String name = property;
                 if (entity != null) {
@@ -1268,13 +1349,25 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         } else {
             if (callback != null)
-                memory = callback.invoke(value, memory);
+                memory = callback.invoke(entity, value, memory);
 
             if (entity instanceof CompilePropertyEntity) {
                 return entity.assignValue(env, trace, object, property, memory);
             }
 
-            return value.assign(memory);
+            if (entity != null && entity.isTyped()) {
+                if (!memory.isImmutable()) {
+                    env.error(
+                            trace, "Unable to assign by ref for typed property %s::$%s, jphp will not support this feature",
+                            entity.getClazz().getName(),
+                            entity.getName()
+                    );
+                }
+
+                return value.assign(entity.typedValue(env, trace, memory));
+            } else {
+                return value.assign(entity == null ? memory : entity.typedValue(env, trace, memory));
+            }
         }
         return memory;
     }
@@ -1295,9 +1388,7 @@ public class ClassEntity extends Entity implements Cloneable {
         }
 
         ArrayMemory props = object.getProperties();
-        if (props == null
-                || accessFlag != 0
-                || props.removeByScalar(entity == null ? property : entity.specificName) == null) {
+        if (props == null || accessFlag != 0 || props.removeByScalar(entity == null ? property : entity.specificName) == null) {
             if (methodMagicUnset != null) {
                 if (context != null && context.getId() == methodMagicUnset.getClazz().getId()) {
                     if (env.peekCall(0).flags == FLAG_UNSET) {
@@ -1317,6 +1408,10 @@ public class ClassEntity extends Entity implements Cloneable {
                 }
                 return Memory.NULL;
             }
+        }
+
+        if (entity != null && entity.isTyped() && props != null && accessFlag == 0) {
+            props.putAsKeyString(entity.specificName, entity.getUninitializedValue());
         }
 
         if (accessFlag != 0)
@@ -1387,6 +1482,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (entity != null && callCache != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity contex = env.getLastClassOnStack();
+            entity = isInstanceOf(contex) ? contex.properties.get(property) : properties.get(property);
         }
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
@@ -1445,6 +1543,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (saveCache && entity != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != context) {
+            context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.findStaticProperty(property) : findStaticProperty(property);
         }
 
         if (entity == null) {
@@ -1461,7 +1562,13 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         }
 
-        return entity.getStaticValue(env, trace);
+        Memory value = entity.getStaticValue(env, trace);
+
+        if (entity.isTyped()) {
+            return new ObjectPropertyMemory(env, trace, (ReferenceMemory) value, entity);
+        } else {
+            return value;
+        }
     }
 
     public Memory getRefProperty(Environment env, TraceInfo trace, IObject object, String property,
@@ -1478,6 +1585,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (callCache != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
         }
 
         if (entity == null) {
@@ -1519,7 +1629,11 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         }
 
-        return value;
+        if (entity != null && entity.isTyped()) {
+            return new ObjectPropertyMemory(env, trace, (ReferenceMemory) value, entity);
+        } else {
+            return value;
+        }
     }
 
     public Memory getProperty(Environment env, TraceInfo trace, IObject object, String property,
@@ -1536,6 +1650,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (callCache != null && entity != null) {
                 callCache.put(env, cacheIndex, entity);
             }
+        } else if (entity.getClazz() != object.getReflection()) {
+            ClassEntity context = env.getLastClassOnStack();
+            entity = isInstanceOf(context) ? context.properties.get(property) : properties.get(property);
         }
 
         if (entity == null) {
@@ -1564,8 +1681,19 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         }
 
-        if (value != null)
-            return value;
+        if (value != null) {
+            if (value.isUninitialized()) {
+                if (methodMagicGet == null) {
+                    env.exception(trace,
+                            BaseError.class,
+                            "Typed property %s::$%s must not be accessed before initialization",
+                            entity.getClazz().getName(), property
+                    );
+                }
+            } else {
+                return value;
+            }
+        }
 
         if (methodMagicGet != null) {
             Memory result;
@@ -1586,6 +1714,10 @@ public class ClassEntity extends Entity implements Cloneable {
 
                 InvokeArgumentHelper.checkType(env, trace, methodMagicGet, args);
                 result = methodMagicGet.invokeDynamic(object, env, trace, args);
+
+                if (entity != null && entity.isTyped() && accessFlag == 0) {
+                    result = entity.typedValue(env, trace, result);
+                }
             } finally {
                 env.popCall();
             }
@@ -1607,8 +1739,8 @@ public class ClassEntity extends Entity implements Cloneable {
         object.getProperties().put(prop.specificName, value == null ? Memory.NULL : value);
     }
 
-    private static interface SetterCallback {
-        Memory invoke(Memory o1, Memory o2);
+    private interface SetterCallback {
+        Memory invoke(PropertyEntity prop, Memory o1, Memory o2);
     }
 
     @Override
@@ -1714,7 +1846,14 @@ public class ClassEntity extends Entity implements Cloneable {
     }
 
     public static class InvalidProperty {
-        public enum Kind {MUST_BE_PROTECTED, MUST_BE_PUBLIC, STATIC_AS_NON_STATIC, NON_STATIC_AS_STATIC}
+        public enum Kind {
+            MUST_BE_PROTECTED,
+            MUST_BE_PUBLIC,
+            STATIC_AS_NON_STATIC,
+            NON_STATIC_AS_STATIC,
+            INVALID_TYPE,
+            TYPE_MUST_BE_NOT_DEFINED
+        }
 
         public final Kind kind;
         public final PropertyEntity property;
@@ -1813,6 +1952,25 @@ public class ClassEntity extends Entity implements Cloneable {
                                         el.property.getPrototype().getName(),
                                         el.property.clazz.getName(),
                                         el.property.getName()
+                                ),
+                                el.property.getTrace()
+                        );
+                        break;
+                    case INVALID_TYPE:
+                        e = new FatalException(
+                                Messages.ERR_TYPED_PROP_INVALID_TYPE_OF_INHERITANCE.fetch(
+                                        el.property.clazz.getName(), el.property.getName(),
+                                        el.property.getPrototype().getTypeChecker().getSignature(),
+                                        el.property.getPrototype().getClazz().getName()
+                                ),
+                                el.property.getTrace()
+                        );
+                        break;
+                    case TYPE_MUST_BE_NOT_DEFINED:
+                        e = new FatalException(
+                                Messages.ERR_TYPED_PROP_TYPE_MUST_BE_NOT_DEFINED_OF_INHERITANCE.fetch(
+                                        el.property.clazz.getName(), el.property.getName(),
+                                        el.property.getPrototype().getClazz().getName()
                                 ),
                                 el.property.getTrace()
                         );

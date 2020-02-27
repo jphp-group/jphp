@@ -4,11 +4,13 @@ import php.runtime.Memory;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
+import php.runtime.lang.IObject;
 import php.runtime.memory.LongMemory;
 import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.PropertyEntity;
+import php.runtime.reflection.support.TypeChecker;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -165,6 +167,28 @@ public class ReflectionProperty extends Reflection implements Reflector {
     @Signature
     public Memory isStatic(Environment env, Memory... args){
         return entity.isStatic() ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory hasType(Environment env, Memory... args) {
+        return entity.isTyped() ? Memory.TRUE : Memory.FALSE;
+    }
+
+    @Signature
+    public Memory getType(Environment env, Memory... args) {
+        TypeChecker typeChecker = entity.getTypeChecker();
+
+        if (typeChecker == null) {
+            return Memory.NULL;
+        }
+
+        return ObjectMemory.valueOf(new ReflectionType(env, entity.isNullable(), typeChecker));
+    }
+
+    @Signature(@Arg(value = "object", type = HintType.OBJECT))
+    public Memory isInitialized(Environment env, Memory... args) throws Throwable {
+        Memory entityValue = entity.getValue(env, env.trace(), args[0].toObject(IObject.class));
+        return entityValue.isUninitialized() ? Memory.FALSE : Memory.TRUE;
     }
 
     @Signature(@Arg("accessible"))

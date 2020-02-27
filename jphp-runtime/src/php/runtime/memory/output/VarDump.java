@@ -36,6 +36,13 @@ public class VarDump extends Printer {
     }
 
     @Override
+    protected void printUninitialized(UninitializedMemory value) {
+        printer.write("uninitialized(");
+        printer.write(value.getArg());
+        printer.write(")\n");
+    }
+
+    @Override
     protected void printFalse() {
         printer.write("bool(false)\n");
     }
@@ -143,7 +150,16 @@ public class VarDump extends Printer {
             printer.write("object(");
             printer.write(classEntity.getName());
             printer.write(")#" + value.getPointer());
-            printer.write(" (" + arr.size() + ") {\n");
+
+            int size = arr.size();
+
+            for (ReferenceMemory referenceMemory : arr) {
+                if (referenceMemory.isUninitialized()) {
+                    size--;
+                }
+            }
+
+            printer.write(" (" + size + ") {\n");
 
             level += 1;
 

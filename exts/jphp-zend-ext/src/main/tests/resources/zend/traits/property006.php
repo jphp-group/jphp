@@ -19,6 +19,8 @@ class Notice extends Base {
     use THello1;
     private $hello;
 }
+
+echo "ok";
 ?>
 --EXPECTF--
-Strict Standards: 'Notice' and 'THello1' define the same property ($hello) in the composition of Notice. This might be incompatible, to improve maintainability consider using accessor methods in traits instead. Class was composed in %s on line %d at pos %d
+ok
