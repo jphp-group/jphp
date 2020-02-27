@@ -50,6 +50,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Weak References
 + Arrow Functions 2.0 (+ multiple line syntax)
 + Allow throwing exceptions from __toString()
++ Null Coalescing Assignment Operator
 
 ### Own Extensions
 - [Standard Library](jphp-runtime/api-docs) - own runtime standard library
