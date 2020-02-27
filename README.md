@@ -29,7 +29,7 @@ Our project started in October 2013. There were a few reasons for that:
 
 ### Features
 
-+ PHP 5.6+ (and many language features from PHP 7.0 and 7.1).
++ PHP 7.1+ (and many language features from PHP 7.2, 7.3, 7.4).
 + JIT (~2.5x faster PHP 5.6, ~1.1x faster PHP 7.0, ~13% slower than PHP 7.4, [bench](#how-to-run-benchmarks)).
 + Using java libraries and classes in PHP code.
 + Unicode for strings (UTF-16, like in Java)
@@ -40,7 +40,7 @@ Our project started in October 2013. There were a few reasons for that:
 + Ability to use on **Android** OS : [jphp-android](https://github.com/VenityStudio/jphp-android)
 
 **What JPHP supports from PHP 7.0, 7.1?**
-+ All features except anonymous classes.
++ All features.
 
 ### Own Extensions
 - [Standard Library](jphp-runtime/api-docs) - own runtime standard library
