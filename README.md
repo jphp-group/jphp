@@ -46,7 +46,7 @@ Our project started in October 2013. There were a few reasons for that:
 + All features except RFC: Flexible Heredoc and Nowdoc Syntaxes
 
 **What JPHP supports from PHP 7.4?**
-+ Typed Properties 2.0
++ Typed Properties 2.0 (partly, references are not supported)
 + Weak References
 + Arrow Functions 2.0 (+ multiple line syntax)
 + Allow throwing exceptions from __toString()
