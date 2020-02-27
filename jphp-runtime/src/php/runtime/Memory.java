@@ -650,6 +650,15 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory assignBitXor(String memory) { return assign(bitXor(memory)); }
     public Memory assignBitXorRight(Memory memory) { return memory.assign(memory.bitXor(this)); }
 
+    public Memory assignCoalesceIfElse(Memory memory) {
+        if (isNull()) return assign(memory); else return this;
+    }
+    public Memory assignCoalesceIfElse(long memory) { if (isNull()) return assign(memory); else return this; }
+    public Memory assignCoalesceIfElse(double memory) { if (isNull()) return assign(memory); else return this; }
+    public Memory assignCoalesceIfElse(boolean memory) { if (isNull()) return assign(memory); else return this; }
+    public Memory assignCoalesceIfElse(String memory) { if (isNull()) return assign(memory); else return this; }
+    public Memory assignCoalesceIfElseRight(Memory memory) { return memory.assignCoalesceIfElse(this); }
+
     public void unset(){  }
     public void manualUnset(Environment env) { }
 

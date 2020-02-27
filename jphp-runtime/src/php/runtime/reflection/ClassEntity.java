@@ -465,7 +465,7 @@ public class ClassEntity extends Entity implements Cloneable {
                                     isWarning = false;
                                     break;
                                 }
-                                pr = method.getPrototype();
+                                pr = pr.getPrototype();
                             }
 
                             if (isWarning) {

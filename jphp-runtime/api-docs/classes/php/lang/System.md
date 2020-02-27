@@ -32,6 +32,7 @@ Class System
 - `System ::`[`osName()`](#method-osname) - _Returns Operation System Name, eg:  `Windows`._
 - `System ::`[`osVersion()`](#method-osversion) - _Returns Operation System Version._
 - `System ::`[`addClassPath()`](#method-addclasspath) - _Add jar from file or classpath dir at runtime to runtime._
+- `System ::`[`setEngineLanguage()`](#method-setenginelanguage) - _Change language for engine, for its errors and messages_
 
 ---
 
@@ -232,6 +233,16 @@ Returns Operation System Version.
 System::addClassPath(mixed $file): void
 ```
 Add jar from file or classpath dir at runtime to runtime.
+
+---
+
+<a name="method-setenginelanguage"></a>
+
+### setEngineLanguage()
+```php
+System::setEngineLanguage([ string $lang): void
+```
+Change language for engine, for its errors and messages
 
 ---
 # Methods

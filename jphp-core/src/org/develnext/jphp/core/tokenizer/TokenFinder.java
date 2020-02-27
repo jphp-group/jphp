@@ -53,7 +53,6 @@ public class TokenFinder {
         put("~", NotExprToken.class);
         put("^", XorExprToken.class);
         put("|", OrExprToken.class);
-        put("&", AndExprToken.class);
         put(">>", ShiftRightExprToken.class);
         put("<<", ShiftLeftExprToken.class);
 
@@ -74,6 +73,7 @@ public class TokenFinder {
         put("^=", AssignXorExprToken.class);
         put("&=", AssignAndExprToken.class);
         put("|=", AssignOrExprToken.class);
+        put("??=", AssignNullCoalesceIfElseToken.class);
         put("++", IncExprToken.class);
         put("--", DecExprToken.class);
         put(">>=", AssignShiftRightExprToken.class);

@@ -18,6 +18,7 @@ Library for working with collections - arrays, iterators, etc.
 
 - `arr ::`[`count()`](#method-count) - _Returns element count of the collection_
 - `arr ::`[`has()`](#method-has)
+- `arr ::`[`hasKey()`](#method-haskey)
 - `arr ::`[`toArray()`](#method-toarray) - _Converts $collection to array_
 - `arr ::`[`of()`](#method-of) - _Alias of toArray()_
 - `arr ::`[`toList()`](#method-tolist) - _Example: items::toList(['x' => 10, 20], 30, ['x' => 50, 60]) -> [10, 20, 30, 50, 60]_
@@ -67,6 +68,15 @@ Returns element count of the collection
 ### has()
 ```php
 arr::has(array|Traversable $collection, mixed $value, bool $strict): bool
+```
+
+---
+
+<a name="method-haskey"></a>
+
+### hasKey()
+```php
+arr::hasKey(array $array, mixed $key): bool
 ```
 
 ---
