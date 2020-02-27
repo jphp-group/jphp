@@ -1,9 +1,15 @@
 package php.runtime.memory.support;
 
+import static php.runtime.common.Messages.ERR_ACCESS_TO_PROPERTY_BEFORE_INIT;
+import static php.runtime.common.Messages.ERR_ACCESS_TO_STATIC_PROPERTY_BEFORE_INIT;
+
 import php.runtime.Memory;
 import php.runtime.common.HintType;
+import php.runtime.common.Messages;
+import php.runtime.common.Messages.Item;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.lang.IObject;
 import php.runtime.lang.exception.BaseError;
 import php.runtime.lang.exception.BaseTypeError;
@@ -36,9 +42,14 @@ public class ObjectPropertyMemory extends ShortcutMemory {
     }
 
     @Override
+    public boolean isDisallowReferenceOps() {
+        return true;
+    }
+
+    @Override
     public ReferenceMemory getReference() {
         env.error(
-                trace, "Unable to assign by ref for typed property %s::$%s, jphp will not support this feature",
+                trace, ErrorType.E_ERROR, Messages.ERR_ASSIGN_BY_REF_FOR_TYPED_PROP,
                 property.getClazz().getName(),
                 property.getName()
         );
@@ -49,7 +60,7 @@ public class ObjectPropertyMemory extends ShortcutMemory {
     @Override
     public Memory assignRef(Memory reference) {
         env.error(
-                trace, "Unable to assign by ref for typed property %s::$%s, jphp will not support this feature",
+                trace, ErrorType.E_ERROR, Messages.ERR_ASSIGN_BY_REF_FOR_TYPED_PROP,
                 property.getClazz().getName(),
                 property.getName()
         );
@@ -96,8 +107,9 @@ public class ObjectPropertyMemory extends ShortcutMemory {
 
                 env.exception(trace,
                         BaseTypeError.class,
-                        "Cannot auto-initialize an array inside property %s::$%s of type ?string",
-                        property.getClazz().getName(), property.getName(), mustBe
+                        Messages.ERR_CANNOT_AUTO_INIT_ARR_IN_PROP.fetch(
+                                property.getClazz().getName(), property.getName(), mustBe
+                        )
                 );
         }
     }
@@ -141,10 +153,10 @@ public class ObjectPropertyMemory extends ShortcutMemory {
     @Override
     public Memory toImmutable() {
         if (isUninitialized()) {
+            Item msg = property.isStatic() ? ERR_ACCESS_TO_STATIC_PROPERTY_BEFORE_INIT : ERR_ACCESS_TO_PROPERTY_BEFORE_INIT;
             env.exception(trace,
                     BaseError.class,
-                    "Typed static property %s::$%s must not be accessed before initialization",
-                    property.getClazz().getName(), property.getName()
+                    msg.fetch(property.getClazz().getName(), property.getName())
             );
         }
 

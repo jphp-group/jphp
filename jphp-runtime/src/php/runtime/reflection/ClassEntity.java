@@ -131,6 +131,23 @@ public class ClassEntity extends Entity implements Cloneable {
         return super.getInternalName();
     }
 
+    public static String getNeededString(ClassEntity need, ParameterEntity param) {
+        String what = "";
+        if (need == null || need.isClass()) {
+            what = Messages.ERR_INVALID_OBJ_ARGUMENT_PASSED_BE_INSTANCE.fetch();
+        } else if (need.isInterface()) {
+            what = Messages.ERR_INVALID_OBJ_ARGUMENT_PASSED_INTERFACE.fetch();
+        }
+
+        what = what + " " + param.getTypeClass();
+
+        if (param.isNullableOrDefaultNull()) {
+            what += " " + Messages.ERR_INVALID_OBJ_ARGUMENT_PASSED_OR_NULL.fetch();
+        }
+
+        return what;
+    }
+
     @Override
     public String getInternalName() {
         /*if (isTrait()) { depricated check, todo remove.

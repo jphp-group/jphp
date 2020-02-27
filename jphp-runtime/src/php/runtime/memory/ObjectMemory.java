@@ -62,6 +62,12 @@ public class ObjectMemory extends Memory {
     }
 
     @Override
+    public String getGivenString(boolean shortVariant) {
+        String name = getReflection().getName();
+        return shortVariant ? name : "instance of " + name;
+    }
+
+    @Override
     public boolean isObject() {
         return true;
     }

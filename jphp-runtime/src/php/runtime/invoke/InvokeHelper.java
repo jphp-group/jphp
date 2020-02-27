@@ -437,6 +437,12 @@ final public class InvokeHelper {
     }
 
     public static void checkReturnReference(Memory memory, Environment env, TraceInfo trace) {
+        if (memory.isDisallowReferenceOps()) {
+            env.error(
+                    trace, Messages.ERR_RETURN_DISALLOWED_MEMORY_AS_REF.fetch(memory.getGivenString())
+            );
+        }
+
         if (memory.isImmutable() && !memory.isUndefined()) {
             env.warning(trace, Messages.ERR_RETURN_NOT_REFERENCE.fetch());
         }

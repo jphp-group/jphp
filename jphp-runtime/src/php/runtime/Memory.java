@@ -161,6 +161,14 @@ abstract public class Memory implements Comparable<Memory> {
 
     public float toFloat() { return (float) toDouble(); }
 
+    final public String getGivenString() {
+        return getGivenString(false);
+    }
+
+    public String getGivenString(boolean shortVariant) {
+        return getRealType().toString();
+    }
+
     public Memory toArray() {
         ArrayMemory result = new ArrayMemory();
         result.add(fast_toImmutable());
@@ -252,6 +260,10 @@ abstract public class Memory implements Comparable<Memory> {
     public Memory newKeyValueRight(double memory){ return new KeyValueMemory(new DoubleMemory(memory), this.toValue()); }
     public Memory newKeyValueRight(boolean memory){ return new KeyValueMemory(memory ? TRUE : FALSE, this.toValue()); }
     public Memory newKeyValueRight(String memory){ return new KeyValueMemory(new StringMemory(memory), this.toValue()); }
+
+    public boolean isDisallowReferenceOps() {
+        return false;
+    }
 
     public boolean isObject() { return type == Type.OBJECT; }
     public boolean isClosure() { return false; }

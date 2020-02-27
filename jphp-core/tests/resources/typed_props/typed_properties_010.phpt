@@ -13,5 +13,6 @@ $cb = function(int &$bar) {
 $foo = new Foo();
 $cb($foo->bar);
 ?>
---EXPECT--
-int(1)
+--EXPECTF--
+
+Fatal error: Unable to pass int as ref argument, jphp will not support this feature in %s on line 11, position %d
