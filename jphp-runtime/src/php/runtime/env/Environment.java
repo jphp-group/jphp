@@ -274,9 +274,11 @@ public class Environment {
                 Environment.this.echo(error.getType().getTypeName() + ": " + error.getMessage());
                 if (error.getTraceInfo() != null) {
                     Environment.this.echo(
-                            " in " + error.getTraceInfo().getFileName()
-                                    + " on line " + (error.getTraceInfo().getStartLine() + 1)
-                                    + ", position " + (error.getTraceInfo().getStartPosition() + 1)
+                            " " + Messages.MSG_IN_ON_LINE_POS.fetch(
+                                    error.getTraceInfo().getFileName(),
+                                    error.getTraceInfo().getStartLine() + 1,
+                                    error.getTraceInfo().getStartPosition() + 1
+                            )
                     );
                 }
                 return false;

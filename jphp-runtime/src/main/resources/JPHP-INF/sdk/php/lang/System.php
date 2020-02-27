@@ -1,6 +1,7 @@
 <?php
 namespace php\lang;
 use php\io\Stream;
+use php\lib\str;
 
 /**
  * Class System
@@ -163,6 +164,18 @@ final class System
      * @param $file
      */
     public static function addClassPath($file)
+    {
+    }
+
+    /**
+     * Change language for engine, for its errors and messages
+     * --RU--
+     * Меняет язык для движка, для его ошибок и сообщений
+     *
+     * @param string $lang
+     * @throws IllegalArgumentException
+     */
+    public static function setEngineLanguage(?string $lang)
     {
     }
 }

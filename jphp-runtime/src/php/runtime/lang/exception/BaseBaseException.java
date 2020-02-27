@@ -6,6 +6,7 @@ import php.runtime.annotation.Reflection.BaseType;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
+import php.runtime.common.Messages;
 import php.runtime.common.Modifier;
 import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
@@ -197,7 +198,7 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
             if (i != 0)
                 sb.append("\n");
 
-            sb.append("#").append(i).append(" {main}");
+            sb.append("#").append(i).append(" ").append(Messages.MSG_MAIN_SYMBOL);
         }
 
         return new StringMemory(sb.toString());

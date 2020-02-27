@@ -12,6 +12,7 @@ import php.runtime.env.*;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.core.classes.WrapClassLoader;
 import php.runtime.ext.core.classes.WrapPackageLoader;
+import php.runtime.ext.core.classes.WrapSystem;
 import php.runtime.ext.core.classes.lib.FsUtils;
 import php.runtime.ext.core.classes.stream.Stream;
 import php.runtime.ext.support.Extension;
@@ -161,6 +162,15 @@ public class Launcher {
                 );
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
+            }
+        }
+
+        Memory engineLang = getConfigValue("engine.lang", Memory.NULL);
+        if (engineLang.isNotNull()) {
+            try {
+                WrapSystem.setEngineLanguage(engineLang);
+            } catch (Throwable throwable) {
+                throw new LaunchException(throwable.getMessage());
             }
         }
     }
