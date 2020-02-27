@@ -83,6 +83,11 @@ jppm init
 
 You will see `Hello World` in your console, the sources of this program will be in `src/index.php`.
 
+4. (Optional) To update jphp version of your old project:
+```bash
+jppm update jphp-core
+```
+
 ### How to run benchmarks?
 
 ```
