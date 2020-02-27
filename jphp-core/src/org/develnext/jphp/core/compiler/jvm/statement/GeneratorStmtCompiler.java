@@ -23,7 +23,7 @@ public class GeneratorStmtCompiler extends StmtCompiler<GeneratorEntity> {
     public GeneratorEntity compile() {
         GeneratorEntity entity = new GeneratorEntity(getCompiler().getContext());
         entity.setReturnReference(statement.isReturnReference());
-        entity.setInternalName(compiler.getModule().getInternalName() + "_generator" + statement.getId());
+        entity.setInternalName(compiler.getModule().getInternalName() + "_generator" + statement.getGeneratorId());
         entity.setId(statement.getGeneratorId());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
 
