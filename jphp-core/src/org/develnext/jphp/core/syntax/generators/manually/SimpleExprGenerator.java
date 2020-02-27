@@ -1458,8 +1458,9 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         StringExprToken.class,
                         StringBuilderExprToken.class,
                         CallOperatorToken.class,
-                        ArrayPushExprToken.class) ||
-                        (previous instanceof StaticAccessExprToken)){
+                        ArrayPushExprToken.class,
+                        YieldExprToken.class) ||
+                        (previous instanceof StaticAccessExprToken) || isClosedBrace(previous, SIMPLE)){
                     // array
                     current = processArrayToken(previous, current, iterator);
                     if (previous instanceof DynamicAccessExprToken && current instanceof ArrayGetRefExprToken){

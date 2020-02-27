@@ -218,4 +218,9 @@ public class GeneratorsTest extends JvmCompilerCase {
     public void testBug262() {
         check("generators/bug262.php");
     }
+
+    @Test
+    public void testBug369() {
+        check("generators/bug369.phpt");
+    }
 }
