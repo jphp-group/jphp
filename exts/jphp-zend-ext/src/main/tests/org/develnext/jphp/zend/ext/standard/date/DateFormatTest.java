@@ -55,6 +55,7 @@ public class DateFormatTest {
 
     @Test
     public void monthAndDay() {
+        ZonedDateTime now = now();
         Stream.of(
                 Pair.of("F d", "Dec 30"),
                 Pair.of("F d", "December 30"),
@@ -65,10 +66,10 @@ public class DateFormatTest {
         )
                 .map(pair -> create(pair.getA(), pair.getB()))
                 .forEach(dateTime -> assertThat(dateTime)
-                        .isEqualToIgnoringNanos(now().withMonth(12).withDayOfMonth(30)));
+                        .isEqualToIgnoringNanos(now.withMonth(12).withDayOfMonth(30)));
 
         assertThat(create("M d", "April 31"))
-                .isEqualToIgnoringNanos(now().withMonth(5).withDayOfMonth(1));
+                .isEqualToIgnoringNanos(now.withMonth(5).withDayOfMonth(1));
     }
 
     @Test
@@ -130,11 +131,12 @@ public class DateFormatTest {
 
     @Test
     public void oneOrMoreSymbols() {
+        LocalDate now = LocalDate.now();
         assertSoftly(sa -> {
             String[] str = {"a", "ab", "abc", "?", "\n", "a%b@c$"};
             for (String s : str) {
                 assertThat(local("Y-*-d", String.format("2008-%s-05", s)).toLocalDate())
-                        .isEqualTo(LocalDate.now().withYear(2008).withDayOfMonth(5));
+                        .isEqualTo(now.withYear(2008).withDayOfMonth(5));
 
             }
 
