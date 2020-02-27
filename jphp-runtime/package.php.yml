@@ -14,6 +14,20 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.2.0:
+    - PHP 7.1+ features.
+    - Typed Properties 2.0.
+    - Weak References.
+    - Null Coalescing Assignment Operator.
+    - Anonymous Classes.
+    - Allow abstract function override.
+    - Fix many bugs in syntax analyzer.
+    - Fix array access syntax bugs.
+    - Fix caching properties bugs.
+    - Fix type hinting bugs.
+    - L10N for engine error messages (+RU language).
+    - Fix bug - Cannot define class with multiple generator member functions.
+    - Many bug fixes.
   1.1.5:
     - Arrow Functions, add static and return refs.
     - Allow a trailing comma in function calls.

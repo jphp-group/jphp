@@ -3,7 +3,7 @@
 ---
 
 ## jphp-runtime
-> версия 1.2.0, создано с помощью JPPM.
+> версия {0}, создано с помощью JPPM.
 
 Runtime for JPHP + Standard library.
 

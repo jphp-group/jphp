@@ -3,7 +3,7 @@
 ---
 
 ## jphp-core
-> version 1.2.0, created by JPPM.
+> version {0}, created by JPPM.
 
 Compiler and Launcher for JPHP.
 
