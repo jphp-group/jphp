@@ -47,7 +47,7 @@ final public class ObjectInvokeHelper {
         MethodEntity method;
 
         if (clazz == null) {
-            env.error(trace, "Cannot access parent:: when current class scope has no parent");
+            env.error(trace, Messages.ERR_CANNOT_ACCESS_PARENT_WHEN_SCOPE_NO_PARENT.fetch());
             return Memory.NULL;
         }
 

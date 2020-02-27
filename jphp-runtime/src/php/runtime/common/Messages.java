@@ -188,6 +188,12 @@ public class Messages {
     public static Item ERR_ACCESS_TO_STATIC_PROPERTY_BEFORE_INIT = new Item("Typed static property {0}::${1} must not be accessed before initialization");
     public static Item ERR_ACCESS_TO_PROPERTY_BEFORE_INIT = new Item("Typed property {0}::${1} must not be accessed before initialization");
 
+    public static Item ERR_CANNOT_ACCESS_PARENT_WHEN_SCOPE_NO_PARENT = new Item("Cannot access parent:: when current class scope has no parent");
+    public static Item ERR_CANNOT_FIND_JAVA_CONSTRUCTOR = new Item("Cannot find a java constructor {0}(Environment, ClassEntity)");
+    public static Item ERR_CANNOT_INSTANT_ABSTRACT_CLASS = new Item("Cannot instantiate abstract class {0}");
+    public static Item ERR_CANNOT_INSTANT_INTERFACE = new Item("Cannot instantiate interface {0}");
+    public static Item ERR_CANNOT_INSTANT_TRAIT = new Item("Cannot instantiate trait {0}");
+
     protected static Map<String, Item> itemMap = new HashMap<>();
     protected static Map<String, Item> originItemMap = new HashMap<>();
 

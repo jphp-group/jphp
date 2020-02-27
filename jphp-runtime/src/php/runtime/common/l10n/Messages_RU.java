@@ -179,6 +179,12 @@ public class Messages_RU extends L10NMessages {
     public String ERR_ACCESS_TO_STATIC_PROPERTY_BEFORE_INIT = "Типизированное статическое свойство {0}::${1} не должно быть доступно до инициализации";
     public String ERR_ACCESS_TO_PROPERTY_BEFORE_INIT = "Типизированное свойство {0}::${1} не должно быть доступно до инициализации";
 
+    public String ERR_CANNOT_ACCESS_PARENT_WHEN_SCOPE_NO_PARENT = "Невозможно обратиться к parent:: когда текущий контекст класса не имеет родителя (parent)";
+    public String ERR_CANNOT_FIND_JAVA_CONSTRUCTOR = "Невозможно найти java конструктор {0}(Environment, ClassEntity)";
+    public String ERR_CANNOT_INSTANT_ABSTRACT_CLASS = "Невозможно создать объект абстрактного класса {0}";
+    public String ERR_CANNOT_INSTANT_INTERFACE = "Невозможно создать объект с помощью интерфейса {0}";
+    public String ERR_CANNOT_INSTANT_TRAIT = "Невозможно создать объект с помощью трейта {0}";
+
     @Override
     public String getLang() {
         return "ru";

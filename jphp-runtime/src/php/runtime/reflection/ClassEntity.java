@@ -923,7 +923,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
     public <T extends IObject> T newMock(Environment env) throws Throwable {
         if (nativeConstructor == null) {
-            env.error(env.trace(), ErrorType.E_CORE_ERROR, "Cannot find a java constructor %s(Environment, ClassEntity)", getName());
+            env.error(env.trace(), ErrorType.E_CORE_ERROR, Messages.ERR_CANNOT_FIND_JAVA_CONSTRUCTOR, getName());
         }
 
         try {
@@ -936,12 +936,16 @@ public class ClassEntity extends Entity implements Cloneable {
     }
 
     public void checkCanInstance(Environment env) {
+        checkCanInstance(env, trace);
+    }
+
+    public void checkCanInstance(Environment env, TraceInfo trace) {
         if (isAbstract) {
-            env.error(trace, "Cannot instantiate abstract class %s", name);
+            env.error(trace, Messages.ERR_CANNOT_INSTANT_ABSTRACT_CLASS.fetch(name));
         } else if (type == Type.INTERFACE) {
-            env.error(trace, "Cannot instantiate interface %s", name);
+            env.error(trace, Messages.ERR_CANNOT_INSTANT_INTERFACE.fetch(name));
         } else if (type == Type.TRAIT) {
-            env.error(trace, "Cannot instantiate trait %s", name);
+            env.error(trace, Messages.ERR_CANNOT_INSTANT_TRAIT.fetch(name));
         }
     }
 
@@ -954,13 +958,13 @@ public class ClassEntity extends Entity implements Cloneable {
             throws Throwable {
 
         if (checks) {
-            checkCanInstance(env);
+            checkCanInstance(env, trace);
         }
 
         IObject object;
         try {
             if (nativeConstructor == null) {
-                env.error(trace, ErrorType.E_CORE_ERROR, "Cannot find a java constructor %s(Environment, ClassEntity)", getName());
+                env.error(trace, ErrorType.E_CORE_ERROR, Messages.ERR_CANNOT_FIND_JAVA_CONSTRUCTOR, getName());
             }
 
             object = (IObject) nativeConstructor.newInstance(env, this);
