@@ -2111,7 +2111,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     public void writeTickTrigger(TraceInfo trace) {
-        if (compiler.getScope().isDebugMode() && method.getLocalVariable("~local") != null) {
+        if (/*compiler.getScope().isDebugMode() &&*/ method.getLocalVariable("~local") != null) {
             int line = trace.getStartLine();
 
             if (method.registerTickTrigger(line)) {
@@ -2805,7 +2805,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             stackPush(o);
             writeArrayGet((ArrayGetExprToken) operator, returnValue);
         } else if (operator instanceof CallOperatorToken) {
-            stackPush(o);
+            writePush(o);
+            writePopBoxing();
 
             CallOperatorToken call = (CallOperatorToken) operator;
 

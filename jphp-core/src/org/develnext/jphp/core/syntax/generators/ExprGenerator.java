@@ -2,6 +2,7 @@ package org.develnext.jphp.core.syntax.generators;
 
 import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.tokenizer.token.expr.*;
+import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind;
 import php.runtime.common.Messages;
 import org.develnext.jphp.core.common.Separator;
 import php.runtime.exceptions.FatalException;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import static org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind.ARRAY;
+import static org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind.SIMPLE;
 
 public class ExprGenerator extends Generator<ExprStmtToken> {
 
@@ -569,8 +571,12 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected List<Token> processSimpleExpr(Token current, ListIterator<Token> iterator){
+        Kind closedBraceKind = null;
+        if (isOpenedBrace(current, SIMPLE)) closedBraceKind = SIMPLE;
+        else if (isOpenedBrace(current, ARRAY)) closedBraceKind = ARRAY;
+
         ExprStmtToken token = analyzer.generator(SimpleExprGenerator.class)
-                .getToken(current, iterator, Separator.SEMICOLON, null);
+                .getToken(current, iterator, Separator.SEMICOLON, closedBraceKind);
         return token.getTokens();
     }
 

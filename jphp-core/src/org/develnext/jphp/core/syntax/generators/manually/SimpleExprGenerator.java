@@ -1410,7 +1410,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
 
             if (isOpenedBrace(current, SIMPLE)){
                 boolean isFunc = false;
-                if (previous instanceof NameToken && previous.getMeta().getWord().equalsIgnoreCase("array")){
+                if (previous instanceof NameToken && "array".equalsIgnoreCase(previous.getMeta().getWord())){
                     iterator.previous();
                     tokens.set(tokens.size() - 1, current = processNewArray(previous, iterator));
                 } else {
@@ -1423,6 +1423,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                     else if (previous instanceof StaticAccessExprToken){
                         isFunc = true; // !((StaticAccessExprToken)previous).isGetStaticField(); TODO check it!
                     } else if (previous instanceof DynamicAccessExprToken){
+                        isFunc = true;
+                    } else if (isClosedBrace(previous, SIMPLE)) {
                         isFunc = true;
                     }
 

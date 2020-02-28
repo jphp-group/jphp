@@ -33,4 +33,5 @@ public class SyntaxAnalyzerTest extends AbstractSyntaxTestCase {
         environment.scope.setLangMode(LangMode.DEFAULT);
         new SyntaxAnalyzer(environment, tokenizer);
     }
+
 }
