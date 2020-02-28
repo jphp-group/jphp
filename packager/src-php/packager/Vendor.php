@@ -55,7 +55,7 @@ class Vendor
      * @param string $name
      * @return Package
      */
-    public function getPackage(string $name): Package
+    public function getPackage(string $name): ?Package
     {
         $file = new File("$this->dir/{$name}/", Package::FILENAME);
 

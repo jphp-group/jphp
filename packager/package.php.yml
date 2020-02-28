@@ -1,5 +1,5 @@
 name: jppm
-version: 0.6.0
+version: 0.6.1
 
 plugins: [GitHub, Hub, Doc]
 
@@ -17,8 +17,8 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Fix ignorng package-lock file when install.
-    + Add `jppm update <package>` command to update version in package-lock for one package.
+    + New JPHP engine version (1.2+)
+    + Improve `jppm update` command.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

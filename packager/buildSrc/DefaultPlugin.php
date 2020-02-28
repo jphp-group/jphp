@@ -548,40 +548,37 @@ class DefaultPlugin
      */
     function update(Event $event)
     {
-        $library = null;
+        $libraries = [];
         foreach ($event->args() as $arg) {
-            $library = $arg;
+            $libraries[] = $arg;
             break;
         }
 
-        if ($library) {
+        if ($libraries) {
             $vendor = new Vendor($event->package()->getAny('config.vendor-dir', './vendor'));
+            $event->packager()->getRepo()->cleanCache();
+            $event->packager()->loadPackageLock("./");
 
-            $dep = $event->package()->getDeps()[$library];
-            if (!$dep) {
-                $dep = $event->package()->getDevDeps()[$library];
-            }
+            foreach ($libraries as $library) {
+                $pkg = $vendor->getPackage($library);
 
-            $pkg = $dep == null ? null : $vendor->getPackage($library);
+                if (!$pkg) {
+                    Console::error("-> failed to update {0}, the package doesn't exist in deps or devDeps", $library);
+                    exit(-1);
+                } else {
+                    if (!$event->packager()->removeDepFromPackageLock($library)) {
+                        Console::warn("package-lock.php.yml hasn't '{0}' dep", Colors::withColor($library, 'yellow'));
+                    }
 
-            if (!$dep || !$pkg) {
-                Console::error("-> failed to update {0}, the package doesn't exist in deps or devDeps", $library);
-                exit(-1);
-            } else {
-                $event->packager()->loadPackageLock("./");
-                if (!$event->packager()->removeDepFromPackageLock($library)) {
-                    Console::warn("package-lock.php.yml hasn't '{0}' dep", Colors::withColor($library, 'yellow'));
+                    Console::info(
+                        "updating {0}@{1} (pattern = {2})",
+                        Colors::withColor($library, 'yellow'),
+                        $pkg->getVersion(),
+                        $pkg->getName()
+                    );
+
+                    $event->packager()->install($event->package(), $vendor, false);
                 }
-
-                Console::info(
-                    "updating {0}@{1} (pattern = {2})",
-                    Colors::withColor($library, 'yellow'),
-                    $pkg->getVersion(),
-                    $dep
-                );
-
-                $event->packager()->getRepo()->cleanCache();
-                $event->packager()->install($event->package(), $vendor, false, false);
             }
 
             $event->packager()->loadPackageLock("./");
