@@ -1,10 +1,10 @@
 
 name: jphp-core
-version: 1.2.0
+version: 1.2.1
 description: Compiler and Launcher for JPHP.
 
 deps:
-  jphp-runtime: '~1.2.0'
+  jphp-runtime: '~1.2.1'
 
 
 plugins: [Doc, Hub]

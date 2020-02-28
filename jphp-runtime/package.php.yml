@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.2.0
+version: 1.2.1
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,12 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.2.1:
+    - Fix Cannot use yield in ternary operator.
+    - Fix Cannot use array access on yielded values.
+    - Fix Cannot call closure in-place.
+    - Fix Cannot use yield in a foreach loop header.
+    - Many bug fixes in syntax analyzer.
   1.2.0:
     - PHP 7.1+ features.
     - Typed Properties 2.0.
