@@ -14,6 +14,7 @@ import org.develnext.jphp.core.tokenizer.token.ColonToken;
 import org.develnext.jphp.core.tokenizer.token.SemicolonToken;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.*;
+import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken.Kind;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.CastExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.cast.UnsetCastExprToken;
@@ -508,7 +509,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return result;
     }
 
-    protected Token processYield(Token current, Token next, ListIterator<Token> iterator, BraceExprToken.Kind closedBrace) {
+    protected Token processYield(Token current, Token next, ListIterator<Token> iterator, Separator separator, Kind closedBrace) {
         if (analyzer.getFunction() == null) {
             analyzer.getEnvironment().error(
                     current.toTraceInfo(analyzer.getContext()), Messages.ERR_YIELD_CAN_ONLY_INSIDE_FUNCTION.fetch()
@@ -529,7 +530,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             result.setValue(null);
         } else {
             ExprStmtToken value = analyzer.generator(SimpleExprGenerator.class).getNextExpression(
-                    nextToken(iterator), iterator, BraceExprToken.Kind.ANY
+                    nextToken(iterator), iterator, separator, BraceExprToken.Kind.ANY
             );
             result.setValue(value);
         }
@@ -1025,7 +1026,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         }
 
         if (current instanceof YieldExprToken) {
-            return processYield(current, next, iterator, closedBraceKind);
+            return processYield(current, next, iterator, separator, closedBraceKind);
         }
 
         if (current instanceof ImportExprToken) {
