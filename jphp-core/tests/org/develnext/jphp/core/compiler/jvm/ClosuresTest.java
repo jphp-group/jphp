@@ -45,4 +45,8 @@ public class ClosuresTest extends JvmCompilerCase {
     public void testBug266() {
         check("closures/bug266.php");
     }
+    @Test
+    public void testBug370() {
+        check("closures/bug370.php");
+    }
 }

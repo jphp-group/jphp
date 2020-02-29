@@ -168,6 +168,9 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         result.setArguments(arguments);
 
+        processReturnHint(result, iterator);
+    }
+    protected void processReturnHint(FunctionStmtToken result, ListIterator<Token> iterator) {
         Token token = nextTokenAndPrev(iterator);
 
         if (token instanceof ColonToken) {
@@ -253,6 +256,8 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             }
 
             result.setUses(arguments);
+
+            processReturnHint(result, iterator);
         } else {
             result.setUses(new ArrayList<ArgumentStmtToken>());
             iterator.previous();
