@@ -26,7 +26,7 @@ Our project started in October 2013. There were a few reasons for that:
 3. Using the PHP language not only on the web
 4. Multithreading like in Java and C#.
 5. Unicode Strings (Full Support for UTF-8, UTF-16).
-6. Creating GUI Android & Desktop applications on PHP.
+6. Creating GUI Android & Desktop applications on PHP language.
 
 ### Features
 
