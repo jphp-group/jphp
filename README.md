@@ -21,11 +21,12 @@ JPHP is not a replacement for the Zend PHP engine or Facebook HHVM. We don’t p
 
 Our project started in October 2013. There were a few reasons for that:
 
-1. Ability to use java libraries in PHP
-2. Upgrading performance via JIT and JVM
-3. Replacing the ugly runtime library of Zend PHP with a better runtime library.
-4. Using the PHP language not only on the web
-5. Also: unicode for strings and threads
+1. Ability to use java libraries in PHP ([own extensions](#own-extensions) + [other](https://github.com/jphp-group/awesome-jphp))
+2. Replacing the ugly runtime library of Zend PHP with a better runtime library.
+3. Using the PHP language not only on the web
+4. Multithreading like in Java and C#.
+5. Unicode Strings (Full Support for UTF-8, UTF-16).
+6. Able to use on Android and for creating Desktop GUI Applications.
 
 ### Features
 
