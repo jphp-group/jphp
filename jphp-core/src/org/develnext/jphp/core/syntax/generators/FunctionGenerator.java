@@ -155,10 +155,10 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
         return argument;
     }
 
-    protected void processArguments(FunctionStmtToken result, ListIterator<Token> iterator) {
+    protected void processArguments(FunctionStmtToken result, ListIterator<Token> iterator, boolean returnTypeHint) {
         checkUnexpectedEnd(iterator);
         List<ArgumentStmtToken> arguments = new ArrayList<ArgumentStmtToken>();
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             ArgumentStmtToken argument = processArgument(iterator);
             if (argument == null)
                 break;
@@ -168,9 +168,19 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
 
         result.setArguments(arguments);
 
+        if (returnTypeHint) {
+            processReturnHint(result, iterator);
+        }
+    }
+
+    protected void processReturnHint(FunctionStmtToken result, ListIterator<Token> iterator) {
         Token token = nextTokenAndPrev(iterator);
 
         if (token instanceof ColonToken) {
+            if (result.getReturnHintTypeClass() != null || result.getReturnHintType() != null) {
+                unexpectedToken(token);
+            }
+
             nextToken(iterator);
             Token next = nextToken(iterator);
 
@@ -253,6 +263,8 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
             }
 
             result.setUses(arguments);
+
+            processReturnHint(result, iterator);
         } else {
             result.setUses(new ArrayList<ArgumentStmtToken>());
             iterator.previous();
@@ -332,7 +344,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                 result.setName((NameToken) next);
                 result.setDocComment(commentToken);
 
-                processArguments(result, iterator);
+                processArguments(result, iterator, true);
                 processBody(result, iterator);
 
                 result.setTypeInfo(analyzer.getScope().getTypeInfo());
@@ -353,7 +365,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         analyzer.pushClosure(result);
 
                         analyzer.addScope(true);
-                        processArguments(result, iterator);
+                        processArguments(result, iterator, false);
                         processUses(result, iterator);
                         processBody(result, iterator);
                         //boolean thisExists = result.isThisExists();

@@ -47,7 +47,7 @@ public class LambdaGenerator extends Generator<LambdaStmtToken> {
 
         if (isOpenedBrace(token, BraceExprToken.Kind.SIMPLE)) {
             FunctionGenerator funcGenerator = analyzer.generator(FunctionGenerator.class);
-            funcGenerator.processArguments(func, iterator);
+            funcGenerator.processArguments(func, iterator, true);
         } else {
             prevToken(iterator);
             func.setArguments(new ArrayList<>());
