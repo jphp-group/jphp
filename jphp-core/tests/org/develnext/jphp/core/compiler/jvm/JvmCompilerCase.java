@@ -296,7 +296,7 @@ abstract public class JvmCompilerCase {
             String out = printF.toString();
 
             Assert.assertEquals(
-                    out.replace("\r\n", "\n"),
+                    out == null ? null : out.replace("\r\n", "\n"),
                     rtrim(lastOutput).replace("\r\n", "\n")
             );
         }

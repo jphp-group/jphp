@@ -14,7 +14,8 @@ public class IntegerExprToken extends ValueExprToken {
 
     public IntegerExprToken(TokenMeta meta) {
         super(meta, TokenType.T_LNUMBER);
-        String word = meta.getWord();
+        String word = meta.getWord().replace("_", "");
+
         boolean isNegative = false;
         int radix, offset;
         if (word.charAt(0) == '-') {
