@@ -25,6 +25,7 @@ import php.runtime.common.Messages;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
+import php.runtime.memory.helper.VariadicMemory;
 
 import java.util.*;
 
@@ -156,6 +157,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 int currIndex = iterator.nextIndex() - 1;
 
                 ExprStmtToken var = generator.getToken(next, iterator, Separator.COMMA, arraySyntax ? ARRAY :  SIMPLE);
+
+                if (var.isVariadic()) {
+                    analyzer.getEnvironment().error(
+                            next.toTraceInfo(analyzer.getContext()),
+                            ErrorType.E_ERROR,
+                            Messages.ERR_SPREAD_OPERATOR_NOT_SUPPORTED_IN_ASSIGN
+                    );
+                }
 
                 int k = 0;
                 keyExpr = null;
@@ -1234,6 +1243,10 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 result.setListSyntax(true);
                 parameters.add(null);
                 continue;
+            }
+
+            if (nextToken instanceof ArgumentUnpackExprToken) {
+
             }
 
             ExprStmtToken argument = generator.getToken(nextToken, iterator, Separator.COMMA, braceKind);

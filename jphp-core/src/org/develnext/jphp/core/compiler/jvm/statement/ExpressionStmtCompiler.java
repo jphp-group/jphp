@@ -1665,9 +1665,11 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (ret == null)
                     writePushDup();
 
+                boolean variadic = param.isVariadic();
+
                 Memory result = writeExpression(param, true, true, ret == null);
 
-                if (result != null) {
+                if (result != null && !variadic) {
                     if (ret != null) {
                         ret.add(result);
                         continue;
@@ -1682,14 +1684,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     ret = null;
                 }
 
-                if (result == null && returnMemory) {
+                if ((result == null || variadic) && returnMemory) {
                     return writePushArray(array, false, writeOpcode);
                 }
 
                 writePopBoxing();
                 writePopImmutable();
-                writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
-                writePopAll(1);
+
+                if (variadic) {
+                    writePushEnv();
+                    writePushTraceInfo(param);
+                    writeSysDynamicCall(ArrayMemory.class, "addVariadic", void.class, Memory.class, Environment.class, TraceInfo.class);
+                } else {
+                    writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
+                    writePopAll(1);
+                }
             }
 
             if (ret != null)

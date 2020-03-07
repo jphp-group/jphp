@@ -105,10 +105,11 @@ public class JvmCompiler extends AbstractCompiler {
 
             ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(this);
             Memory memory = expressionStmtCompiler.writeExpression(el.value, true, true, false);
-            if (memory == null){
-                throw new CompileException(
-                        Messages.ERR_EXPECTED_CONST_VALUE.fetch(el.getFulledName()),
-                        constant.toTraceInfo(context)
+            if (memory == null) {
+                getEnvironment().error(
+                        constant.toTraceInfo(context),
+                        ErrorType.E_COMPILE_ERROR,
+                        Messages.ERR_EXPECTED_CONST_VALUE.fetch(el.getFulledName())
                 );
             }
 

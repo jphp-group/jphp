@@ -52,6 +52,8 @@ Our project started in October 2013. There were a few reasons for that:
 + Arrow Functions 2.0 (+ multiple line syntax)
 + Allow throwing exceptions from __toString()
 + Null Coalescing Assignment Operator
++ numeric_literal_separator
++ Spread Operator in Array Expression
 
 ### Own Extensions
 - [Standard Library](jphp-runtime/api-docs) - own runtime standard library

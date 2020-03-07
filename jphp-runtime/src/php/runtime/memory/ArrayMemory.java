@@ -13,6 +13,7 @@ import php.runtime.lang.StdClass;
 import php.runtime.memory.helper.ArrayKeyMemory;
 import php.runtime.memory.helper.ArrayValueMemory;
 import php.runtime.memory.helper.ShortcutMemory;
+import php.runtime.memory.helper.VariadicMemory;
 import php.runtime.memory.support.*;
 import php.runtime.reflection.support.ReflectionUtils;
 
@@ -380,6 +381,24 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public void addNull() {
         add(NULL);
+    }
+
+    public void addVariadic(Memory value, Environment env, TraceInfo trace) {
+        if (value.isTraversable()) {
+            ForeachIterator iterator = value.getNewIterator(env);
+            while (iterator.next()) {
+                Memory memoryKey = iterator.getMemoryKey();
+                if (memoryKey.isString()) {
+                    env.error(trace, Messages.ERR_CANNOT_UNPACK_ARR_WITH_STRING_KEYS.fetch());
+                } else if (!memoryKey.isNumber()) {
+                    env.error(trace, Messages.ERR_CANNOT_UNPACK_TRAVERSABLE_WITH_NON_INT_KEYS.fetch());
+                }
+
+                add(iterator.getValue());
+            }
+        } else {
+            env.error(trace, Messages.ERR_ONLY_ARR_OR_TRAVERSABLES_CAN_BE_UNPACKED.fetch());
+        }
     }
 
     public ReferenceMemory add(Memory value) {

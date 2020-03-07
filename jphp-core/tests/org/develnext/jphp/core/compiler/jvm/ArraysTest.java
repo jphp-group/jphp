@@ -99,6 +99,17 @@ public class ArraysTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testUnpack() {
+        check("arrays/array_unpack.phpt", true);
+        check("arrays/unpack_list.phpt", true);
+        check("arrays/unpack_non_int_keys.phpt", true);
+        check("arrays/array_unpack_invalid.phpt", true);
+        check("arrays/array_unpack_invalid.phpt", true);
+        check("arrays/array_unpack_invalid2.phpt", true);
+        check("arrays/array_unpack_invalid3.phpt", true);
+    }
+
+    @Test
     public void testBugs() {
         check("arrays/bug148.php");
         check("arrays/bug_unset_and_ref.php");

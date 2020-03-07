@@ -118,6 +118,7 @@ public class Messages {
 
     public static Item ERR_OPERATOR_ACCEPTS_ONLY_POSITIVE = new Item("'{0}' operator accepts only positive numbers > 0");
     public static Item ERR_CANNOT_MIX_ARRAY_AND_LIST = new Item("Cannot mix [] and list()");
+    public static Item ERR_SPREAD_OPERATOR_NOT_SUPPORTED_IN_ASSIGN = new Item("Spread operator is not supported in assignments");
     public static Item ERR_CANNOT_MIX_KEYED_AND_UNKEYED_ARRAY_ENTRIES = new Item("Cannot mix keyed and unkeyed array entries in assignments");
 
     public static Item ERR_CANNOT_REDEFINE_CLASS_CONSTANT = new Item("Cannot redefine class constant {0}");
@@ -193,6 +194,10 @@ public class Messages {
     public static Item ERR_CANNOT_INSTANT_ABSTRACT_CLASS = new Item("Cannot instantiate abstract class {0}");
     public static Item ERR_CANNOT_INSTANT_INTERFACE = new Item("Cannot instantiate interface {0}");
     public static Item ERR_CANNOT_INSTANT_TRAIT = new Item("Cannot instantiate trait {0}");
+
+    public static Item ERR_ONLY_ARR_OR_TRAVERSABLES_CAN_BE_UNPACKED = new Item("Only arrays and Traversables can be unpacked");
+    public static Item ERR_CANNOT_UNPACK_ARR_WITH_STRING_KEYS = new Item("Cannot unpack array with string keys");
+    public static Item ERR_CANNOT_UNPACK_TRAVERSABLE_WITH_NON_INT_KEYS = new Item("Cannot unpack Traversable with non-integer keys");
 
     public static Item ERR_USING_THIS_NOT_IN_OBJECT_CONTEXT = new Item("Using $this when not in object context");
     public static Item ERR_CANNOT_RE_ASSIGN_THIS = new Item("Cannot re-assign $this");

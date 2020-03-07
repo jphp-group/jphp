@@ -4,6 +4,7 @@ import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
+import org.develnext.jphp.core.tokenizer.token.expr.operator.ArgumentUnpackExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -16,6 +17,7 @@ public class ExprStmtToken extends StmtToken {
     private ExprStmtToken asmExpr;
     private boolean isStmtList = true;
     private boolean constantly = true;
+    private boolean variadic = false;
 
     protected ExprStmtToken(TokenMeta meta) {
         super(meta, TokenType.T_J_CUSTOM);
@@ -45,8 +47,16 @@ public class ExprStmtToken extends StmtToken {
     }
 
     public void setTokens(List<Token> tokens) {
-        for (Token el : tokens){
+        int cnt = 0;
+        variadic = false;
+
+        for (Token el : tokens) {
             if (el == null) continue;
+            cnt++;
+
+            if (cnt == 1 && el instanceof ArgumentUnpackExprToken) {
+                variadic = true;
+            }
 
             if (!(el instanceof StmtToken)) {
                 isStmtList = false;
@@ -59,6 +69,14 @@ public class ExprStmtToken extends StmtToken {
         }
 
         this.tokens = tokens;
+    }
+
+    public boolean isVariadic() {
+        return variadic;
+    }
+
+    public void setVariadic(boolean variadic) {
+        this.variadic = variadic;
     }
 
     public boolean isSingle(){
