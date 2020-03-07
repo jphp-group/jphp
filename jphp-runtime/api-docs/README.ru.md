@@ -9,7 +9,7 @@ Runtime for JPHP + Standard library.
 
 ### Установка
 ```
-jppm add jphp-runtime@1.2.3
+jppm add jphp-runtime@1.2.5
 ```
 
 ### АПИ
@@ -29,6 +29,7 @@ jppm add jphp-runtime@1.2.3
 
 #### `php\io`
 
+- [`DataStream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/DataStream.ru.md)- _Class DataStream_
 - [`File`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/File.ru.md)- _Class File_
 - [`FileStream`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/FileStream.ru.md)- _Class FileStream_
 - [`IOException`](https://github.com/jphp-compiler/jphp/blob/master/jphp-runtime/api-docs/classes/php/io/IOException.ru.md)- _Class IOException_

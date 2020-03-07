@@ -2,28 +2,32 @@
 
 use php\io\File;
 use php\io\FileStream;
+use php\io\Stream;
 use php\lang\Environment;
 use php\lang\Module;
+use php\lang\Package;
+use php\lang\System;
 use php\lib\fs;
 use php\lib\str;
+use php\util\Scanner;
 
 function ____makePackage($fileOrStream)
 {
-    $pkg = new \php\lang\Package();
+    $pkg = new Package();
     $type = 0;
 
-    $sc = new \php\util\Scanner($fileOrStream instanceof \php\io\Stream ? $fileOrStream : fs::get($fileOrStream));
+    $sc = new Scanner($fileOrStream instanceof Stream ? $fileOrStream : fs::get($fileOrStream));
 
     $classes = [];
     $functions = [];
     $constants = [];
 
     while ($sc->hasNextLine()) {
-        $line = \php\lib\str::trim($sc->nextLine());
+        $line = str::trim($sc->nextLine());
 
         if ($line) {
             if ($line[0] == '[') {
-                switch (\php\lib\str::trim($line)) {
+                switch (str::trim($line)) {
                     case "[classes]":
                         $type = 1;
                         break;
@@ -66,9 +70,39 @@ function ____makePackage($fileOrStream)
     return $pkg;
 }
 
-function ____compile($sourceDir)
+// ------------------------- COMPILE FUNCTION ------------------------------------ //
+
+function ____compilePHBFile($filename, $target) {
+    fs::ensureParent($target);
+    $fileStream = new FileStream($filename);
+    $module = new Module($fileStream, false, true);
+    $module->dump($target, true, true);
+
+    $fileStream->close();
+}
+
+function ____compileJVMFile($filename, $target) {
+    fs::ensureParent($target);
+
+    $fileStream = new FileStream($filename);
+    $module = new Module($fileStream, false, true);
+    $result = $module->dumpJVMClasses($target);
+
+    $result['moduleName'] = $module->getName();
+
+    $fileStream->close();
+
+    return $result;
+}
+
+function ____compile($sourceDir, ?string $jvmClassesTargetDir = null)
 {
     $includedFiles = [];
+    $result = [];
+
+    if ($jvmClassesTargetDir != null) {
+        fs::makeDir($jvmClassesTargetDir);
+    }
 
     // Add packages -------------------------------
     fs::scan("$sourceDir/.packages", function ($filename) {
@@ -82,7 +116,7 @@ function ____compile($sourceDir)
 
     ob_implicit_flush(true);
 
-    spl_autoload_register(function ($name) use ($sourceDir, &$includedFiles) {
+    spl_autoload_register(function ($name) use ($sourceDir, &$includedFiles, $jvmClassesTargetDir, &$result) {
         echo("Try class '$name' auto load\n");
 
         $filename = "$sourceDir/" . str::replace($name, "\\", "/") . ".php";
@@ -91,13 +125,12 @@ function ____compile($sourceDir)
             echo "Find class '$name' in ", $filename, "\n";
             $includedFiles[fs::normalize($filename)] = true;
 
-            $compiled = new File($sourceDir, str::replace($name, "\\", "/") . ".phb");
-            fs::ensureParent($compiled);
+            if ($jvmClassesTargetDir) {
+                $result[] = ____compileJVMFile($filename, $jvmClassesTargetDir);
+            } else {
+                ____compilePHBFile($filename, new File($sourceDir, str::replace($name, "\\", "/") . ".phb"));
+            }
 
-            $fileStream = new FileStream($filename);
-            $module = new Module($fileStream, false, true);
-            $module->dump($compiled, true);
-            $fileStream->close();
             $includedFiles[fs::normalize($filename)] = true;
             return;
         } else {
@@ -105,7 +138,7 @@ function ____compile($sourceDir)
         }
     });
 
-    fs::scan($sourceDir, function ($filename) use (&$includedFiles) {
+    fs::scan($sourceDir, function ($filename) use (&$includedFiles, $jvmClassesTargetDir, &$result) {
         if (fs::name($filename) === "__compile-app-bytecode.php") return;
 
         if (fs::ext($filename) === "php") {
@@ -118,23 +151,27 @@ function ____compile($sourceDir)
 
             $includedFiles[$filename] = true;
 
-            $fileStream = new FileStream($filename);
-            $stream = new FileStream($compiledFile, 'w+');
-            $module = new Module($fileStream, false, true);
-
-            $module->dump($stream, true);
-            $stream->close();
-            $fileStream->close();
+            if ($jvmClassesTargetDir) {
+                $result[] = ____compileJVMFile($filename, $jvmClassesTargetDir);
+            } else {
+                ____compilePHBFile($filename, $compiledFile);
+            }
         } else {
             // skip.
         }
     });
 
     fs::clean($sourceDir, ['extensions' => ['php']]);
+    return $result;
 }
 
 foreach (spl_autoload_functions() as $autoload_function) {
     spl_autoload_unregister($autoload_function);
 }
 
-____compile($sourceDir = \php\lang\System::getEnv()['compiler-source-dir']);
+$env = System::getEnv();
+$result = ____compile($sourceDir = $env['compiler-source-dir'], $jvmClassesTargetDir = $env['compiler-jvm-target-dir'] ?: null);
+
+if ($result && $jvmClassesTargetDir) {
+    Stream::putContents("$jvmClassesTargetDir/____compile-result.tmp", serialize($result));
+}

@@ -123,7 +123,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
         registerJavaException(scope, WrapIOException.class, IOException.class);
         registerClass(scope,
                 FileObject.class, Stream.class, FileStream.class, MiscStream.class, MemoryMiscStream.class,
-                ResourceStream.class
+                ResourceStream.class, DataStream.class
         );
 
         // net

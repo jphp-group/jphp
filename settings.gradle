@@ -2,6 +2,7 @@
 
 include 'jphp-runtime',
         'jphp-core',
+        'jphp-native',
         'jphp-scripting',
 
         'jphp-debugger',

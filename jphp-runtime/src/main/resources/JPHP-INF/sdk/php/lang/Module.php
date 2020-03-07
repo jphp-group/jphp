@@ -34,11 +34,26 @@ class Module
     public function call(array $variables = null) { }
 
     /**
+     * Dump all the jvm classes of the module as .class files into targetDir
+     * @param string $targetDir
+     * @param bool $saveDebugInfo
+     * @return array compile result
+     */
+    public function dumpJVMClasses(string $targetDir, bool $saveDebugInfo = true): array {
+    }
+
+    /**
      * @param File|Stream|string $target
      * @param bool $saveDebugInfo
-     * @throws
+     * @param bool $includeJvmData
      */
-    public function dump($target, $saveDebugInfo = true) { }
+    public function dump($target, bool $saveDebugInfo = true, bool $includeJvmData = true) { }
+
+    /**
+     * Java Bytecode data (.class file)
+     * @return string binary string
+     */
+    public function getData(): string { }
 
     /**
      * Remove bytecode data.

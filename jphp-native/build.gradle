@@ -1,0 +1,8 @@
+plugins {
+    id "com.palantir.graal" version "0.6.0-110-gd6e368f"
+}
+
+dependencies {
+    compile project(":jphp-runtime")
+    compile project(":jphp-core")
+}

@@ -18,6 +18,7 @@ import php.runtime.Memory;
 import php.runtime.Startup;
 import php.runtime.common.Callback;
 import php.runtime.common.LangMode;
+import php.runtime.common.StringUtils;
 import php.runtime.env.CompileScope;
 import php.runtime.env.ConcurrentEnvironment;
 import php.runtime.env.Context;
@@ -31,6 +32,8 @@ import php.runtime.launcher.LaunchException;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.loader.dump.StandaloneLibrary;
 import php.runtime.loader.dump.StandaloneLibraryDumper;
+import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.LongMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.FunctionEntity;
@@ -154,7 +157,7 @@ public class StandaloneLoader {
             try {
                 config.load(resource);
 
-                for (String name : config.stringPropertyNames()){
+                for (String name : config.stringPropertyNames()) {
                     scope.configuration.put(name, new StringMemory(config.getProperty(name)));
                 }
 
@@ -193,24 +196,36 @@ public class StandaloneLoader {
             }
         }
 
-        run("JPHP-INF/.bootstrap.php");
+        _run();
     }
 
-    public void run(String bootstrapScriptName) {
+    protected void _run() {
         loadExtensions();
 
-        try {
-            loadLibrary();
+        String file = config.getProperty("bootstrap.file", "res://JPHP-INF/.bootstrap.php");
 
-            ModuleEntity bootstrap = fetchModule(bootstrapScriptName);
+        ModuleEntity bootstrap = fetchModule(file);
 
-            if (bootstrap != null) {
-                bootstrap.includeNoThrow(env);
-            } else {
-                System.out.println("(!) Cannot find bootstrap script.");
+        if (bootstrap != null) {
+            bootstrap.includeNoThrow(env);
+
+            String[] includes = StringUtils.split(config.getProperty("bootstrap.files", System.getProperty("bootstrap.files", "")),'|');
+
+            if (includes != null) {
+                for (String include : includes) {
+                    if (include.trim().isEmpty()) continue;
+
+                    ModuleEntity module = fetchModule(include);
+
+                    if (module == null) {
+                        throw new LaunchException("Cannot include file " + include + ", it's not found.");
+                    }
+
+                    module.includeNoThrow(env);
+                }
             }
-        } catch (IOException e) {
-            throw new CriticalException(e);
+        } else {
+            throw new LaunchException("Cannot include file " + file + ", it's not found.");
         }
     }
 
@@ -326,5 +341,15 @@ public class StandaloneLoader {
 
     public Environment getScopeEnvironment() {
         return env;
+    }
+
+    public void setArgv(String[] args) {
+        if (args == null) {
+            env.getGlobals().put("argv", new ArrayMemory());
+            env.getGlobals().put("argc", Memory.CONST_INT_0);
+        } else {
+            env.getGlobals().put("argv", ArrayMemory.ofStrings(args));
+            env.getGlobals().put("argc", LongMemory.valueOf(args.length));
+        }
     }
 }

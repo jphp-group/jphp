@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.2.3
+version: 1.2.5
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,11 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.2.5:
+    - Add standalone compiler.
+    - Add new methods for Module class.
+    - Add DataStream class for writing typed data into streams.
+    - Fix syntax for type hinting of closures.
   1.2.4:
     - Spread Operator in Array Expression
     - numeric_literal_separator

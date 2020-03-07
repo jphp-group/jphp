@@ -9,7 +9,7 @@ Compiler and Launcher for JPHP.
 
 ### Установка
 ```
-jppm add jphp-core@1.2.4
+jppm add jphp-core@1.2.5
 ```
 
 ### АПИ

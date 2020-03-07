@@ -13,6 +13,7 @@ app:
   metrics: false
   trace: false
   build:
+    bytecode: 'jvm'
     type: multi-jar
   launcher:
     enabled: true # enable launcher scripts

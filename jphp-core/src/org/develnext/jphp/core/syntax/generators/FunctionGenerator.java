@@ -365,7 +365,7 @@ public class FunctionGenerator extends Generator<FunctionStmtToken> {
                         analyzer.pushClosure(result);
 
                         analyzer.addScope(true);
-                        processArguments(result, iterator, false);
+                        processArguments(result, iterator, true);
                         processUses(result, iterator);
                         processBody(result, iterator);
                         //boolean thisExists = result.isThisExists();

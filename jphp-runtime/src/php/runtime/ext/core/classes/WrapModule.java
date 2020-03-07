@@ -1,6 +1,12 @@
 package php.runtime.ext.core.classes;
 
+import java.io.*;
+import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import php.runtime.Memory;
 import php.runtime.common.AbstractCompiler;
 import php.runtime.common.HintType;
@@ -11,6 +17,7 @@ import php.runtime.ext.core.reflection.ReflectionFunction;
 import php.runtime.lang.BaseObject;
 import php.runtime.loader.dump.ModuleDumper;
 import php.runtime.memory.ArrayMemory;
+import php.runtime.memory.BinaryMemory;
 import php.runtime.memory.ReferenceMemory;
 import php.runtime.reflection.ClassEntity;
 import php.runtime.reflection.ConstantEntity;
@@ -18,11 +25,7 @@ import php.runtime.reflection.FunctionEntity;
 import php.runtime.reflection.ModuleEntity;
 import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import php.runtime.reflection.support.Entity;
 
 import static php.runtime.annotation.Reflection.*;
 
@@ -166,12 +169,89 @@ public class WrapModule extends BaseObject {
         return result.toConstant();
     }
 
+    @Signature
+    public Memory getData() {
+        return new BinaryMemory(module.getData());
+    }
+
+    private File saveJavaClass(File file, byte[] data) throws IOException {
+        File parentFile = file.getParentFile();
+
+        if (parentFile != null && !parentFile.isDirectory()) {
+            parentFile.mkdirs();
+        }
+
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
+            outputStream.write(data);
+        }
+
+        return file;
+    }
+
+    @Signature({
+            @Arg(value = "targetDir", type = HintType.STRING),
+            @Arg(value = "saveDebugInfo", optional = @Optional("true"), type = HintType.BOOLEAN)
+    })
+    public Memory dumpJVMClasses(Environment env, Memory... args) throws IOException {
+        String targetDir = args[0].toString();
+        Function<Entity, File> entityClassFile = (Entity entity) -> new File(targetDir, "/" + entity.getInternalName() + ".class");
+
+        ArrayMemory result = new ArrayMemory();
+
+        File moduleClsFile = entityClassFile.apply(module);
+        File moduleDumpFile = new File(targetDir, "/" + module.getInternalName() + ".dump");
+
+        result.put("module", saveJavaClass(moduleClsFile, module.getData()).toString());
+        result.put("moduleDump", moduleDumpFile.toString());
+
+        ArrayMemory classes = new ArrayMemory();
+        for (ClassEntity classEntity : module.getClasses()) {
+            File file = saveJavaClass(entityClassFile.apply(classEntity), classEntity.getData());
+            classes.put(classEntity.getName(), file.toString());
+        }
+        result.put("classes", classes);
+
+        ArrayMemory functions = new ArrayMemory();
+        for (FunctionEntity functionEntity : module.getFunctions()) {
+            File file = saveJavaClass(entityClassFile.apply(functionEntity), functionEntity.getData());
+            functions.put(functionEntity.getName(), file.toString());
+        }
+        result.put("functions", functions);
+
+        ArrayMemory closures = new ArrayMemory();
+        for (ClosureEntity one : module.getClosures()) {
+            File file = saveJavaClass(entityClassFile.apply(one), one.getData());
+            closures.add(file.toString());
+        }
+        result.put("closures", closures);
+
+        ArrayMemory generators = new ArrayMemory();
+        for (GeneratorEntity one : module.getGenerators()) {
+            File file = saveJavaClass(entityClassFile.apply(one), one.getData());
+            generators.add(file.toString());
+        }
+        result.put("generators", generators);
+
+        ModuleDumper moduleDumper = new ModuleDumper(module.getContext(), env, args[1].toBoolean());
+        moduleDumper.setIncludeData(false);
+
+        try (OutputStream os = new FileOutputStream(moduleDumpFile)) {
+            moduleDumper.save(module, os);
+        }
+
+        result.put("constants", getConstants(env));
+
+        return result.toConstant();
+    }
+
     @Signature({
             @Arg("target"),
-            @Arg(value = "saveDebugInfo", optional = @Optional("true"))
+            @Arg(value = "saveDebugInfo", optional = @Optional("true"), type = HintType.BOOLEAN),
+            @Arg(value = "includeJvmData", optional = @Optional("true"), type = HintType.BOOLEAN)
     })
     public Memory dump(Environment env, Memory... args) throws IOException {
         ModuleDumper moduleDumper = new ModuleDumper(module.getContext(), env, args[1].toBoolean());
+        moduleDumper.setIncludeData(args[2].toBoolean());
 
         OutputStream os = Stream.getOutputStream(env, args[0]);
         try {

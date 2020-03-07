@@ -1,5 +1,6 @@
 <?php
 
+use app\AppPluginCompiler;
 use app\AppPluginJavaRuntimeBuilder;
 use app\AppPluginLaunch4JBuilder;
 use compress\GzipOutputStream;
@@ -7,7 +8,7 @@ use compress\TarArchive;
 use compress\TarArchiveEntry;
 use compress\ZipArchive;
 use compress\ZipArchiveEntry;
-use packager\{cli\Console, Event, JavaExec, Package, Packager, Vendor};
+use packager\{cli\Console, Colors, Event, JavaExec, Package, Packager, Vendor};
 
 use php\lang\{
     System, Thread
@@ -69,14 +70,37 @@ class AppPlugin
         $build = $event->package()->getAny('app')['build'] ?: [];
         $launcherConf = $event->package()->getAny('app')['launcher'] ?: [];
 
+        $bytecodeType = null;
+
+        $defaultLauncherClass = 'php.runtime.launcher.Launcher';
+
         if ($event->isFlagExists('b', 'bytecode')) {
             $isBytecode = $event->isFlag('b', 'bytecode');
         } else {
             $isBytecode = (bool) $build['bytecode'];
+            switch ($build['bytecode']) {
+                case 'jvm':
+                    $bytecodeType = 'jvm';
+                    $defaultLauncherClass = 'php.runtime.launcher.StandaloneLauncher';
+                    break;
+
+
+                case 'phb':
+                    $bytecodeType = 'phb';
+                    break;
+
+                default:
+                    if ($build['bytecode'] === true) {
+                        $bytecodeType = 'phb';
+                    } else {
+                        Console::error("Unknown bytecode type ('app.build.bytecode' option): {0}", $build['bytecode']);
+                        exit(-1);
+                    }
+            }
         }
 
         if ($isBytecode) {
-            Console::log("-> [-b option] Bytecode compilation is enabled!");
+            Console::info("[-b option] Bytecode {0} compilation is enabled!", Colors::withColor($bytecodeType, 'yellow'));
         }
 
         $exec = new JavaExec();
@@ -182,8 +206,13 @@ class AppPlugin
         fs::delete("$buildDir/.app/META-INF/MANIFEST.MF");
 
         if ($isBytecode) {
-            Console::log("-> compile all 'php' sources to 'phb' bytecode files");
-            $compiler = new \app\AppPluginCompiler("$buildDir/.app");
+            Console::log("-> compile all 'php' sources to bytecode files");
+            if ($build['bytecode'] === 'jvm') {
+                $compiler = new AppPluginCompiler("$buildDir/.app", "$buildDir/.app");
+            } else {
+                $compiler = new AppPluginCompiler("$buildDir/.app");
+            }
+
             $compiler->compile($event->package());
         }
 
@@ -199,7 +228,7 @@ class AppPlugin
 
             $includes = flow($includes, $event->package()->getIncludes());
 
-            if ($isBytecode) { // replace php to phb is bytecode compiler
+            if ($bytecodeType === 'phb') { // replace php to phb is bytecode compiler
                 $includes = $includes->map(function ($one) {
                     if (fs::ext($one) == "php") {
                         return str::replace(fs::pathNoExt($one), "\\", "/") . ".phb";
@@ -223,7 +252,7 @@ class AppPlugin
                 'bootstrap.files' => flow($includes)->map(function ($one) {
                     return "res://$one";
                 })->toString('|'),
-                'bootstrap.file'  => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : ('res://JPHP-INF/.bootstrap.' . ($isBytecode ? 'phb' : 'php')),
+                'bootstrap.file'  => $launcher['bootstrap'] ? "res://{$launcher['bootstrap']}" : ('res://JPHP-INF/.bootstrap.' . ($bytecodeType === 'phb' ? 'phb' : 'php')),
             ], 'ini');
 
             Tasks::createFile("$buildDir/.app/META-INF/MANIFEST.MF");
@@ -231,7 +260,7 @@ class AppPlugin
             Stream::putContents("$buildDir/.app/META-INF/MANIFEST.MF", str::join([
                 "Manifest-Version: 1.0",
                 "Created-By: jppm (JPHP Packager " . $event->packager()->getVersion() . ")",
-                "Main-Class: " . ($launcher['main-class'] ?? 'php.runtime.launcher.Launcher'),
+                "Main-Class: " . ($launcher['main-class'] ?? $defaultLauncherClass),
                 "",
             ], "\r\n"));
         } else {
@@ -251,7 +280,7 @@ class AppPlugin
 
         $zip->close();
 
-        Tasks::deleteFile("$buildDir/.app");
+        //Tasks::deleteFile("$buildDir/.app");
 
         foreach ($event->package()->getAny('app.assets', []) as $asset) {
             Tasks::deleteFile("$buildDir/" . fs::name($asset));
@@ -264,7 +293,7 @@ class AppPlugin
         }
 
         if (!$launcherConf['disabled'] && (arr::has($launcherConf['types'], "sh") || arr::has($launcherConf['types'], "bat"))) {
-            $mainClass = $launcher['main-class'] ?: 'php.runtime.launcher.Launcher';
+            $mainClass = $launcher['main-class'] ?: $defaultLauncherClass;
 
             $jars = ["$buildFileName.jar"];
             $libJars = flow(fs::scan("$buildDir/libs", ['extensions' => ['jar']], 1))
