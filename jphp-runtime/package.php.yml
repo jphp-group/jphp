@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.2.1
+version: 1.2.3
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,9 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.2.3:
+    - Fix Cannot define static closures.
+    - Fix errors when using $this in non-object contexts.
   1.2.1:
     - Fix Cannot use yield in ternary operator.
     - Fix Cannot use array access on yielded values.
