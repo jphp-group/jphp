@@ -4,14 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.ServiceLoader;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import php.runtime.Memory;
@@ -51,6 +45,8 @@ public class StandaloneLoader {
     protected boolean isDebug;
 
     private StandaloneLibrary library;
+
+    private final Set<String> classesLoaded = ConcurrentHashMap.newKeySet(1000);
 
     public StandaloneLoader() {
         config = new Properties();
@@ -265,6 +261,10 @@ public class StandaloneLoader {
 
         ModuleEntity entity = _fetch(name, library.getModules());
 
+        if (entity == null && name.startsWith("res://")) {
+            entity = _fetch(name.substring(6), library.getModules());
+        }
+
         if (entity != null) {
             loadModule(entity);
             scope.loadModule(entity, false);
@@ -279,7 +279,19 @@ public class StandaloneLoader {
             throw new CriticalException("Standalone library is not loaded");
         }
 
-        return _fetch(name.toLowerCase(), library.getClassModules());
+        String lowerCase = name.toLowerCase();
+
+        if (classesLoaded.add(lowerCase)) {
+            ModuleEntity entity = _fetch(lowerCase, library.getClassModules());
+
+            if (entity == null) {
+                classesLoaded.remove(lowerCase);
+            }
+
+            return entity;
+        } else {
+            return null;
+        }
     }
 
     public ModuleEntity fetchFunction(String name) {

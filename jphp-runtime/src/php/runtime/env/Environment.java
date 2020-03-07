@@ -651,13 +651,18 @@ public class Environment {
             entity = classMap.get(nameL); // try retry!
 
             if (entity == null) {
-                entity = scope.fetchUserClass(name, nameL);
+                entity = scope.fetchUserClass(name, nameL, autoLoad);
 
                 if (entity != null) {
                     try {
                         entity.initEnvironment(this);
                     } catch (Throwable throwable) {
-                        throw new CriticalException(throwable);
+                        // nop.
+                        if (throwable instanceof BaseBaseException) {
+                            error(ErrorType.E_CORE_ERROR, "Failed to init environment for class " + name);
+                        } else {
+                            error(ErrorType.E_CORE_ERROR, "Failed to init environment for class " + name + ": " + throwable.getMessage());
+                        }
                     }
                     classMap.put(entity.getLowerName(), entity);
                     return entity;

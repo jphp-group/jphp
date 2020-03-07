@@ -206,29 +206,37 @@ public class WrapModule extends BaseObject {
 
         ArrayMemory classes = new ArrayMemory();
         for (ClassEntity classEntity : module.getClasses()) {
-            File file = saveJavaClass(entityClassFile.apply(classEntity), classEntity.getData());
-            classes.put(classEntity.getName(), file.toString());
+            if (classEntity.getData() != null) {
+                File file = saveJavaClass(entityClassFile.apply(classEntity), classEntity.getData());
+                classes.put(classEntity.getName(), file.toString());
+            }
         }
         result.put("classes", classes);
 
         ArrayMemory functions = new ArrayMemory();
         for (FunctionEntity functionEntity : module.getFunctions()) {
-            File file = saveJavaClass(entityClassFile.apply(functionEntity), functionEntity.getData());
-            functions.put(functionEntity.getName(), file.toString());
+            if (functionEntity.getData() != null) {
+                File file = saveJavaClass(entityClassFile.apply(functionEntity), functionEntity.getData());
+                functions.put(functionEntity.getName(), file.toString());
+            }
         }
         result.put("functions", functions);
 
         ArrayMemory closures = new ArrayMemory();
         for (ClosureEntity one : module.getClosures()) {
-            File file = saveJavaClass(entityClassFile.apply(one), one.getData());
-            closures.add(file.toString());
+            if (one.getData() != null) {
+                File file = saveJavaClass(entityClassFile.apply(one), one.getData());
+                closures.add(file.toString());
+            }
         }
         result.put("closures", closures);
 
         ArrayMemory generators = new ArrayMemory();
         for (GeneratorEntity one : module.getGenerators()) {
-            File file = saveJavaClass(entityClassFile.apply(one), one.getData());
-            generators.add(file.toString());
+            if (one.getData() != null) {
+                File file = saveJavaClass(entityClassFile.apply(one), one.getData());
+                generators.add(file.toString());
+            }
         }
         result.put("generators", generators);
 

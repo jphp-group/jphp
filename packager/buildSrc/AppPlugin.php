@@ -76,6 +76,9 @@ class AppPlugin
 
         if ($event->isFlagExists('b', 'bytecode')) {
             $isBytecode = $event->isFlag('b', 'bytecode');
+            if ($isBytecode) {
+                $bytecodeType = 'phb';
+            }
         } else {
             $isBytecode = (bool) $build['bytecode'];
             switch ($build['bytecode']) {
@@ -280,7 +283,7 @@ class AppPlugin
 
         $zip->close();
 
-        //Tasks::deleteFile("$buildDir/.app");
+        Tasks::deleteFile("$buildDir/.app");
 
         foreach ($event->package()->getAny('app.assets', []) as $asset) {
             Tasks::deleteFile("$buildDir/" . fs::name($asset));

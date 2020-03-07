@@ -460,13 +460,17 @@ public class CompileScope {
     }
 
     public ClassEntity fetchUserClass(String name) {
-        return fetchUserClass(name, name.toLowerCase());
+        return fetchUserClass(name, name.toLowerCase(), true);
     }
 
     public ClassEntity fetchUserClass(String name, String nameLower) {
+        return fetchUserClass(name, nameLower, true);
+    }
+
+    public ClassEntity fetchUserClass(String name, String nameLower, boolean autoLoad) {
         ClassEntity entity;
 
-        if (classEntityFetchHandler != null) {
+        if (autoLoad && classEntityFetchHandler != null) {
             for (EntityFetchHandler handler : classEntityFetchHandler) {
                 handler.fetch(this, name, nameLower);
             }

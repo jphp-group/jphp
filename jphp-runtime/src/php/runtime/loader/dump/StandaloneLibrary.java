@@ -35,8 +35,6 @@ public class StandaloneLibrary {
 
     public void addModule(Module module) {
         modules.put(module.getName(), module);
-        modules.put("res://" + module.getName(), module);
-        modules.put("res:///" + module.getName(), module);
 
         for (String name : module.getClasses()) {
             classModules.put(name.toLowerCase(), module);

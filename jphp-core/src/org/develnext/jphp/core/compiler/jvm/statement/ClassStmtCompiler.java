@@ -583,7 +583,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 expressionCompiler.writePushConstString(entity.getName());
                 expressionCompiler.writePushConstString(entity.getLowerName());
             }
-            expressionCompiler.writePushConstBoolean(true);
+            expressionCompiler.writePushConstBoolean(false);
             expressionCompiler.writeSysDynamicCall(
                     Environment.class, "fetchClass", ClassEntity.class, String.class, String.class, Boolean.TYPE
             );

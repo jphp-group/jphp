@@ -890,7 +890,12 @@ public class ClassEntity extends Entity implements Cloneable {
     public void initEnvironment(Environment env) {
         if (isClass() && nativeInitEnvironment != null) {
             try {
+                Method nativeInitEnvironment = this.nativeInitEnvironment;
+                this.nativeInitEnvironment = null;
+
                 nativeInitEnvironment.invoke(null, env);
+
+                this.nativeInitEnvironment = nativeInitEnvironment;
             } catch (InvocationTargetException e) {
                 env.__throwException(e);
             } catch (IllegalAccessException e) {
