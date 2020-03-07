@@ -13,6 +13,8 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
+import php.runtime.exceptions.ParseException;
+import php.runtime.exceptions.support.ErrorType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -189,12 +191,16 @@ public class SyntaxAnalyzer {
         tree.clear();
 
         Token token;
-        while ((token = tokenizer.nextToken()) != null){
-            if (token instanceof CommentToken){
-                if (((CommentToken) token).getKind() != CommentToken.Kind.DOCTYPE)
-                    continue;
+        try {
+            while ((token = tokenizer.nextToken()) != null) {
+                if (token instanceof CommentToken) {
+                    if (((CommentToken) token).getKind() != CommentToken.Kind.DOCTYPE)
+                        continue;
+                }
+                tokens.add(token);
             }
-            tokens.add(token);
+        } catch (ParseException e) {
+            this.getEnvironment().error(e.getTraceInfo(), ErrorType.E_PARSE, e.getMessage());
         }
 
         /*if (tokenizer.hasDirective("mode")){

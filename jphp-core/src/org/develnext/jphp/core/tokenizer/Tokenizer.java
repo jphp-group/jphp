@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.IntConsumer;
 
 import org.develnext.jphp.core.common.TokenizeGrammarUtils;
 import org.develnext.jphp.core.tokenizer.token.BreakToken;
@@ -22,6 +23,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.EchoRawToken;
 
 import php.runtime.common.Directive;
+import php.runtime.common.Function;
 import php.runtime.common.GrammarUtils;
 import php.runtime.common.Messages;
 import php.runtime.env.Context;
@@ -682,11 +684,19 @@ public class Tokenizer {
         boolean isHex = code.charAt(i) == '0'
                 && (i < codeLength && Character.toLowerCase(code.charAt(i + 1)) == 'x');
         boolean isBinary = code.charAt(i) == '0' && (i < codeLength && code.charAt(i + 1) == 'b');
-        if (isHex || isBinary)
+        if (isHex || isBinary) {
+            relativePosition += 2;
             i += 2;
+        }
 
+        IntConsumer unexpectError = (int iter) -> {
+            throw parseException(Messages.ERR_PARSE_UNEXPECTED_X.fetch('_'), currentLine, currentLine, relativePosition + iter - 1, relativePosition + iter);
+        };
+
+        int cnt = -1;
         for(; i < codeLength; i++){
             char ch = code.charAt(i);
+            cnt++;
 
             if (!isHex && TokenizeGrammarUtils.isFloatDot(ch)){
                 if (dot)
@@ -699,7 +709,13 @@ public class Tokenizer {
                 if (i + 1 >= codeLength) {
                     break;
                 } else {
-                    if (code.charAt(i + 1) == '-' || code.charAt(i + 1) == '+' ||
+                    char nextCh = code.charAt(i + 1);
+
+                    if (nextCh == '_') {
+                        unexpectError.accept(cnt);
+                    }
+
+                    if (nextCh == '-' || nextCh == '+' ||
                             (i + 2 >= codeLength || Character.isDigit(code.charAt(i + 2)))) {
                         if (i + 2 >= codeLength || !Character.isDigit(code.charAt(i + 2))) {
                             break;
@@ -721,12 +737,22 @@ public class Tokenizer {
                     char nextCh = code.charAt(i + 1);
                     char prevCh = code.charAt(i - 1);
 
-                    if (!Character.isDigit(nextCh) && !((nextCh >= 'A' && nextCh <= 'F') || (nextCh >= 'a' && nextCh <= 'f'))) {
-                        break;
+                    if (cnt == 0 && (isHex || isBinary)) {
+                        unexpectError.accept(cnt);
                     }
 
-                    if (!Character.isDigit(prevCh) && !((prevCh >= 'A' && prevCh <= 'F') || (prevCh >= 'a' && prevCh <= 'f'))) {
-                        break;
+                    if (isHex) {
+                        if (!Character.isDigit(nextCh) && !((nextCh >= 'A' && nextCh <= 'F') || (nextCh >= 'a' && nextCh <= 'f'))) {
+                            unexpectError.accept(cnt);
+                        }
+
+                        if (!Character.isDigit(prevCh) && !((prevCh >= 'A' && prevCh <= 'F') || (prevCh >= 'a' && prevCh <= 'f'))) {
+                            unexpectError.accept(cnt);
+                        }
+                    } else {
+                        if (!Character.isDigit(nextCh) || !Character.isDigit(prevCh)) {
+                            unexpectError.accept(cnt);
+                        }
                     }
                 }
             } else if (!Character.isDigit(ch))
