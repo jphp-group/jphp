@@ -14,7 +14,7 @@ class Test {
 
     function make3(): Closure
     {
-        return static fn() => $this;
+        return static fn() => "foobar";
     }
 
     function make4(): Closure
@@ -38,7 +38,7 @@ if ($lambda() !== $test) {
 }
 
 $lambda = $test->make3();
-if ($lambda() !== null) {
+if ($lambda() !== "foobar") {
     return "fail_3";
 }
 

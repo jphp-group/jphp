@@ -19,10 +19,22 @@ public class ClosureEntity extends ClassEntity {
     protected ObjectMemory singleton;
     protected GeneratorEntity generatorEntity;
 
+    protected boolean isStatic;
+
     public ClosureEntity(Context context) {
         super(context);
         setName(Closure.class.getSimpleName());
         setType(Type.CLOSURE);
+    }
+
+    @Override
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    @Override
+    public void setStatic(boolean aStatic) {
+        isStatic = aStatic;
     }
 
     public boolean isReturnReference() {

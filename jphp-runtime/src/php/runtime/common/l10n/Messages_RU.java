@@ -185,6 +185,8 @@ public class Messages_RU extends L10NMessages {
     public String ERR_CANNOT_INSTANT_INTERFACE = "Невозможно создать объект с помощью интерфейса {0}";
     public String ERR_CANNOT_INSTANT_TRAIT = "Невозможно создать объект с помощью трейта {0}";
 
+    public String ERR_USING_THIS_NOT_IN_OBJECT_CONTEXT = "Использование $this вне контекста с объектом";
+
     @Override
     public String getLang() {
         return "ru";

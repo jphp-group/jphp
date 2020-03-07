@@ -18,7 +18,7 @@ var_dump($func(3000));
 
 $func = new ReflectionMethod('Foobar', 'test2')->getClosure(null);
 var_dump($func(100));
-
+?>
 --EXPECT--
 2000:3000
 string(7) "SUCCESS"

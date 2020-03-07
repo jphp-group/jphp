@@ -33,6 +33,7 @@ import php.runtime.invoke.cache.*;
 import php.runtime.lang.BaseObject;
 import php.runtime.memory.UninitializedMemory;
 import php.runtime.reflection.*;
+import php.runtime.reflection.helper.ClosureEntity;
 import php.runtime.reflection.helper.GeneratorEntity;
 
 import java.io.IOException;
@@ -62,6 +63,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     private int callPropCount = 0;
 
     private GeneratorEntity generatorEntity;
+    private ClosureEntity closureEntity;
 
     protected List<ConstStmtToken.Item> dynamicConstants = new ArrayList<ConstStmtToken.Item>();
     protected List<ClassVarStmtToken> dynamicProperties = new ArrayList<ClassVarStmtToken>();
@@ -101,6 +103,10 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         return functionName == null;
     }
 
+    public boolean isGenerator() {
+        return generatorEntity != null;
+    }
+
     public String getFunctionName() {
         return functionName;
     }
@@ -115,6 +121,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     public void setGeneratorEntity(GeneratorEntity generatorEntity) {
         this.generatorEntity = generatorEntity;
+    }
+
+    public ClosureEntity getClosureEntity() {
+        return closureEntity;
+    }
+
+    public void setClosureEntity(ClosureEntity closureEntity) {
+        this.closureEntity = closureEntity;
     }
 
     public boolean isSystem() {

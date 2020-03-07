@@ -37,6 +37,11 @@ public class ClosuresTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testStaticClosures() {
+        check("closures/static_closure.phpt", true);
+    }
+
+    @Test
     public void testBugs() {
         check("closures/bug138.php");
     }

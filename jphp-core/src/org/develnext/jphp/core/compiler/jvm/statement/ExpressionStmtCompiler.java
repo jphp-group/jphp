@@ -32,6 +32,7 @@ import php.runtime.common.StringUtils;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
+import php.runtime.exceptions.support.ErrorType;
 import php.runtime.ext.support.compile.CompileClass;
 import php.runtime.ext.support.compile.CompileConstant;
 import php.runtime.ext.support.compile.CompileFunction;
@@ -1469,7 +1470,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 if (!methodStatement.isStatic()) {
                     LabelNode label = writeLabel(node);
                     LocalVariable local = method.addLocalVariable("this", label, Memory.class);
-                    writeDefineThis(local);
+                    writeDefineThis(local, null);
                 } else {
                     writePushNull();
                     return;
@@ -1480,8 +1481,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         }
     }
 
-    protected void writeDefineThis(LocalVariable variable) {
-        if (method.clazz.isClosure() || method.getGeneratorEntity() != null) {
+    protected void writeDefineThis(LocalVariable variable, VariableExprToken token) {
+        if (method.clazz.isClosure() || method.clazz.isGenerator()) {
+            if (token != null && method.clazz.isClosure() && method.clazz.getClosureEntity().isStatic()) {
+                    compiler.getEnvironment().error(
+                            token.toTraceInfo(compiler.getContext()),
+                            ErrorType.E_ERROR,
+                            Messages.ERR_USING_THIS_NOT_IN_OBJECT_CONTEXT
+                    );
+            }
+
             writeVarLoad("~this");
             writeGetDynamic("self", Memory.class);
             makeVarStore(variable);
@@ -1541,8 +1550,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.setReference(false);
             }
 
-            if (variable.name.equals("this") && method.getLocalVariable("~this") != null) { // $this
-                writeDefineThis(variable);
+            if (value.isThisVariable() && method.getLocalVariable("~this") != null) { // $this
+                writeDefineThis(variable, value);
             } else if (compiler.getScope().superGlobals.contains(value.getName())) { // super-globals
                 writeDefineGlobalVar(value.getName());
             } else if (methodStatement.isDynamicLocal()) { // ref-local variables
@@ -1556,6 +1565,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.setValue(null);
                 variable.setReference(true);
             } else { // simple local variables
+                if (value.isThisVariable()) {
+                    compiler.getEnvironment().error(
+                            value.toTraceInfo(compiler.getContext()),
+                            ErrorType.E_ERROR,
+                            Messages.ERR_USING_THIS_NOT_IN_OBJECT_CONTEXT
+                    );
+                }
+
                 if (variable.isReference() || methodStatement.variable(value).isArrayAccess()) {
                     writePushNewObject(ReferenceMemory.class);
                 } else {
@@ -2160,15 +2177,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     public void checkAssignableVar(VariableExprToken var) {
-        if (method.clazz.isClosure() || !method.clazz.isSystem()) {
-            if (var.getName().equals("this"))
-                compiler.getEnvironment().error(var.toTraceInfo(compiler.getContext()), "Cannot re-assign $this");
+        if (var.isThisVariable()) {
+            compiler.getEnvironment()
+                    .error(var.toTraceInfo(compiler.getContext()), Messages.ERR_CANNOT_RE_ASSIGN_THIS.fetch());
         }
     }
 
     public void writeVarAssign(LocalVariable variable, VariableExprToken token, boolean returned, boolean asImmutable) {
-        if (token != null)
+        if (token != null) {
             checkAssignableVar(token);
+        }
 
         writePopBoxing(asImmutable);
 

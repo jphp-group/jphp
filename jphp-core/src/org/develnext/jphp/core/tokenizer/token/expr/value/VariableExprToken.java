@@ -7,6 +7,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 public class VariableExprToken extends ValueExprToken implements VariableValueExprToken {
 
     private String name;
+    private Boolean isThis;
 
     protected VariableExprToken(TokenMeta meta, String name){
         super(meta, TokenType.T_VARIABLE);
@@ -20,6 +21,14 @@ public class VariableExprToken extends ValueExprToken implements VariableValueEx
 
     public String getName() {
         return name;
+    }
+
+    public boolean isThisVariable() {
+        if (isThis != null) {
+            return isThis;
+        }
+
+        return isThis = "this".equals(name);
     }
 
     @Override

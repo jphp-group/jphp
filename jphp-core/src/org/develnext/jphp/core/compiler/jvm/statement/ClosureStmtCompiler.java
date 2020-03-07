@@ -30,6 +30,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         entity.setInternalName(compiler.getModule().getInternalName() + "_closure" + statement.getId());
         entity.setId(statement.getId());
         entity.setTrace(statement.toTraceInfo(compiler.getContext()));
+        entity.setStatic(statement.isStatic());
 
         ClassStmtToken classStmtToken = new ClassStmtToken(statement.getMeta());
         classStmtToken.setNamespace(NamespaceStmtToken.getDefault());
@@ -44,6 +45,7 @@ public class ClosureStmtCompiler extends StmtCompiler<ClosureEntity> {
         classStmtToken.setMethods(Arrays.asList(methodToken));
 
         ClassStmtCompiler classStmtCompiler = new ClassStmtCompiler(this.compiler, classStmtToken);
+        classStmtCompiler.setClosureEntity(entity);
         classStmtCompiler.setSystem(true);
         classStmtCompiler.setInterfaceCheck(false);
         classStmtCompiler.setClassContext(statement.getOwnerClass());

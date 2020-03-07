@@ -194,6 +194,9 @@ public class Messages {
     public static Item ERR_CANNOT_INSTANT_INTERFACE = new Item("Cannot instantiate interface {0}");
     public static Item ERR_CANNOT_INSTANT_TRAIT = new Item("Cannot instantiate trait {0}");
 
+    public static Item ERR_USING_THIS_NOT_IN_OBJECT_CONTEXT = new Item("Using $this when not in object context");
+    public static Item ERR_CANNOT_RE_ASSIGN_THIS = new Item("Cannot re-assign $this");
+
     protected static Map<String, Item> itemMap = new HashMap<>();
     protected static Map<String, Item> originItemMap = new HashMap<>();
 

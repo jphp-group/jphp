@@ -2,7 +2,6 @@ package org.develnext.jphp.core.syntax.generators.manually;
 
 
 import org.develnext.jphp.core.common.Separator;
-import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.syntax.ExpressionInfo;
 import org.develnext.jphp.core.syntax.Scope;
 import org.develnext.jphp.core.syntax.SyntaxAnalyzer;
@@ -24,8 +23,6 @@ import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.common.Callback;
 import php.runtime.common.Messages;
 import php.runtime.env.TraceInfo;
-import php.runtime.exceptions.CriticalException;
-import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.ParseException;
 import php.runtime.exceptions.support.ErrorType;
 
@@ -73,7 +70,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
         return closureStmtToken;
     }
 
-    protected Token processClosure(Token current, Token next, ListIterator<Token> iterator) {
+    protected Token processClosure(Token current, Token next, ListIterator<Token> iterator, boolean isStatic) {
         FunctionStmtToken functionStmtToken = analyzer.generator(FunctionGenerator.class).getToken(
             current, iterator, true
         );
@@ -84,6 +81,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             ClosureStmtToken result = new ClosureStmtToken(current.getMeta());
             result.setFunction(functionStmtToken);
             result.setOwnerClass(analyzer.getClazz());
+            result.setStatic(isStatic);
             analyzer.registerClosure(result);
 
             return result;
@@ -1001,7 +999,8 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
     }
 
     protected Token processSimpleToken(Token current, Token previous, Token next, ListIterator<Token> iterator,
-                                       BraceExprToken.Kind closedBraceKind, int braceOpened, Separator separator){
+                                       BraceExprToken.Kind closedBraceKind, int braceOpened, Separator separator) {
+
         if (current instanceof DynamicAccessExprToken){
             return processDynamicAccess(current, next, iterator, closedBraceKind, braceOpened);
         }
@@ -1045,11 +1044,14 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             return processVarVar(current, next, iterator);
         }
 
-        if (current instanceof VariableExprToken){
-            analyzer.getScope().addVariable((VariableExprToken) current);
-            if (analyzer.getFunction() != null) {
-                analyzer.getFunction().setVarsExists(true);
-                analyzer.getFunction().variable((VariableExprToken)current).setUsed(true);
+        if (current instanceof VariableExprToken) {
+            VariableExprToken variable = (VariableExprToken) current;
+            analyzer.getScope().addVariable(variable);
+            FunctionStmtToken function = analyzer.getFunction();
+
+            if (function != null) {
+                function.setVarsExists(true);
+                function.variable((VariableExprToken)current).setUsed(true);
             }
         }
 
@@ -1512,8 +1514,13 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
             } else if (separator == Separator.ARRAY_BLOCK
                     && braceOpened == 0 && isClosedBrace(current, BLOCK)){
                 break;
+
+            } else if (current instanceof StaticExprToken && nextTokenAndPrev(iterator) instanceof FunctionStmtToken) {
+                current = nextToken(iterator);
+                current = processClosure(current, next, iterator, true);
+                tokens.add(current);
             } else if (current instanceof FunctionStmtToken) {
-                current = processClosure(current, next, iterator);
+                current = processClosure(current, next, iterator, false);
                 tokens.add(current);
             } else if (current instanceof StaticExprToken && nextTokenAndPrev(iterator) instanceof LambdaStmtToken) {
                 current = nextToken(iterator);
