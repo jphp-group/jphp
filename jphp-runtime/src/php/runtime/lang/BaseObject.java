@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 @Ignore
 @BaseType
 abstract public class BaseObject implements IObject {
-    protected ArrayMemory __dynamicProperties__;
+    volatile protected ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;
     protected final Environment __env__;
 
@@ -20,6 +20,9 @@ abstract public class BaseObject implements IObject {
     public BaseObject(Environment env){
         this(env, null);
         __class__ = env.fetchClass(getClass());
+        if (__class__ != null) {
+            __dynamicProperties__ = __class__.getInitProperties(env);
+        }
     }
 
     protected BaseObject(ClassEntity entity) {
@@ -30,7 +33,7 @@ abstract public class BaseObject implements IObject {
 
     public BaseObject(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
-        this.__dynamicProperties__ = new ArrayMemory(true);
+        this.__dynamicProperties__ = clazz == null ? ArrayMemory.emptyMap() : clazz.getInitProperties(env);
         this.__env__ = env;
     }
 
@@ -50,9 +53,7 @@ abstract public class BaseObject implements IObject {
             synchronized (this) {
                 if (__dynamicProperties__ != null) return __dynamicProperties__;
 
-                if (__dynamicProperties__ == null) {
-                    __dynamicProperties__ = new ArrayMemory(true);
-                }
+                __dynamicProperties__ = __class__.getInitProperties(__env__);
             }
         }
 

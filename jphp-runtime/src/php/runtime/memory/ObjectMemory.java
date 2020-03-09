@@ -51,6 +51,10 @@ public class ObjectMemory extends Memory {
         return value.getProperties();
     }
 
+    public ArrayMemory getPropertiesForChange() {
+        return value.getPropertiesForChange();
+    }
+
     @Override
     public int getPointer(boolean absolute) {
         return value.getPointer();

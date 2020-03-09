@@ -1142,7 +1142,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return null;
 
         StaticAccessExprToken dynamic = (StaticAccessExprToken) function.getName();
-        writeLineNumber(function);
+        //writeLineNumber(function);
 
         writePushThis();
         if (dynamic.getField() != null) {

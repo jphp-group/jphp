@@ -263,9 +263,10 @@ public class Deserializer {
                                         iObject.callMethod(env, "unserialize", new StringMemory(what));
                                     }
                                 } else {
-                                    ArrayMemory props = iObject.getProperties();
+                                    ArrayMemory props = iObject.getPropertiesForChange();
                                     Memory serProps = readArray(input, i);
                                     if (serProps.isArray()) {
+                                        props.clear();
                                         props.putAll(serProps.toValue(ArrayMemory.class));
                                         if (classEntity.methodMagicWakeup != null){
                                             env.pushCall(trace, iObject, classEntity.methodMagicWakeup.getName());

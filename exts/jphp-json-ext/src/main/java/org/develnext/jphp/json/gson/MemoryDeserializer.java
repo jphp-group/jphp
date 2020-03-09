@@ -66,7 +66,7 @@ public class MemoryDeserializer implements JsonDeserializer<Memory> {
         } else if (json.isJsonObject()) {
             JsonObject jsonObject = json.getAsJsonObject();
             StdClass stdClass = assoc ? null : new StdClass(env.get());
-            ArrayMemory array = assoc ? new ArrayMemory() : stdClass.getProperties();
+            ArrayMemory array = assoc ? new ArrayMemory() : stdClass.getPropertiesForChange();
 
             for(Map.Entry<String, JsonElement> el : jsonObject.entrySet()){
                 String key = el.getKey();

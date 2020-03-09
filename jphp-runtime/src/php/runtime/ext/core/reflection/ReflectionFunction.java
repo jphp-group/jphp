@@ -43,7 +43,7 @@ public class ReflectionFunction extends ReflectionFunctionAbstract {
 
     public void setFunctionEntity(FunctionEntity functionEntity) {
         this.functionEntity = functionEntity;
-        getProperties().put("name", new StringMemory(functionEntity.getName()));
+        getProperties().refOfIndex("name").assign(functionEntity.getName());
     }
 
     @Signature(@Arg(value = "name"))

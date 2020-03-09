@@ -69,9 +69,9 @@ public class JsonFunctionsTest extends JvmCompilerCase {
         assertEquals("{\"0\":100,\"1\":500,\"x\":100500}", JsonFunctions.json_encode(array));
 
         StdClass stdClass = new StdClass(env);
-        stdClass.getProperties().put("x", new LongMemory(100));
-        stdClass.getProperties().put("y", new LongMemory(500));
-        stdClass.getProperties().put("\0*\0z", new LongMemory(100500));
+        stdClass.getProperties().refOfIndex("x").assign(new LongMemory(100));
+        stdClass.getProperties().refOfIndex("y").assign(new LongMemory(500));
+        stdClass.getProperties().refOfIndex("\0*\0z").assign(new LongMemory(100500));
 
         assertEquals("{\"x\":100,\"y\":500}", JsonFunctions.json_encode(new ObjectMemory(stdClass)));
     }

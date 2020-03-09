@@ -51,10 +51,13 @@ public class DateTimeZone extends BaseObject {
     @Property
     public static final int PER_COUNTRY = 4096;
     private static final Memory ZERO_OFFSET = StringMemory.valueOf("+00:00");
-    @Property("timezone")
-    Memory timezone = Memory.UNDEFINED;
+
     @Property("timezone_type")
     Memory type = Memory.UNDEFINED;
+
+    @Property("timezone")
+    Memory timezone = Memory.UNDEFINED;
+
     private ZoneId nativeZone;
 
     public DateTimeZone(Environment env) {
@@ -131,7 +134,8 @@ public class DateTimeZone extends BaseObject {
             env.exception(traceInfo, Messages.ERR_TIMEZONE_NULL_BYTE, "DateTimeZone::__construct()");
         }
         init(zone);
-        return new ObjectMemory(this);
+        getProperties();
+        return ObjectMemory.valueOf(this);
     }
 
     private void init(String zone) {
@@ -177,12 +181,14 @@ public class DateTimeZone extends BaseObject {
     @Override
     public ArrayMemory getProperties() {
         ArrayMemory props = super.getProperties();
-        props.refOfIndex("timezone_type").assign(type);
+
         if (type.toInteger() == 1) {
             props.refOfIndex("timezone").assign(nativeZone.toString());
         } else {
             props.refOfIndex("timezone").assign(timezone);
         }
+
+        props.refOfIndex("timezone_type").assign(type);
 
         return props;
     }

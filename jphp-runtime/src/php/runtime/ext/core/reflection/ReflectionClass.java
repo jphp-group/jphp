@@ -37,7 +37,7 @@ public class ReflectionClass extends Reflection {
 
     public ReflectionClass setEntity(ClassEntity entity) {
         this.entity = entity;
-        getProperties().put("name", new StringMemory(entity.getName()));
+        getProperties().refOfIndex("name").assign(entity.getName());
 
         return this;
     }

@@ -30,7 +30,7 @@ public class ReflectionExtension extends Reflection {
 
     public void setExtension(Extension extension) {
         this.extension = extension;
-        getProperties().put("name", new StringMemory(extension.getName()));
+        getProperties().refOfIndex("name").assign(extension.getName());
     }
 
     @Signature(@Arg("name"))

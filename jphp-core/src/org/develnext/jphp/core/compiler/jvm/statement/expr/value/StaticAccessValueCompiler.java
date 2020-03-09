@@ -41,6 +41,7 @@ public class StaticAccessValueCompiler extends BaseExprCompiler<StaticAccessExpr
 
             if (clazz instanceof ParentExprToken){
                 expr.writePushParent(clazz);
+                expr.writePushDupLowerCase();
             } else if (clazz instanceof NameToken){
                 expr.writePushConstString(((NameToken) clazz).getName());
                 expr.writePushConstString(((NameToken) clazz).getName().toLowerCase());

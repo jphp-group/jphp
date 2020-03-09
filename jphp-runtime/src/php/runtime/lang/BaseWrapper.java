@@ -13,7 +13,7 @@ import static php.runtime.annotation.Reflection.Ignore;
 @Ignore
 @BaseType
 abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseWrapper> {
-    protected final ArrayMemory __dynamicProperties__;
+    protected ArrayMemory __dynamicProperties__;
     protected ClassEntity __class__;
     protected final Environment __env__;
 
@@ -24,12 +24,15 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
     public BaseWrapper(Environment env, T wrappedObject){
         this(env, (ClassEntity) null);
         __class__ = env.fetchClass(getClass());
+        if (__class__ != null) {
+            __dynamicProperties__ = __class__.getInitProperties(env);
+        }
         __wrappedObject = wrappedObject;
     }
 
     public BaseWrapper(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
-        this.__dynamicProperties__ = new ArrayMemory(true);
+        this.__dynamicProperties__ = clazz == null ? ArrayMemory.emptyMap() : clazz.getInitProperties(env);
         this.__env__ = env;
     }
 

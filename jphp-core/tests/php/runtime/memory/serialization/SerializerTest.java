@@ -68,7 +68,7 @@ public class SerializerTest {
     }
 
     @Test
-    public void testObjects(){
+    public void testObjects() {
         Assert.assertEquals("O:8:\"stdClass\":0:{}", serialize(new ObjectMemory(new StdClass(environment))));
 
         StdClass stdClass = new StdClass(environment);

@@ -63,7 +63,6 @@ public class DatePeriod extends BaseObject implements Traversable {
         datePeriod.end = array.refOfIndex(traceInfo, "end");
         datePeriod.current = array.refOfIndex(traceInfo, "current");
 
-
         return new ObjectMemory(datePeriod);
     }
 

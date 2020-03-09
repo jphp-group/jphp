@@ -507,60 +507,61 @@ public class ClassEntity extends Entity implements Cloneable {
     public ExtendsResult setParent(ClassEntity parent) {
         return setParent(parent, true);
     }
-/*
-    public ExtendsResult resetParent(ClassEntity parent, boolean updateParentMethods) {
-        ExtendsResult result = new ExtendsResult(parent);
 
-        if (this.parent == parent) {
+    /*
+        public ExtendsResult resetParent(ClassEntity parent, boolean updateParentMethods) {
+            ExtendsResult result = new ExtendsResult(parent);
+
+            if (this.parent == parent) {
+                return result;
+            }
+
+            this.parent = parent;
+            this.instanceOfList.clear();
+
+            if (parent != null) {
+                if (parent.useJavaLikeNames) {
+                    this.useJavaLikeNames = true;
+                }
+
+                this.methodCounts = parent.methodCounts + this.methods.size();
+
+                this.instanceOfList.add(parent.getLowerName());
+                this.instanceOfList.addAll(parent.instanceOfList);
+                this.interfaces.putAll(parent.interfaces);
+
+                this.staticProperties.putAll(parent.staticProperties);
+
+                for (Map.Entry<String, PropertyEntity> entry : parent.properties.entrySet()) {
+                    PropertyEntity childEntity = this.properties.get(entry.getKey());
+
+                    if (childEntity == null) {
+                        this.properties.put(entry.getKey(), entry.getValue());
+                    } else {
+                        if (childEntity.setter == null) {
+                            childEntity.setter = entry.getValue().setter;
+                        }
+
+                        if (childEntity.getter == null) {
+                            childEntity.getter = entry.getValue().getter;
+                        }
+                    }
+                }
+
+                for (Map.Entry<String, ConstantEntity> entry : parent.constants.entrySet()) {
+                    if (!entry.getValue().isPrivate()) {
+                        this.constants.put(entry.getKey(), entry.getValue());
+                    }
+                }
+            }
+
+            if (updateParentMethods) {
+                result.methods = updateParentBody();
+            }
+
             return result;
         }
-
-        this.parent = parent;
-        this.instanceOfList.clear();
-
-        if (parent != null) {
-            if (parent.useJavaLikeNames) {
-                this.useJavaLikeNames = true;
-            }
-
-            this.methodCounts = parent.methodCounts + this.methods.size();
-
-            this.instanceOfList.add(parent.getLowerName());
-            this.instanceOfList.addAll(parent.instanceOfList);
-            this.interfaces.putAll(parent.interfaces);
-
-            this.staticProperties.putAll(parent.staticProperties);
-
-            for (Map.Entry<String, PropertyEntity> entry : parent.properties.entrySet()) {
-                PropertyEntity childEntity = this.properties.get(entry.getKey());
-
-                if (childEntity == null) {
-                    this.properties.put(entry.getKey(), entry.getValue());
-                } else {
-                    if (childEntity.setter == null) {
-                        childEntity.setter = entry.getValue().setter;
-                    }
-
-                    if (childEntity.getter == null) {
-                        childEntity.getter = entry.getValue().getter;
-                    }
-                }
-            }
-
-            for (Map.Entry<String, ConstantEntity> entry : parent.constants.entrySet()) {
-                if (!entry.getValue().isPrivate()) {
-                    this.constants.put(entry.getKey(), entry.getValue());
-                }
-            }
-        }
-
-        if (updateParentMethods) {
-            result.methods = updateParentBody();
-        }
-
-        return result;
-    }
-*/
+    */
     public ExtendsResult setParent(ClassEntity parent, boolean updateParentMethods) {
         ExtendsResult result = new ExtendsResult(parent);
 
@@ -887,6 +888,46 @@ public class ClassEntity extends Entity implements Cloneable {
         this.module = module;
     }
 
+    final protected Map<Environment, ArrayMemory> __initProps = new HashMap<>();
+
+    public ArrayMemory getInitProperties(Environment env) {
+        ArrayMemory result = __initProps.get(env);
+        if (result == null) {
+            synchronized (__initProps) {
+                Collection<PropertyEntity> properties = getProperties();
+                ArrayMemory props = new ArrayMemory();
+
+                for (PropertyEntity property : getProperties()) {
+                    if (id == property.clazz.getId() && property.getGetter() == null) {
+                        props.putAsKeyString(
+                                property.getSpecificName(),
+                                property.getDefaultValue(env).fast_toImmutable()
+                        );
+                    }
+                }
+
+                ClassEntity tmp = parent;
+                while (tmp != null) {
+                    long otherId = tmp.getId();
+                    for (PropertyEntity property : tmp.getProperties()) {
+                        if (property.getClazz().getId() == otherId && property.getGetter() == null) {
+                            if (property.modifier != Modifier.PROTECTED || props.getByScalar(property.getName()) == null)
+                                props.getByScalarOrCreate(
+                                        property.getSpecificName(),
+                                        property.getDefaultValue(env).fast_toImmutable()
+                                );
+                        }
+                    }
+                    tmp = tmp.parent;
+                }
+
+                __initProps.put(env, result = props);
+            }
+        }
+
+        return (ArrayMemory) result.toImmutable();
+    }
+
     public void initEnvironment(Environment env) {
         if (isClass() && nativeInitEnvironment != null) {
             try {
@@ -1001,7 +1042,7 @@ public class ClassEntity extends Entity implements Cloneable {
             return null;
         }
 
-        ArrayMemory props = object.getProperties();
+        /*ArrayMemory props = object.getProperties();
 
         for (PropertyEntity property : getProperties()) {
             if (id == property.clazz.getId() && property.getGetter() == null) {
@@ -1026,7 +1067,7 @@ public class ClassEntity extends Entity implements Cloneable {
                 }
             }
             tmp = tmp.parent;
-        }
+        }*/
 
         if (doConstruct && methodConstruct != null) {
             ObjectInvokeHelper.invokeMethod(object, methodConstruct, env, trace, args, true);
@@ -1038,7 +1079,7 @@ public class ClassEntity extends Entity implements Cloneable {
     public <T extends IObject> T cloneObject(T value, Environment env, TraceInfo trace) throws Throwable {
         IObject copy = this.newObjectWithoutConstruct(env);
         ForeachIterator iterator = value.getProperties().foreachIterator(false, false);
-        ArrayMemory props = copy.getProperties();
+        ArrayMemory props = copy.getPropertiesForChange();
         while (iterator.next()) {
             Object key = iterator.getKey();
             if (key instanceof String) {
@@ -1048,8 +1089,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
                 PropertyEntity entity = properties.get(name);
                 if (entity != null) {
-                    if (props.getByScalar(entity.getSpecificName()) == null)
-                        props.put(entity.getSpecificName(), iterator.getValue().fast_toImmutable());
+                    props.put(entity.getSpecificName(), iterator.getValue().fast_toImmutable());
                 } else
                     props.put(key, iterator.getValue().fast_toImmutable());
             } else
@@ -1230,7 +1270,7 @@ public class ClassEntity extends Entity implements Cloneable {
     }
 
     public void appendProperty(IObject object, String property, Memory value) {
-        object.getProperties().put(property, value);
+        object.getProperties().refOfIndex(property).assign(value);
     }
 
     public Memory refOfProperty(ArrayMemory props, String name) {
@@ -1272,7 +1312,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
-        ArrayMemory props = object.getProperties();
+        ArrayMemory props = object.getPropertiesForChange();
 
         if (entity != null) {
             if (entity.setter != null) {
@@ -1312,7 +1352,7 @@ public class ClassEntity extends Entity implements Cloneable {
                     Memory o1 = Memory.NULL;
                     if (methodMagicGet != null) {
                         try {
-                            Memory[] args = new Memory[]{ memoryProperty };
+                            Memory[] args = new Memory[]{memoryProperty};
                             env.pushCall(
                                     trace, object, args, methodMagicGet.getName(), methodMagicSet.getClazz().getName(), name
                             );
@@ -1419,7 +1459,7 @@ public class ClassEntity extends Entity implements Cloneable {
             }
         }
 
-        ArrayMemory props = object.getProperties();
+        ArrayMemory props = object.getPropertiesForChange();
         if (props == null || accessFlag != 0 || props.removeByScalar(entity == null ? property : entity.specificName) == null) {
             if (methodMagicUnset != null) {
                 if (context != null && context.getId() == methodMagicUnset.getClazz().getId()) {
@@ -1543,7 +1583,7 @@ public class ClassEntity extends Entity implements Cloneable {
                 }
 
             try {
-                Memory[] args = new Memory[]{ new StringMemory(property) };
+                Memory[] args = new Memory[]{new StringMemory(property)};
 
                 env.pushCall(trace, object, args, methodMagicIsset.getName(), methodMagicIsset.getClazz().getName(), name);
                 env.peekCall(0).flags = FLAG_ISSET;
@@ -1637,6 +1677,10 @@ public class ClassEntity extends Entity implements Cloneable {
         int accessFlag = entity == null ? 0 : entity.canAccess(env);
 
         ArrayMemory props = object.getProperties();
+        if (props != null) {
+            props.checkCopied();
+        }
+
         value = props == null || accessFlag != 0 ? null : props.getByScalar(entity == null ? property : entity.specificName);
 
         if (accessFlag != 0) {
@@ -1652,7 +1696,7 @@ public class ClassEntity extends Entity implements Cloneable {
                 }
             }
 
-            value = props == null ? new ReferenceMemory() : object.getProperties().refOfIndex(property);
+            value = props == null ? new ReferenceMemory() : props.refOfIndex(property);
 
             if (methodMagicGet != null || methodMagicSet != null) {
                 env.error(trace,
@@ -1768,7 +1812,7 @@ public class ClassEntity extends Entity implements Cloneable {
         if (prop == null)
             throw new RuntimeException("Property '" + name + "' not found");
 
-        object.getProperties().put(prop.specificName, value == null ? Memory.NULL : value);
+        object.getPropertiesForChange().put(prop.specificName, value == null ? Memory.NULL : value);
     }
 
     private interface SetterCallback {
@@ -1797,7 +1841,7 @@ public class ClassEntity extends Entity implements Cloneable {
 
 
     public static class InvalidConstant {
-        public enum Kind { INVALID_OVERRIDE, MUST_BE_PUBLIC, MUST_BE_PUBLIC_FOR_INTERFACE, MUST_BE_PROTECTED }
+        public enum Kind {INVALID_OVERRIDE, MUST_BE_PUBLIC, MUST_BE_PUBLIC_FOR_INTERFACE, MUST_BE_PROTECTED}
 
         public final Kind kind;
         public final ConstantEntity constant;
@@ -2150,7 +2194,7 @@ public class ClassEntity extends Entity implements Cloneable {
                     switch (el.kind) {
                         case INVALID_OVERRIDE:
                             e = new FatalException(Messages.ERR_CANNOT_INHERIT_OVERRIDE_CONSTANT.fetch(
-                                            el.constant.getName(), el.prototype.getClazz().getName()
+                                    el.constant.getName(), el.prototype.getClazz().getName()
                             ), getTrace());
                             break;
 

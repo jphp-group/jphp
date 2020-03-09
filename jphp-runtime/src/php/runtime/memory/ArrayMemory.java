@@ -24,10 +24,13 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
+    private static final ArrayMemory EMPTY_MAP = new ArrayMemory(true);
+    private static final ArrayMemory EMPTY_LIST = new ArrayMemory(false);
+
     protected transient long lastLongIndex;
     protected transient int size;
-    protected transient int copies;
-    protected transient ArrayMemory original;
+    protected volatile transient int copies;
+    protected volatile transient ArrayMemory original;
 
     protected transient ArrayMemoryList<ReferenceMemory> _list;
     protected transient ArrayMemoryMap map;
@@ -61,6 +64,14 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public ArrayMemory() {
         this(false);
+    }
+
+    public static ArrayMemory emptyMap() {
+        return (ArrayMemory) EMPTY_MAP.toImmutable();
+    }
+
+    public static ArrayMemory emptyList() {
+        return (ArrayMemory) EMPTY_LIST.toImmutable();
     }
 
     public static ArrayMemory createListed(int expectedSize) {
@@ -216,19 +227,23 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public ArrayMemory checkCopied() {
         if (original != null || copies > 0) {
-            ArrayMemory dup = duplicate();
-            this.map = dup.map;
-            this._list = dup._list;
-            this.lastLongIndex = dup.lastLongIndex;
+            synchronized (this) {
+                if (original != null || copies > 0) {
+                    ArrayMemory dup = duplicate();
+                    this.map = dup.map;
+                    this._list = dup._list;
+                    this.lastLongIndex = dup.lastLongIndex;
 
-            if (this.original == null) {
-                this.copies--;
-            } else {
-                this.original.copies--;
-                this.original = null;
-                this.copies = 0;
+                    if (this.original == null) {
+                        this.copies--;
+                    } else {
+                        this.original.copies--;
+                        this.original = null;
+                        this.copies = 0;
+                    }
+                    return dup;
+                }
             }
-            return dup;
         }
         return null;
     }

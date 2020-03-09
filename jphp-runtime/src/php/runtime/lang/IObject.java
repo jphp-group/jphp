@@ -22,6 +22,12 @@ public interface IObject {
     boolean isFinalized();
     void doFinalize();
 
+    default ArrayMemory getPropertiesForChange() {
+        ArrayMemory properties = getProperties();
+        properties.checkCopied();
+        return properties;
+    }
+
     default boolean hasProp(String name) {
         return getProperties().containsKey(name);
     }
@@ -31,27 +37,39 @@ public interface IObject {
     }
 
     default void setProp(String name, Memory value) {
-        getProperties().putAsKeyString(name, value.fast_toImmutable());
+        ArrayMemory properties = getProperties();
+        properties.checkCopied();
+        properties.putAsKeyString(name, value.fast_toImmutable());
     }
 
     default void setProp(String name, String value) {
-        getProperties().putAsKeyString(name, StringMemory.valueOf(value));
+        ArrayMemory properties = getProperties();
+        properties.checkCopied();
+        properties.putAsKeyString(name, StringMemory.valueOf(value));
     }
 
     default void setProp(String name, long value) {
-        getProperties().putAsKeyString(name, LongMemory.valueOf(value));
+        ArrayMemory properties = getProperties();
+        properties.checkCopied();
+        properties.putAsKeyString(name, LongMemory.valueOf(value));
     }
 
     default void setProp(String name, double value) {
-        getProperties().putAsKeyString(name, DoubleMemory.valueOf(value));
+        ArrayMemory properties = getProperties();
+        properties.checkCopied();
+        properties.putAsKeyString(name, DoubleMemory.valueOf(value));
     }
 
     default void setProp(String name, boolean value) {
-        getProperties().putAsKeyString(name, TrueMemory.valueOf(value));
+        ArrayMemory properties = getProperties();
+        properties.checkCopied();
+        properties.putAsKeyString(name, TrueMemory.valueOf(value));
     }
 
     default void removeProp(String name) {
-        getProperties().removeByScalar(name);
+        ArrayMemory properties = getProperties();
+        properties.checkCopied();
+        properties.removeByScalar(name);
     }
 
     default Memory callMethod(Environment env, String name, Memory... args) {

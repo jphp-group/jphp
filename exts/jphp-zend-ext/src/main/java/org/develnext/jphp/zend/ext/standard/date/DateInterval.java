@@ -334,6 +334,7 @@ public class DateInterval extends BaseObject {
     @Override
     public ArrayMemory getProperties() {
         ArrayMemory props = super.getProperties();
+        props.checkCopied();
 
         props.putAsKeyString("y", y);
         props.putAsKeyString("m", m);

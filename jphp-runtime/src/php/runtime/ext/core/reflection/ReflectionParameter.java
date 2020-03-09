@@ -100,7 +100,7 @@ public class ReflectionParameter extends Reflection implements Reflector {
 
     public void setEntity(ParameterEntity entity) {
         this.entity = entity;
-        getProperties().put("name", new StringMemory(entity.getName()));
+        getProperties().refOfIndex("name").assign(entity.getName());
     }
 
     public void setFunctionEntity(AbstractFunctionEntity functionEntity) {

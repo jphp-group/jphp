@@ -21,7 +21,7 @@ import php.runtime.reflection.ClassEntity;
 import java.lang.ref.WeakReference;
 
 abstract public class BaseBaseException extends RuntimeException implements IObject, JPHPException {
-    protected final ArrayMemory props;
+    protected ArrayMemory props;
     protected ClassEntity clazz;
     protected Environment env;
     protected TraceInfo trace;
@@ -40,11 +40,14 @@ abstract public class BaseBaseException extends RuntimeException implements IObj
     public BaseBaseException(Environment env){
         this(env, null);
         clazz = env == null ? null : env.fetchClass(getClass());
+        if (clazz != null) {
+            props = clazz.getInitProperties(env);
+        }
     }
 
     public BaseBaseException(Environment env, ClassEntity clazz) {
         this.clazz = clazz;
-        this.props = new ArrayMemory(true);
+        this.props = clazz == null ? ArrayMemory.emptyMap() : clazz.getInitProperties(env);
         this.env = env;
     }
 

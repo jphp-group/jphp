@@ -162,7 +162,7 @@ public class Serializer {
                     } else {
                         ForeachIterator iterator = result.getNewIterator(env, false, false);
                         only = new ArrayMemory(true);
-                        ArrayMemory props = memory.getProperties();
+                        ArrayMemory props = memory.getPropertiesForChange();
 
                         Set<String> need = new LinkedHashSet<String>();
                         while (iterator.next()) {
@@ -174,6 +174,8 @@ public class Serializer {
                         for (PropertyEntity e : reflection.getProperties()) {
                             if (need.contains(e.getName())) {
                                 props.refOfIndex(e.getSpecificName());
+                            } else {
+                                props.removeByScalar(e.getSpecificName());
                             }
                         }
 

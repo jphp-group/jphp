@@ -13,21 +13,30 @@ echo $I->unit."\n";
 $I->unit = 42;
 echo $I->unit."\n";
 $I->d++;
-print_r($I);
---EXPECT--
+var_dump($I);
+--EXPECTF--
 1
 2
 42
-di Object
-(
-    [y] => 0
-    [m] => 0
-    [d] => 11
-    [h] => 0
-    [i] => 0
-    [s] => 0
-    [f] => 0
-    [invert] => 0
-    [days] => 
-    [unit] => 42
-)
+object(di)#%d (10) {
+  ["unit"]=>
+  int(42)
+  ["y"]=>
+  int(0)
+  ["m"]=>
+  int(0)
+  ["d"]=>
+  int(11)
+  ["h"]=>
+  int(0)
+  ["i"]=>
+  int(0)
+  ["s"]=>
+  int(0)
+  ["f"]=>
+  float(0)
+  ["invert"]=>
+  int(0)
+  ["days"]=>
+  bool(false)
+}

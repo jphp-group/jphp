@@ -28,7 +28,7 @@ import php.runtime.reflection.ClassEntity;
                 @Reflection.Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)
         }
 )
-public class BaseError  extends BaseBaseException implements BaseThrowable {
+public class BaseError extends BaseBaseException implements BaseThrowable {
     protected ErrorType errorType = ErrorType.E_CORE_ERROR;
 
     public BaseError(Environment env) {

@@ -20,6 +20,10 @@ var_dump($datePeriodObjectNew);
 ?>
 --EXPECTF--
 object(DatePeriod)#%d (6) {
+  ["recurrences"]=>
+  int(25)
+  ["include_start_date"]=>
+  bool(true)
   ["start"]=>
   object(DateTime)#%d (3) {
     ["date"]=>
@@ -54,8 +58,4 @@ object(DatePeriod)#%d (6) {
     ["days"]=>
     int(0)
   }
-  ["recurrences"]=>
-  int(25)
-  ["include_start_date"]=>
-  bool(true)
 }

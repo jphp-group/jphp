@@ -34,8 +34,8 @@ public class ReflectionProperty extends Reflection implements Reflector {
 
     public void setEntity(PropertyEntity entity) {
         this.entity = entity;
-        getProperties().put("name", new StringMemory(entity.getName()));
-        getProperties().put("class", new StringMemory(entity.getClazz().getName()));
+        getProperties().refOfIndex("name").assign(new StringMemory(entity.getName()));
+        getProperties().refOfIndex("class").assign(new StringMemory(entity.getClazz().getName()));
     }
 
     @Signature({@Arg("class"), @Arg("name")})
