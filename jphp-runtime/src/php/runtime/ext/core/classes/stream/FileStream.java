@@ -45,50 +45,53 @@ public class FileStream extends Stream {
         super.__construct(env, args);
 
         try {
-            if (getMode().equals("r")) {
-                accessFile = new RandomAccessFile(getPath(), "r");
+            String mode = getMode();
+            String path = getPath();
+
+            if (mode.equals("r") || mode.equals("rb")) {
+                accessFile = new RandomAccessFile(path, "r");
                 position = 0;
-            } else if (getMode().equals("r+")){
-                if (!new File(getPath()).getAbsoluteFile().exists())
+            } else if (mode.equals("r+") || mode.equals("rb+")){
+                if (!new File(path).getAbsoluteFile().exists())
                     throwFileNotFound(env);
-                accessFile = new RandomAccessFile(getPath(), "rw");
-            } else if (getMode().equals("w")){
-                accessFile = new RandomAccessFile(getPath(), "rw");
+                accessFile = new RandomAccessFile(path, "rw");
+            } else if (mode.equals("w") || mode.equals("wb")){
+                accessFile = new RandomAccessFile(path, "rw");
                 accessFile.setLength(0);
                 canRead = false;
-            } else if (getMode().equals("w+")){
-                accessFile = new RandomAccessFile(getPath(), "rw");
+            } else if (mode.equals("w+") || mode.equals("wb+")){
+                accessFile = new RandomAccessFile(path, "rw");
                 accessFile.setLength(0);
-            } else if (getMode().equals("a")){
-                accessFile = new RandomAccessFile(getPath(), "rw");
-                File file = new File(getPath());
+            } else if (mode.equals("a")){
+                accessFile = new RandomAccessFile(path, "rw");
+                File file = new File(path);
                 if (file.getAbsoluteFile().exists()) {
                     accessFile.seek(file.length());
                     position = file.length();
                 }
 
                 canRead = false;
-            } else if (getMode().equals("a+")){
-                accessFile = new RandomAccessFile(getPath(), "rw");
-                File file = new File(getPath());
+            } else if (mode.equals("a+")){
+                accessFile = new RandomAccessFile(path, "rw");
+                File file = new File(path);
                 if (file.getAbsoluteFile().exists()){
                     accessFile.seek(file.length());
                     position = file.length();
                 }
-            } else if (getMode().equals("x") || getMode().equals("x+")){
-                File file = new File(getPath());
+            } else if (mode.equals("x") || mode.equals("x+")){
+                File file = new File(path);
                 if (file.getAbsoluteFile().exists())
-                    env.exception(WrapIOException.class, "File '%s' already exists (mode: %s)", getMode());
+                    env.exception(WrapIOException.class, "File '%s' already exists (mode: %s)", mode);
 
-                accessFile = new RandomAccessFile(getPath(), "rw");
-                if (getMode().equals("x"))
+                accessFile = new RandomAccessFile(path, "rw");
+                if (mode.equals("x"))
                     canRead = false;
-            } else if (getMode().equals("c") || getMode().equals("c+")){
-                accessFile = new RandomAccessFile(getPath(), "rw");
-                if (getMode().equals("c"))
+            } else if (mode.equals("c") || mode.equals("c+")){
+                accessFile = new RandomAccessFile(path, "rw");
+                if (mode.equals("c"))
                     canRead = false;
             } else
-                env.exception(WrapIOException.class, "Unsupported mode - '%s'", getMode());
+                env.exception(WrapIOException.class, "Unsupported mode - '%s'", mode);
         } catch (FileNotFoundException e){
             throwFileNotFound(env);
         } catch (IOException e) {

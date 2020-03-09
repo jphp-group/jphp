@@ -21,7 +21,7 @@ import php.runtime.reflection.ClassEntity;
                 @Reflection.Arg(value = "message", modifier = Modifier.PROTECTED, type = HintType.STRING),
                 @Reflection.Arg(value = "code", modifier = Modifier.PROTECTED, type = HintType.INT),
                 @Reflection.Arg(value = "previous", modifier = Modifier.PROTECTED, type = HintType.OBJECT),
-                @Reflection.Arg(value = "trace", modifier = Modifier.PROTECTED, type = HintType.ARRAY),
+                @Reflection.Arg(value = "trace", modifier = Modifier.PRIVATE, type = HintType.ARRAY),
                 @Reflection.Arg(value = "file", modifier = Modifier.PROTECTED, type = HintType.STRING),
                 @Reflection.Arg(value = "line", modifier = Modifier.PROTECTED, type = HintType.INT),
                 @Reflection.Arg(value = "position", modifier = Modifier.PROTECTED, type = HintType.INT)

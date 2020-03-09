@@ -1,7 +1,5 @@
 package php.runtime.common;
 
-import php.runtime.common.collections.map.HashedMap;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +33,7 @@ public enum HintType {
         }
     }
 
-    public static HintType of(String code){
+    public static HintType of(String code) {
         return values.get(code);
     }
 }
