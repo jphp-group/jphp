@@ -3,6 +3,7 @@ package php.runtime.lang.exception;
 import php.runtime.Memory;
 import php.runtime.annotation.Reflection;
 import php.runtime.annotation.Reflection.BaseType;
+import php.runtime.annotation.Reflection.Final;
 import php.runtime.annotation.Reflection.Name;
 import php.runtime.annotation.Reflection.Signature;
 import php.runtime.common.HintType;
@@ -65,45 +66,52 @@ public class BaseError  extends BaseBaseException implements BaseThrowable {
         return Memory.NULL;
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getMessage(Environment env, Memory... args) {
+    public Memory getMessage(Environment env, Memory... args) {
         return super.getMessage(env, args);
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getCode(Environment env, Memory... args) {
+    public Memory getCode(Environment env, Memory... args) {
         return super.getCode(env, args);
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getLine(Environment env, Memory... args) {
+    public Memory getLine(Environment env, Memory... args) {
         return super.getLine(env, args);
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getPosition(Environment env, Memory... args) {
+    public Memory getPosition(Environment env, Memory... args) {
         return super.getPosition(env, args);
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getFile(Environment env, Memory... args) {
+    public Memory getFile(Environment env, Memory... args) {
         return super.getFile(env, args);
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getTrace(Environment env, Memory... args) {
+    public Memory getTrace(Environment env, Memory... args) {
         return super.getTrace(env, args);
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getPrevious(Environment env, Memory... args) {
+    public Memory getPrevious(Environment env, Memory... args) {
         return super.getPrevious(env, args);
     }
 
@@ -113,9 +121,10 @@ public class BaseError  extends BaseBaseException implements BaseThrowable {
         return super.__toString(env, args);
     }
 
+    @Final
     @Override
     @Signature
-    final public Memory getTraceAsString(Environment env, Memory... args) {
+    public Memory getTraceAsString(Environment env, Memory... args) {
         return super.getTraceAsString(env, args);
     }
 
