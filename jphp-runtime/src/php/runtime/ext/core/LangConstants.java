@@ -4,6 +4,7 @@ package php.runtime.ext.core;
 import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.Startup;
+import php.runtime.annotation.Reflection;
 import php.runtime.common.StringUtils;
 import php.runtime.ext.support.compile.ConstantsContainer;
 import php.runtime.memory.DoubleMemory;
@@ -14,11 +15,11 @@ import java.util.Arrays;
 
 public class LangConstants extends ConstantsContainer {
     public final static Memory PHP_VERSION = StringMemory.valueOf(Information.LIKE_PHP_VERSION);
-    public final static Memory PHP_MAJOR_VERSION = LongMemory.valueOf(5);
-    public final static Memory PHP_MINOR_VERSION = LongMemory.valueOf(6);
+    public final static Memory PHP_MAJOR_VERSION = LongMemory.valueOf(7);
+    public final static Memory PHP_MINOR_VERSION = LongMemory.valueOf(1);
     public final static Memory PHP_RELEASE_VERSION = LongMemory.valueOf(99);
     public final static Memory PHP_MAXPATHLEN = LongMemory.valueOf(4096);
-    public final static Memory PHP_EOL = StringMemory.valueOf(System.lineSeparator());
+    public static Memory PHP_EOL = StringMemory.valueOf(System.lineSeparator());
 
     public final static Memory PHP_INT_SIZE = LongMemory.valueOf(8);
     public final static Memory PHP_INT_MAX = LongMemory.valueOf(Long.MAX_VALUE);

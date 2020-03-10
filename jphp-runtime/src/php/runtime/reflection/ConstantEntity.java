@@ -15,6 +15,9 @@ public class ConstantEntity extends Entity {
 
     protected DocumentComment docComment;
     protected Memory value;
+
+    protected boolean dynamicly = false;
+
     public final boolean caseSensitise;
 
     public ConstantEntity(Context context) {
@@ -28,6 +31,14 @@ public class ConstantEntity extends Entity {
         this.setName(name);
         this.value = value;
         this.caseSensitise = caseSensitise;
+    }
+
+    public boolean isDynamicly() {
+        return dynamicly;
+    }
+
+    public void setDynamicly(boolean dynamicly) {
+        this.dynamicly = dynamicly;
     }
 
     public boolean isDeprecated(){

@@ -15,6 +15,8 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.StaticAccessExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ClassVarStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken.Item;
+import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.MethodStmtToken;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -24,6 +26,7 @@ import php.runtime.Memory;
 import php.runtime.common.Function;
 import php.runtime.common.HintType;
 import php.runtime.common.Messages;
+import php.runtime.env.CallStackItem;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
 import php.runtime.exceptions.CriticalException;
@@ -31,6 +34,7 @@ import php.runtime.exceptions.FatalException;
 import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.*;
 import php.runtime.lang.BaseObject;
+import php.runtime.lang.IObject;
 import php.runtime.memory.UninitializedMemory;
 import php.runtime.reflection.*;
 import php.runtime.reflection.helper.ClosureEntity;
@@ -151,6 +155,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
         this.external = external;
     }
 
+    public List<Item> getDynamicConstants() {
+        return dynamicConstants;
+    }
+
+    public void setDynamicConstants(List<Item> dynamicConstants) {
+        this.dynamicConstants = dynamicConstants;
+    }
+
     TraceInfo makeTraceInfo(int line, int position) {
         return new TraceInfo(compiler.getContext(), line, 0, position, 0);
     }
@@ -246,7 +258,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 MethodNode constructor = new MethodNodeImpl();
                 constructor.name       = Constants.INIT_METHOD;
                 constructor.access     = el.getModifiers();
-                constructor.exceptions = new ArrayList();
+                constructor.exceptions = new ArrayList<>();
 
                 MethodStmtCompiler methodCompiler = new MethodStmtCompiler(this, constructor);
                 ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
@@ -460,7 +472,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 }
                 entity.addConstant(constantEntity).check(compiler.getEnvironment());
             } else {
-                if (ValueExprToken.isConstable(el.value.getSingle(), true)) {
+                if (value != null || ExprStmtToken.isConstable(el.value)) {
                     dynamicConstants.add(el);
                     entity.addConstant(constantEntity).check(compiler.getEnvironment());
                 } else {
@@ -623,6 +635,24 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             other.addAll(0, first);
 
+            expressionCompiler.writePushEnv();
+            TraceInfo trace = entity.getTrace();
+            expressionCompiler.writePushTraceInfo(trace.getStartLine(), trace.getStartPosition());
+            expressionCompiler.writePushConstNull();
+            expressionCompiler.writePushConstNull();
+            expressionCompiler.writePushConstNull();
+            expressionCompiler.writePushConstString(entity.getName());
+            expressionCompiler.writePushDup();
+
+            if (!isSystem()) {
+                expressionCompiler.writeSysDynamicCall(
+                        Environment.class, "pushCall",
+                        CallStackItem.class,
+                        TraceInfo.class, IObject.class, Memory[].class, String.class, String.class, String.class
+                );
+                expressionCompiler.writePopAll(1);
+            }
+
             for (ConstStmtToken.Item el : other) {
                 expressionCompiler.writeVarLoad(l_class);
                 expressionCompiler.writePushEnv();
@@ -649,6 +679,15 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                         void.class,
                         Environment.class, String.class, Memory.class
                 );
+            }
+
+            if (!isSystem()) {
+                expressionCompiler.writePushEnv();
+                expressionCompiler.writeSysDynamicCall(
+                        Environment.class, "popCall",
+                        CallStackItem.class
+                );
+                expressionCompiler.writePopAll(1);
             }
 
             node.instructions.add(new InsnNode(RETURN));

@@ -24,4 +24,19 @@ public class ConstantsTest extends JvmCompilerCase {
         check("constants/constants_003.phpt", true);
         check("constants/constants_004.phpt", true);
     }
+
+    @Test
+    public void testBug395() {
+        check("constants/bug395.phpt", true);
+    }
+
+    @Test
+    public void testBug383() {
+        check("constants/bug383.phpt", true);
+    }
+
+    @Test
+    public void testBug390() {
+        check("constants/bug390.phpt", true);
+    }
 }

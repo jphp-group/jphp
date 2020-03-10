@@ -1,5 +1,6 @@
 package php.runtime.ext.support.compile;
 
+import java.lang.reflect.Modifier;
 import php.runtime.Memory;
 
 import java.lang.reflect.Field;
@@ -18,11 +19,12 @@ abstract public class ConstantsContainer {
             field.setAccessible(true);
             try {
                 Object value = field.get(this);
+                boolean isFinal = Modifier.isFinal(field.getModifiers());
 
                 if (value instanceof Memory) {
-                    result.add(new CompileConstant(field.getName(), (Memory) value));
+                    result.add(new CompileConstant(field.getName(), (Memory) value, !isFinal));
                 } else {
-                    result.add(new CompileConstant(field.getName(), value));
+                    result.add(new CompileConstant(field.getName(), value, !isFinal));
                 }
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);

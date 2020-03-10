@@ -73,7 +73,7 @@ public class CoreExtension extends Extension implements ProgramShutdownHandler {
 
         // T_ERROR
         for (ErrorType el : ErrorType.values()) {
-            CompileConstant compileConstant = new CompileConstant(el.name(), el.value);
+            CompileConstant compileConstant = new CompileConstant(el.name(), el.value, false);
             constants.put(el.name(), compileConstant);
         }
 

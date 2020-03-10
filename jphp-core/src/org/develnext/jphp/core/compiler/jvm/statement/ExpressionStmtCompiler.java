@@ -23,6 +23,7 @@ import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
+import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.OperatorUtils;
 import php.runtime.annotation.Runtime;
@@ -1850,7 +1851,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     Memory writePushName(NameToken token, boolean returnMemory, boolean writeOpcode) {
         CompileConstant constant = compiler.getScope().findCompileConstant(token.getName());
-        if (constant != null) {
+        if (constant != null && !constant.dynamicly) {
             if (returnMemory)
                 return constant.value;
             else if (writeOpcode)
@@ -1860,7 +1861,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             /*if (constantEntity == null)   // TODO: maybe it's not needed! we should search a namespaced constant in local context
                 constantEntity = compiler.getScope().findUserConstant(token.getName()); */
 
-            if (constantEntity != null) {
+            if (constantEntity != null && !constantEntity.isDynamicly()) {
                 if (returnMemory)
                     return constantEntity.getValue();
                 else if (writeOpcode) {

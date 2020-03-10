@@ -4,6 +4,9 @@ import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.TokenMeta;
+import org.develnext.jphp.core.tokenizer.token.expr.BraceExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.OperatorExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.ValueExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.ArgumentUnpackExprToken;
 import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import php.runtime.env.Context;
@@ -34,6 +37,22 @@ public class ExprStmtToken extends StmtToken {
 
     public ExprStmtToken(Environment env, Context context, Token... tokens){
         this(env, context, Arrays.asList(tokens));
+    }
+
+    public static boolean isConstable(ExprStmtToken expr) {
+        if (expr.isStmtList() || !expr.isConstantly()) {
+            return false;
+        }
+
+        for (Token token : expr.getTokens()) {
+            if (token instanceof OperatorExprToken || token instanceof BraceExprToken) continue;
+
+            if (!ValueExprToken.isConstable(token, true)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public void updateAsmExpr(Environment env, Context context) {

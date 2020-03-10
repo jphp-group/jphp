@@ -1,6 +1,10 @@
 package org.develnext.jphp.core.compiler.jvm;
 
+import org.develnext.jphp.core.tokenizer.token.expr.value.CallExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken.Quote;
 import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
+import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken.Item;
 import php.runtime.Memory;
 import php.runtime.env.Context;
 import php.runtime.env.Environment;
@@ -32,6 +36,8 @@ public class JvmCompiler extends AbstractCompiler {
     private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
     private Map<String, ConstantEntity> constants = new LinkedHashMap<String, ConstantEntity>();
     private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
+
+    protected List<ConstStmtToken.Item> dynamicConstants = new ArrayList<>();
 
     protected final SyntaxAnalyzer analyzer;
     protected final List<Token> tokens;
@@ -106,15 +112,19 @@ public class JvmCompiler extends AbstractCompiler {
             ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(this);
             Memory memory = expressionStmtCompiler.writeExpression(el.value, true, true, false);
             if (memory == null) {
-                getEnvironment().error(
-                        constant.toTraceInfo(context),
-                        ErrorType.E_COMPILE_ERROR,
-                        Messages.ERR_EXPECTED_CONST_VALUE.fetch(el.getFulledName())
-                );
+                if (ExprStmtToken.isConstable(el.value)) {
+                    dynamicConstants.add(0, el);
+                } else {
+                    getEnvironment().error(
+                            constant.toTraceInfo(context),
+                            ErrorType.E_COMPILE_ERROR,
+                            Messages.ERR_EXPECTED_CONST_VALUE.fetch(el.getFulledName())
+                    );
+                }
+            } else {
+                constantEntity.setValue(memory);
+                result.add(constantEntity);
             }
-
-            constantEntity.setValue(memory);
-            result.add(constantEntity);
         }
         return result;
     }
@@ -269,6 +279,16 @@ public class JvmCompiler extends AbstractCompiler {
         methodToken.setArguments(new ArrayList<>());
         methodToken.setLocal(analyzer.getScope().getVariables());
         methodToken.setLabels(analyzer.getScope().getLabels());
+
+        for (Item dynamicConstant : dynamicConstants) {
+            CallExprToken callExprToken = new CallExprToken(token.getMeta());
+            callExprToken.setName(NameToken.valueOf("define"));
+            callExprToken.setParameters(Arrays.asList(
+                    new ExprStmtToken(environment, context, new StringExprToken(TokenMeta.of(dynamicConstant.getFulledName()), Quote.SINGLE)),
+                    dynamicConstant.value
+            ));
+            externalCode.add(0, new ExprStmtToken(getEnvironment(), context, callExprToken));
+        }
 
         methodToken.setBody(BodyStmtToken.of(externalCode));
 

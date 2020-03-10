@@ -9,6 +9,7 @@ import org.junit.Assert;
 import php.runtime.Memory;
 import php.runtime.common.LangMode;
 import php.runtime.env.*;
+import php.runtime.exceptions.CriticalException;
 import php.runtime.exceptions.CustomErrorException;
 import php.runtime.exceptions.support.ErrorException;
 import php.runtime.exceptions.support.ErrorType;
@@ -277,15 +278,13 @@ abstract public class JvmCompilerCase {
         }
         lastOutput = outputR.toString();
 
-        if (test.getExpect() != null)
+        if (test.getExpect() != null) {
             Assert.assertEquals(
                     test.getTest() + " (" + name + ")",
                     test.getExpect().replace("\r\n", "\n"),
                     rtrim(lastOutput).replace("\r\n", "\n")
             );
-
-        if (test.getExpectF() != null){
-
+        } else if (test.getExpectF() != null){
             Memory result = StringFunctions.sscanf(
                     environment, TraceInfo.valueOf(file.getName(), 0, 0), rtrim(lastOutput), test.getExpectF()
             );
@@ -299,6 +298,8 @@ abstract public class JvmCompilerCase {
                     out == null ? null : out.replace("\r\n", "\n"),
                     rtrim(lastOutput).replace("\r\n", "\n")
             );
+        } else {
+            throw new CriticalException("No --EXPECT-- or --EXPECTF-- values");
         }
     }
 

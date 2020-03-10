@@ -5,6 +5,7 @@ import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.token.Token;
 import org.develnext.jphp.core.tokenizer.token.expr.operator.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.*;
+import org.develnext.jphp.core.tokenizer.token.expr.value.macro.MacroToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 
 abstract public class ValueExprToken extends ExprToken {
@@ -115,16 +116,13 @@ abstract public class ValueExprToken extends ExprToken {
     }
 
     public static boolean isConstable(Token token, boolean arrays){
-        if (token instanceof NameToken)
+        if (token instanceof NameToken || token instanceof MacroToken)
             return true;
 
-        if (token instanceof IntegerExprToken)
+        if (token instanceof IntegerExprToken || token instanceof DoubleExprToken)
             return true;
 
-        if (token instanceof DoubleExprToken)
-            return true;
-
-        if (token instanceof StringExprToken){
+        if (token instanceof StringExprToken) {
             if (((StringExprToken) token).getSegments().isEmpty())
                 return true;
         }
