@@ -318,7 +318,7 @@ public class ClassEntity extends Entity implements Cloneable {
         SignatureResult addResult = new SignatureResult();
         if (method.isAbstract && method.isFinal) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.FINAL_ABSTRACT, method));
-        } else if (method.isAbstractable() && !(method.isAbstract || type == Type.INTERFACE || isAbstract)) {
+        } else if (method.isAbstractable() && !(method.isAbstract || type == Type.INTERFACE || method.clazz.isInterface())) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACT, method));
         } else if (method.isAbstract && !method.isAbstractable()) {
             addResult.add(InvalidMethod.error(InvalidMethod.Kind.NON_ABSTRACTABLE, method));
