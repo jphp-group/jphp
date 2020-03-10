@@ -1,5 +1,6 @@
 package php.runtime.memory;
 
+import java.nio.charset.StandardCharsets;
 import php.runtime.Memory;
 import php.runtime.env.TraceInfo;
 
@@ -39,7 +40,7 @@ public class BinaryMemory extends StringMemory {
 
     @Override
     public String toString() {
-        return new String(bytes, Charset.forName("UTF-8"));
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -54,28 +55,43 @@ public class BinaryMemory extends StringMemory {
     @Override
     public Memory valueOfIndex(TraceInfo trace, Memory index) {
         int i = index.toInteger();
+
+        if (i < 0 && Math.abs(i) <= bytes.length) {
+            i = bytes.length + i;
+        }
+
         if (i < 0 || i >= bytes.length)
             return FALSE;
 
-        return new StringMemory((char)(bytes[i] & 0xFF));
+        return new BinaryMemory(bytes[i]);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, long index) {
         int i = (int)index;
+
+        if (i < 0 && Math.abs(i) <= bytes.length) {
+            i = bytes.length + i;
+        }
+
         if (i < 0 || i >= bytes.length)
             return FALSE;
 
-        return new StringMemory((char)(bytes[i] & 0xFF));
+        return new BinaryMemory(bytes[i]);
     }
 
     @Override
     public Memory valueOfIndex(TraceInfo trace, double index) {
-        int i = (int)index;
+        int i = (int) index;
+
+        if (i < 0 && Math.abs(i) <= bytes.length) {
+            i = bytes.length + i;
+        }
+
         if (i < 0 || i >= bytes.length)
             return FALSE;
 
-        return new StringMemory((char)(bytes[i]  & 0xFF));
+        return new BinaryMemory(bytes[i]);
     }
 
     @Override
@@ -84,7 +100,7 @@ public class BinaryMemory extends StringMemory {
         if (i < 0 || i >= bytes.length)
             return FALSE;
 
-        return new StringMemory((char)(bytes[i] & 0xFF));
+        return new BinaryMemory(bytes[i]);
     }
 
     @Override
@@ -93,10 +109,16 @@ public class BinaryMemory extends StringMemory {
         if (i == null)
             return FALSE;
 
-        if (i.toInteger() < 0 || i.toInteger() >= bytes.length)
+        int toInteger = i.toInteger();
+
+        if (toInteger < 0 && Math.abs(toInteger) <= bytes.length) {
+            toInteger = bytes.length + toInteger;
+        }
+
+        if (toInteger < 0 || toInteger >= bytes.length)
             return FALSE;
 
-        return new StringMemory((char)(bytes[i.toInteger()] & 0xFF));
+        return new BinaryMemory(bytes[toInteger]);
     }
 
     @Override
