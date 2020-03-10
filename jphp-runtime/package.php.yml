@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.2.6
+version: 1.2.8
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,16 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.2.8:
+    - 'Fix #388: Cannot use the `class` magic constant in traits.'
+    - 'Fix #404: Crash when using abstract class extending abstract class.'
+    - 'Fix #407: Cannot bind closure.'
+    - 'Fix #391: Allow making parameters nullable.'
+    - 'Fixes in binary memory.'
+    - 'Fix #383, Fix #390, Fix #395: Bugfixes for constants.'
+    - 'Fix #394: Broken array expansion in foreach.'
+  1.2.7:
+    - Improve performance of new operator.
   1.2.5:
     - Add standalone compiler.
     - Add new methods for Module class.
