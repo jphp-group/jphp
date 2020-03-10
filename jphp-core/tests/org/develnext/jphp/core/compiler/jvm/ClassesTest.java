@@ -146,6 +146,7 @@ public class ClassesTest extends JvmCompilerCase {
         check("classes/bug123.php");
         check("classes/bug127.php");
         check("classes/bug130.php");
+        check("classes/bug391.phpt", true);
     }
 
     @Test

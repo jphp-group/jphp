@@ -1443,7 +1443,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                         isFunc = true;
                     }
 
-                    if (isFunc){
+                    if (isFunc) {
                         CallExprToken call = processCall(previous, current, iterator);
                         if (call.getName() != null) {
                             current = call;

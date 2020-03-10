@@ -9,6 +9,5 @@ Class D extends C { function f($a) {} }
 ?>
 ==DONE==
 --EXPECTF--
-Warning: Declaration of D::f($a) should be compatible with C::f(array $a) in %s on line 5 at pos %d
 No hint, should be array.
 ==DONE==

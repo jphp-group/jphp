@@ -440,17 +440,38 @@ public class MethodEntity extends AbstractFunctionEntity {
             return false;
         }
 
-        if (getSignature().equals(parentMethod.getSignature())) {
-            return true;
-        } else {
-            if (parentMethod.getReturnTypeChecker() == null && getReturnTypeChecker() != null) {
-                return getSignature(true).equals(parentMethod.getSignature(true));
+        for (int i = 0; i < p_count; i++) {
+            ParameterEntity param = parameters[i];
+            ParameterEntity parentParam = i > p_parent_count-1 ? null : parentMethod.parameters[i];
+
+            if (parentParam == null) {
+                if (!param.hasDefaultValue()) {
+                    return false;
+                } else {
+                    continue;
+                }
             }
 
-            return false;
+            if (!TypeChecker.identical(param.getTypeChecker(), parentParam.getTypeChecker())) {
+                if (param.getTypeChecker() == null || TypeChecker.of(HintType.ANY).identical(param.getTypeChecker())) {
+                    continue; // skip any typehinting
+                }
+
+                return false;
+            }
         }
+
+        return true;
     }
 
+
+    /**
+     * Use isImplementableSignatureFor() method.
+     * @param method
+     * @param strong
+     * @return
+     */
+    @Deprecated
     public boolean equalsBySignature(MethodEntity method, boolean strong){
         if (strong)
             return getSignature().equals(method.getSignature());
@@ -462,6 +483,13 @@ public class MethodEntity extends AbstractFunctionEntity {
         }
     }
 
+    /**
+     * Use  isImplementableSignatureFor() method.
+     * @param method
+     * @param strong
+     * @return
+     */
+    @Deprecated
     public boolean equalsBySignature(MethodEntity method){
         return equalsBySignature(method, true);
     }
@@ -554,11 +582,15 @@ public class MethodEntity extends AbstractFunctionEntity {
 
     public int getRequiredParamCount() {
         int cnt = 0;
-        if (parameters != null)
-        for(ParameterEntity e : parameters) {
-            if (e.getDefaultValue() != null)
-                break;
+
+        if (parameters != null) {
+            for (ParameterEntity e : parameters) {
+                if (e.hasDefaultValue())
+                    break;
+                cnt++;
+            }
         }
+
         return cnt;
     }
 

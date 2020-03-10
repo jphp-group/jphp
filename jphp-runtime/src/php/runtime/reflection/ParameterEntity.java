@@ -54,6 +54,10 @@ public class ParameterEntity extends Entity {
         return defaultValue;
     }
 
+    public boolean hasDefaultValue() {
+        return defaultValue != null || defaultValueConstName != null;
+    }
+
     public void setDefaultValue(Memory defaultValue) {
         this.defaultValue = defaultValue;
     }

@@ -340,7 +340,7 @@ public class ClassEntity extends Entity implements Cloneable {
                     //method.setModifier(Modifier.PUBLIC);
                 }
 
-                if (!systemMethod.equalsBySignature(method, false)) {
+                if (!method.isImplementableSignatureFor(systemMethod)) {
                     addResult.add(InvalidMethod.error(InvalidMethod.Kind.INVALID_SIGNATURE, method));
                 } else if (systemMethod.isStatic && !method.isStatic)
                     addResult.add(InvalidMethod.warning(InvalidMethod.Kind.MUST_STATIC, method));

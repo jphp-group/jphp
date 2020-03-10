@@ -29,6 +29,14 @@ abstract public class TypeChecker {
         return this == typeChecker;
     }
 
+    public static boolean identical(TypeChecker tc1, TypeChecker tc2) {
+        if (tc1 != null && tc2 != null) {
+            return tc1.identical(tc2);
+        } else {
+            return tc1 == tc2;
+        }
+    }
+
     public static TypeChecker of(HintType type) {
         return Simple.valueOf(type);
     }
