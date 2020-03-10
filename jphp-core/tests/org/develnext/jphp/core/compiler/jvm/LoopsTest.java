@@ -47,4 +47,9 @@ public class LoopsTest extends JvmCompilerCase {
         check("loops/foreach_list_003.php", true);
         check("loops/foreach_list_004.php", true);
     }
+
+    @Test
+    public void testBug394() {
+        check("loops/bug394.phpt", true);
+    }
 }

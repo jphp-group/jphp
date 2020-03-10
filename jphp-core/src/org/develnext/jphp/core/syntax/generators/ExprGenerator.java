@@ -158,7 +158,8 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
         if (!isOpenedBrace(next, BraceExprToken.Kind.SIMPLE))
             unexpectedToken(next, "(");
 
-        ExprStmtToken expr = analyzer.generator(SimpleExprGenerator.class).getToken(nextToken(iterator), iterator, Separator.AS, null);
+        ExprStmtToken expr = analyzer.generator(SimpleExprGenerator.class)
+                .getToken(nextToken(iterator), iterator, Separator.AS, null);
 
         if (expr == null) {
             unexpectedToken(iterator.previous());
@@ -188,7 +189,7 @@ public class ExprGenerator extends Generator<ExprStmtToken> {
                 next = nextToken(iterator);
             }
 
-            if (next instanceof ListExprToken) {
+            if (next instanceof ListExprToken || isOpenedBrace(next, ARRAY)) {
                 ListExprToken listExpr = analyzer.generator(SimpleExprGenerator.class)
                         .processSingleList(next, iterator);
 
