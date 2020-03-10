@@ -160,8 +160,8 @@ public abstract class Closure extends BaseObject implements IStaticVariables, Cl
         Closure closure = args[0].toObject(Closure.class);
 
         Closure newClosure = (Closure) closure.clone();
-        newClosure.self = args[0];
-        newClosure.scope = args[1].toString();
+        newClosure.self = args[1];
+        newClosure.scope = args[2].toString();
         return new ObjectMemory(newClosure);
     }
 

@@ -55,4 +55,9 @@ public class ClosuresTest extends JvmCompilerCase {
     public void testBug370() {
         check("closures/bug370.phpt");
     }
+
+    @Test
+    public void testBug407() {
+        check("closures/bug407.phpt");
+    }
 }
