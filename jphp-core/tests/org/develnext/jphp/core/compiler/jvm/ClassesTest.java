@@ -159,6 +159,11 @@ public class ClassesTest extends JvmCompilerCase {
     }
 
     @Test
+    public void testBug388() {
+        check("classes/bug388.phpt", true);
+    }
+
+    @Test
     public void testBug264() {
         check("classes/bug264.php");
     }

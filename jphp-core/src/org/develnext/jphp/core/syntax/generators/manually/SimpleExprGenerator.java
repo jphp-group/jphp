@@ -644,7 +644,7 @@ public class SimpleExprGenerator extends Generator<ExprStmtToken> {
                 } else
                     unexpectedToken(current);
             } else if (current instanceof ClassStmtToken) { // PHP 5.5 ::class
-                if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken) {
+                if (clazz instanceof ParentExprToken || clazz instanceof StaticExprToken || clazz instanceof SelfExprToken) {
                     if (clazz instanceof StaticExprToken) {
                         analyzer.getScope().setStaticExists(true);
                     }
