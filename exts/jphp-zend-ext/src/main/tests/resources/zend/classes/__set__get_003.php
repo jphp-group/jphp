@@ -12,4 +12,4 @@ class Test {
 ?>
 --EXPECTF--
 
-Fatal error: Declaration of Test::__set() should be compatible with Object::__set($property, $value) in %s on line %d, position %d
+Fatal error: Declaration of Test::__set() should be compatible with Object::__set(string $property, $value) in %s on line %d, position %d
