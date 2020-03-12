@@ -1,5 +1,5 @@
 name: jppm
-version: 0.6.3
+version: 0.6.4
 
 plugins: [GitHub, Hub, Doc]
 
@@ -17,7 +17,8 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Bugfixes.
+    + Upgrade JPHP core.
+    + Fix using deps by git links on linux for non-root users.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)

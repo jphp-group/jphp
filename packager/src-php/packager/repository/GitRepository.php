@@ -88,7 +88,7 @@ class GitRepository extends SingleExternalRepository
             return $this->localDir;
         }
 
-        $home = System::getProperty("jppm.home") . "/../download/git";
+        $home = System::getProperty("jppm.home") . "/download/git";
 
         $source = new URL($this->getNormalSource());
 
