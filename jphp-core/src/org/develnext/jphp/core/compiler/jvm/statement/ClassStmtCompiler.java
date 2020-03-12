@@ -382,6 +382,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     false
             ));
 
+            LabelNode label = expressionCompiler.writeLabel(methodCompiler.node);
+            LocalVariable local = methodCompiler.addLocalVariable("$THIS", label, Memory.class);
+            expressionCompiler.writeDefineThis(local, null);
+
+            expressionCompiler.writeVarLoad("~this");
+            expressionCompiler.writeVarLoad("$THIS");
+            expressionCompiler.writePutDynamic("$THIS", Memory.class);
+
             // PROPERTIES
             for (ClassVarStmtToken property : statement.getProperties()) {
                 ExpressionStmtCompiler expressionStmtCompiler = new ExpressionStmtCompiler(methodCompiler, null);
@@ -487,6 +495,13 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
     @SuppressWarnings("unchecked")
     protected void writeSystemInfo() {
+        node.fields.add(new FieldNode(
+                ACC_PUBLIC, "$THIS",
+                Type.getDescriptor(Memory.class),
+                null,
+                null
+        ));
+
         node.fields.add(new FieldNode(
                 ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "$FN",
                 Type.getDescriptor(String.class),

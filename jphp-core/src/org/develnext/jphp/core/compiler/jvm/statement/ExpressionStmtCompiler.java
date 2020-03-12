@@ -1467,18 +1467,24 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeVarLoad("~this");
             writeGetDynamic("self", Memory.class);
         } else {
-            if (method.getLocalVariable("this") == null) {
-                if (!methodStatement.isStatic()) {
+            if (!methodStatement.isStatic()) {
+                if (method.getLocalVariable("this") == null) {
                     LabelNode label = writeLabel(node);
                     LocalVariable local = method.addLocalVariable("this", label, Memory.class);
-                    writeDefineThis(local, null);
-                } else {
-                    writePushNull();
-                    return;
-                }
-            }
 
-            writeVarLoad("this");
+                    if (method.clazz.entity.isTrait()) { // if trait we need get this dynamically
+                        writeDefineThis(local, null);
+                    } else { // in normal case, get by this
+                        writeVarLoad("~this");
+                        writeGetDynamic("$THIS", Memory.class);
+                        writeVarStore(local, false, false);
+                    }
+                }
+
+                writeVarLoad("this");
+            } else {
+                writePushNull();
+            }
         }
     }
 
