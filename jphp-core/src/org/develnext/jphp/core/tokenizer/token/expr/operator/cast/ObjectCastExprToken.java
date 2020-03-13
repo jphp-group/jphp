@@ -30,4 +30,9 @@ public class ObjectCastExprToken extends CastExprToken {
     public boolean isEnvironmentNeeded() {
         return true;
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

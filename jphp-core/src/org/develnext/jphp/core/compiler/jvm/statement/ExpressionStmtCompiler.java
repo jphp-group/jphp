@@ -1,6 +1,5 @@
 package org.develnext.jphp.core.compiler.jvm.statement;
 
-import org.develnext.jphp.core.compiler.common.ASMExpression;
 import org.develnext.jphp.core.compiler.common.misc.StackItem;
 import org.develnext.jphp.core.compiler.common.util.CompilerUtils;
 import org.develnext.jphp.core.compiler.jvm.Constants;
@@ -23,7 +22,6 @@ import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
-import php.runtime.Information;
 import php.runtime.Memory;
 import php.runtime.OperatorUtils;
 import php.runtime.annotation.Runtime;
@@ -53,6 +51,10 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -361,6 +363,18 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return method.getStackCount() == 0;
     }
 
+    public void writeLabel(LabelNode labelNode) {
+        code.add(labelNode);
+    }
+
+    public void writeJumpIfEqual(LabelNode elseLabel) {
+        code.add(new JumpInsnNode(IFEQ, elseLabel));
+    }
+
+    public void writeJumpGoto(LabelNode toLabel) {
+        code.add(new JumpInsnNode(GOTO, toLabel));
+    }
+
     public void writeLineNumber(Token token) {
         if (token.getMeta().getStartLine() > lastLineNumber) {
             lastLineNumber = token.getMeta().getStartLine();
@@ -434,44 +448,70 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else if (memory instanceof ArrayMemory) {
             ArrayMemory array = (ArrayMemory) memory;
 
-            writePushConstInt(array.size());
 
             if (!array.isList()) {
-                writeSysStaticCall(ArrayMemory.class, "createHashed", ArrayMemory.class, int.class);
+                if (array.size() == 0) {
+                    writeSysStaticCall(ArrayMemory.class, "emptyMap", ArrayMemory.class);
+                } else {
+                    writePushConstInt(array.size());
+                    writeSysStaticCall(ArrayMemory.class, "createHashed", ArrayMemory.class, int.class);
+                }
             } else {
-                writeSysStaticCall(ArrayMemory.class, "createListed", ArrayMemory.class, int.class);
+                if (array.size() == 0) {
+                    writeSysStaticCall(ArrayMemory.class, "emptyList", ArrayMemory.class);
+                } else {
+                    writePushConstInt(array.size());
+                    writeSysStaticCall(ArrayMemory.class, "createListed", ArrayMemory.class, int.class);
+                }
             }
 
             ForeachIterator foreachIterator = ((ArrayMemory) memory).foreachIterator(false, false);
-            while (foreachIterator.next()) {
-                writePushDup();
-                if (array.isList()) {
-                    writePushMemory(foreachIterator.getValue());
+
+            if (array.isList() && array.size() > 1 && array.size() <= 5) {
+                writePushDup(); // dup array
+
+                while (foreachIterator.next()) {
+                    writePushMemory(foreachIterator.getValue()); // value
                     writePopBoxing();
-                    writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
-                } else {
-                    Memory key = foreachIterator.getMemoryKey();
-                    if (key instanceof LongMemory) {
-                        writePushConstLong(key.toLong());
-                        writePushMemory(foreachIterator.getValue());
-                        writePopBoxing();
-
-                        writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Long.TYPE, Memory.class);
-                    } else {
-                        writePushMemory(key);
-
-                        if (!key.isString()) {
-                            writePopBoxing();
-                        }
-
-                        writePushMemory(foreachIterator.getValue());
-                        writePopBoxing();
-
-                        writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Object.class, Memory.class);
-                    }
                 }
 
-                writePopAll(1);
+                Class<?>[] argTypes = new Class[array.size()];
+                for (int i = 0; i < array.size(); i++) {
+                    argTypes[i] = Memory.class;
+                }
+
+                writeSysDynamicCall(ArrayMemory.class, "add", void.class, argTypes);
+            } else {
+                while (foreachIterator.next()) {
+                    writePushDup();
+                    if (array.isList()) {
+                        writePushMemory(foreachIterator.getValue());
+                        writePopBoxing();
+                        writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
+                    } else {
+                        Memory key = foreachIterator.getMemoryKey();
+                        if (key instanceof LongMemory) {
+                            writePushConstLong(key.toLong());
+                            writePushMemory(foreachIterator.getValue());
+                            writePopBoxing();
+
+                            writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Long.TYPE, Memory.class);
+                        } else {
+                            writePushMemory(key);
+
+                            if (!key.isString()) {
+                                writePopBoxing();
+                            }
+
+                            writePushMemory(foreachIterator.getValue());
+                            writePopBoxing();
+
+                            writeSysDynamicCall(ArrayMemory.class, "put", ReferenceMemory.class, Object.class, Memory.class);
+                        }
+                    }
+
+                    writePopAll(1);
+                }
             }
             /*stackPop();
             stackPush(memory);*/
@@ -760,7 +800,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     public void writePushEnvFromSelf() {
         method.entity.setUsesStackTrace(true);
 
-        writeVarLoad("~this");
+        writeVarLoad(LocalVariable.THIS);
         writeSysDynamicCall(null, "getEnvironment", Environment.class);
     }
 
@@ -801,7 +841,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         code.add(new InsnNode(ACONST_NULL));
     }
 
-    public void writePushNewObject(Class clazz) {
+    public void writePushNewObject(Class<?> clazz) {
         code.add(new TypeInsnNode(NEW, Type.getInternalName(clazz)));
         stackPush(Memory.Type.REFERENCE);
         writePushDup();
@@ -810,7 +850,21 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         stackPop();
     }
 
-    public void writePushNewObject(String internalName, Class... paramClasses) {
+    public void writePushNewArray(int size, Class<?> elementClass) {
+        writePushSmallInt(size);
+        code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(elementClass)));
+        stackPop();
+        stackPush(Memory.Type.REFERENCE);
+    }
+
+    public void writeStoreToArrayCell() {
+        code.add(new InsnNode(AASTORE));
+        stackPop();
+        stackPop();
+        stackPop();
+    }
+
+    public void writePushNewObject(String internalName, Class<?>... paramClasses) {
         code.add(new TypeInsnNode(NEW, internalName));
         stackPush(Memory.Type.REFERENCE);
         writePushDup();
@@ -922,10 +976,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                                 }
 
                                 // create new array
-                                writePushSmallInt(args.length);
-                                code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
-                                stackPop();
-                                stackPush(Memory.Type.REFERENCE);
+                                writePushNewArray(args.length, Memory.class);
                                 arrCreated = true;
                             }
                             writePushDup();
@@ -1052,23 +1103,16 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     public void writePushParameters(Collection<Memory> memories) {
-        writePushSmallInt(memories.size());
-        code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
-        stackPop();
-        stackPush(Memory.Type.REFERENCE);
+        writePushNewArray(memories.size(), Memory.class);
 
         int i = 0;
         for (Memory param : memories) {
             writePushDup();
             writePushSmallInt(i);
-
             writePushMemory(param);
             writePopBoxing(true, false);
 
-            code.add(new InsnNode(AASTORE));
-            stackPop();
-            stackPop();
-            stackPop();
+            writeStoreToArrayCell();
             i++;
         }
     }
@@ -1102,10 +1146,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
         }
 
-        writePushSmallInt(parameters.size() + (additional == null ? 0 : additional.length));
-        code.add(new TypeInsnNode(ANEWARRAY, Type.getInternalName(Memory.class)));
-        stackPop();
-        stackPush(Memory.Type.REFERENCE);
+        writePushNewArray(
+                parameters.size() + (additional == null ? 0 : additional.length),
+                Memory.class
+        );
 
         int i = 0;
         for (ExprStmtToken param : parameters) {
@@ -1114,10 +1158,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             writeExpression(param, true, false);
             writePopBoxing();
 
-            code.add(new InsnNode(AASTORE));
-            stackPop();
-            stackPop();
-            stackPop();
+            writeStoreToArrayCell();
             i++;
         }
 
@@ -1443,15 +1484,17 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         return null;
     }
 
-    public void writeDefineVariables(Collection<VariableExprToken> values) {
-        for (VariableExprToken value : values)
+    /*public void writeDefineVariables(Collection<VariableExprToken> values) {
+        for (VariableExprToken value : values) {
             writeDefineVariable(value);
-    }
+        }
+    }*/
 
     public void writeUndefineVariables(Collection<VariableExprToken> values) {
         LabelNode end = new LabelNode();
-        for (VariableExprToken value : values)
+        for (VariableExprToken value : values) {
             writeUndefineVariable(value, end);
+        }
     }
 
     public void writeDefineGlobalVar(String name) {
@@ -1464,7 +1507,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
 
     public void writePushThis() {
         if (method.clazz.isClosure() || method.getGeneratorEntity() != null) {
-            writeVarLoad("~this");
+            writeVarLoad(LocalVariable.THIS);
             writeGetDynamic("self", Memory.class);
         } else {
             if (!methodStatement.isStatic()) {
@@ -1475,7 +1518,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     if (method.clazz.entity.isTrait()) { // if trait we need get this dynamically
                         writeDefineThis(local, null);
                     } else { // in normal case, get by this
-                        writeVarLoad("~this");
+                        writeVarLoad(LocalVariable.THIS);
                         writeGetDynamic("$THIS", Memory.class);
                         writeVarStore(local, false, false);
                     }
@@ -1498,7 +1541,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     );
             }
 
-            writeVarLoad("~this");
+            writeVarLoad(LocalVariable.THIS);
             writeGetDynamic("self", Memory.class);
             makeVarStore(variable);
             stackPop();
@@ -1510,56 +1553,187 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 writePushMemory(Memory.UNDEFINED);
                 writeVarStore(variable, false, false);
             } else {
-                writeVarLoad("~this");
-                writeSysDynamicCall(IObject.class, "isMock", Boolean.TYPE);
-
-                code.add(new JumpInsnNode(IFEQ, elseLabel));
-                stackPop();
-
-                if (variable.isReference()) {
-                    writePushMemory(Memory.UNDEFINED);
-                    writeSysStaticCall(ReferenceMemory.class, "valueOf", Memory.class, Memory.class);
+                if (!method.clazz.entity.isTrait()) {
+                    writeVarLoad(LocalVariable.THIS);
+                    writeGetDynamic("$THIS", Memory.class);
+                    makeVarStore(variable);
+                    stackPop();
                 } else {
-                    writePushMemory(Memory.UNDEFINED);
+                    writeVarLoad(LocalVariable.THIS);
+                    writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
+                    makeVarStore(variable);
+                    stackPop();
                 }
-                writeVarStore(variable, false, false);
-
-                code.add(new JumpInsnNode(GOTO, endLabel));
-                code.add(elseLabel);
-
-                writeVarLoad("~this");
-                writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
-                makeVarStore(variable);
-                stackPop();
-
-                code.add(endLabel);
             }
         }
 
         variable.pushLevel();
         variable.setValue(null);
-        variable.setImmutable(false);
         variable.setReference(true);
     }
 
-    protected void writeDefineVariable(VariableExprToken value) {
-        if (methodStatement.isUnusedVariable(value))
-            return;
+    /*public void writeDefineVariables__(Collection<VariableExprToken> values) {
+        for (VariableExprToken value : values) {
+            writeDefineVariable(value);
+        }
+    }*/
 
+    public void writeDefineVariables(Collection<VariableExprToken> values) {
+        Consumer<Stream<LocalVariable>> initAlreadyExists = variables -> variables.forEach(LocalVariable::pushLevel);
+
+        Consumer<Stream<LocalVariable>> initWithNull = variables -> {
+            final int[] i = {0};
+
+            variables.forEach(variable -> {
+                if (i[0] == 0) writePushNull();
+
+                i[0]++;
+                writePushDup();
+
+                makeVarStore(variable);
+                stackPop();
+
+                variable.pushLevel();
+            });
+
+            if (i[0] > 0) writePopAll(1);
+        };
+
+        Consumer<Stream<LocalVariable>> initWithRefs = variables -> {
+            variables.forEach(variable -> {
+                writePushNewObject(ReferenceMemory.class);
+
+                makeVarStore(variable);
+                stackPop();
+
+                variable.pushLevel();
+            });
+        };
+
+        Consumer<Stream<LocalVariable>> initDynamicLocal = variables -> {
+            final int[] i = {0};
+
+            variables.forEach(variable -> {
+                if (i[0] == 0) {
+                    writePushLocal();
+                }
+
+                i[0]++;
+                writePushDup();
+                writePushConstString(variable.name);
+                writeSysDynamicCall(Memory.class, "refOfIndex", Memory.class, String.class);
+                makeVarStore(variable);
+                stackPop();
+
+                variable.pushLevel();
+                variable.setValue(null);
+                variable.setReference(true);
+            });
+
+            if (i[0] > 0) writePopAll(1);
+        };
+
+        Consumer<Stream<LocalVariable>> initSuperGlobals = variables -> {
+            variables.forEach(variable -> {
+                writeDefineGlobalVar(variable.name);
+            });
+        };
+
+        BiFunction<LocalVariable, VariableExprToken, Void> initThis = (variable, variableExprToken) -> {
+            writeDefineThis(variable, variableExprToken);
+            return null;
+        };
+
+        __writeDefineVariables(values, initAlreadyExists, initWithNull, initWithRefs, initDynamicLocal, initSuperGlobals, initThis);
+    }
+
+    protected void __writeDefineVariables(Collection<VariableExprToken> values,
+                                        Consumer<Stream<LocalVariable>> initAlreadyExists,
+                                        Consumer<Stream<LocalVariable>> initWithNull,
+                                        Consumer<Stream<LocalVariable>> initWithRefs,
+                                        Consumer<Stream<LocalVariable>> initDynamicLocal,
+                                        Consumer<Stream<LocalVariable>> initSuperGlobals,
+                                        BiFunction<LocalVariable, VariableExprToken, Void> initThis) {
+
+        Function<VariableExprToken, LocalVariable> createVar = (value) -> {
+            LabelNode label = writeLabel(node, value.getMeta().getStartLine());
+            return method.addLocalVariable(value.getName(), label, Memory.class);
+        };
+
+        initAlreadyExists.accept(values.stream()
+                .filter(variableExprToken -> !methodStatement.isUnusedVariable(variableExprToken))
+                .filter(value -> method.hasLocalVariable(value.getName()))
+                .map(value -> method.getLocalVariable(value.getName()))
+        );
+
+        if (methodStatement.isDynamicLocal()) {
+            initDynamicLocal.accept(values.stream()
+                    .filter(variableExprToken -> !methodStatement.isUnusedVariable(variableExprToken))
+                    .filter(value -> method.getLocalVariable(value.getName()) == null)
+                    .filter(methodStatement::isReference)
+                    .filter(value -> !compiler.isSuperGlobal(value))
+                    .filter(value -> !value.isThisVariable())
+                    .map(createVar.andThen(variable -> variable.setReference(true)))
+            );
+        } else {
+            initWithNull.accept(values.stream()
+                    .filter(variableExprToken -> !methodStatement.isUnusedVariable(variableExprToken))
+                    .filter(value -> method.getLocalVariable(value.getName()) == null)
+                    .filter(value -> !methodStatement.isReference(value))
+                    .filter(value -> !compiler.isSuperGlobal(value))
+                    .filter(value -> !value.isThisVariable())
+                    .map(createVar.andThen(variable -> variable.setReference(false)))
+            );
+
+            initWithRefs.accept(values.stream()
+                    .filter(variableExprToken -> !methodStatement.isUnusedVariable(variableExprToken))
+                    .filter(value -> method.getLocalVariable(value.getName()) == null)
+                    .filter(methodStatement::isReference)
+                    .filter(value -> !compiler.isSuperGlobal(value))
+                    .filter(value -> !value.isThisVariable())
+                    .map(createVar.andThen(variable -> variable.setReference(true)))
+            );
+        }
+
+        initSuperGlobals.accept(values.stream()
+                .filter(variableExprToken -> !methodStatement.isUnusedVariable(variableExprToken))
+                .filter(value -> method.getLocalVariable(value.getName()) == null)
+                .filter(compiler::isSuperGlobal)
+                .map(createVar.andThen(variable ->  variable.setReference(true)))
+        );
+
+        if (method.hasLocalVariable(LocalVariable.THIS)) {
+            values.stream()
+                    .filter(variableExprToken -> !methodStatement.isUnusedVariable(variableExprToken))
+                    .filter(value -> method.getLocalVariable(value.getName()) == null)
+                    .filter(VariableExprToken::isThisVariable)
+                    .forEach(variableExprToken -> {
+                        initThis.apply(createVar.apply(variableExprToken), variableExprToken);
+                    });
+        } else {
+            initWithNull.accept(values.stream()
+                    .filter(value -> method.getLocalVariable(value.getName()) == null)
+                    .filter(VariableExprToken::isThisVariable)
+                    .map(createVar.andThen(variable -> variable.setReference(false)))
+            );
+        }
+    }
+
+    protected void writeDefineVariable(VariableExprToken value) {
+        writeDefineVariables(Collections.singletonList(value));
+    }
+
+    /*protected void writeDefineVariable__(VariableExprToken value) {
         LocalVariable variable = method.getLocalVariable(value.getName());
         if (variable == null) {
             LabelNode label = writeLabel(node, value.getMeta().getStartLine());
             variable = method.addLocalVariable(value.getName(), label, Memory.class);
 
-            if (methodStatement.isReference(value) || compiler.getScope().superGlobals.contains(value.getName())) {
-                variable.setReference(true);
-            } else {
-                variable.setReference(false);
-            }
+            variable.setReference(methodStatement.isReference(value) || compiler.isSuperGlobal(value));
 
-            if (value.isThisVariable() && method.getLocalVariable("~this") != null) { // $this
+            if (value.isThisVariable() && method.hasLocalVariable(LocalVariable.THIS)) { // $this
                 writeDefineThis(variable, value);
-            } else if (compiler.getScope().superGlobals.contains(value.getName())) { // super-globals
+            } else if (compiler.isSuperGlobal(value)) { // super-globals
                 writeDefineGlobalVar(value.getName());
             } else if (methodStatement.isDynamicLocal()) { // ref-local variables
                 writePushLocal();
@@ -1572,15 +1746,9 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 variable.setValue(null);
                 variable.setReference(true);
             } else { // simple local variables
-                if (value.isThisVariable()) {
-                    compiler.getEnvironment().error(
-                            value.toTraceInfo(compiler.getContext()),
-                            ErrorType.E_ERROR,
-                            Messages.ERR_USING_THIS_NOT_IN_OBJECT_CONTEXT
-                    );
-                }
-
-                if (variable.isReference() || methodStatement.variable(value).isArrayAccess()) {
+                if (variable.isReference()
+                        //|| methodStatement.variable(value).isArrayAccess()
+                ) {
                     writePushNewObject(ReferenceMemory.class);
                 } else {
                     writePushNull();
@@ -1593,7 +1761,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             }
         } else
             variable.pushLevel();
-    }
+    }*/
 
     protected void writeUndefineVariable(VariableExprToken value, LabelNode end) {
         LocalVariable variable = method.getLocalVariable(value.getName());
@@ -1646,6 +1814,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
         } else {
             ArrayMemory ret = returnMemory ? new ArrayMemory() : null;
 
+            List<ExprStmtToken> parameters = array.getParameters();
+
             if (ret == null) {
                 boolean map = false;
 
@@ -1660,7 +1830,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     if (map) break;
                 }
 
-                writePushConstInt(array.getParameters().size());
+                writePushConstInt(parameters.size());
                 if (map) {
                     writeSysStaticCall(ArrayMemory.class, "createHashed", ArrayMemory.class, int.class);
                 } else {
@@ -1668,45 +1838,64 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                 }
             }
 
-            for (ExprStmtToken param : array.getParameters()) {
-                if (ret == null)
+            /*if (parameters.size() > 1 && parameters.size() > 9 && writeOpcode && !returnMemory && parameters.stream().noneMatch(ExprStmtToken::isVariadic)) {
+                writePushNewArray(parameters.size(), Memory.class);
+                int i = 0;
+                for (ExprStmtToken param : parameters) {
                     writePushDup();
+                    writePushSmallInt(i++);
 
-                boolean variadic = param.isVariadic();
+                    writeExpression(param, true, false, true);
 
-                Memory result = writeExpression(param, true, true, ret == null);
+                    writePopBoxing();
+                    writePopImmutable();
 
-                if (result != null && !variadic) {
-                    if (ret != null) {
-                        ret.add(result);
-                        continue;
+                    writeStoreToArrayCell();
+                }
+
+                writeSysDynamicCall(ArrayMemory.class, "addMultiple", void.class, Memory[].class);
+            } else {*/
+
+                for (ExprStmtToken param : parameters) {
+                    if (ret == null)
+                        writePushDup();
+
+                    boolean variadic = param.isVariadic();
+
+                    Memory result = writeExpression(param, true, true, ret == null);
+
+                    if (result != null && !variadic) {
+                        if (ret != null) {
+                            ret.add(result);
+                            continue;
+                        } else {
+                            writePushMemory(result);
+                        }
                     } else {
-                        writePushMemory(result);
+                        if (!writeOpcode) {
+                            return null;
+                        }
+
+                        ret = null;
                     }
-                } else {
-                    if (!writeOpcode) {
-                        return null;
+
+                    if ((result == null || variadic) && returnMemory) {
+                        return writePushArray(array, false, writeOpcode);
                     }
 
-                    ret = null;
-                }
+                    writePopBoxing();
+                    writePopImmutable();
 
-                if ((result == null || variadic) && returnMemory) {
-                    return writePushArray(array, false, writeOpcode);
+                    if (variadic) {
+                        writePushEnv();
+                        writePushTraceInfo(param);
+                        writeSysDynamicCall(ArrayMemory.class, "addVariadic", void.class, Memory.class, Environment.class, TraceInfo.class);
+                    } else {
+                        writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
+                        writePopAll(1);
+                    }
                 }
-
-                writePopBoxing();
-                writePopImmutable();
-
-                if (variadic) {
-                    writePushEnv();
-                    writePushTraceInfo(param);
-                    writeSysDynamicCall(ArrayMemory.class, "addVariadic", void.class, Memory.class, Environment.class, TraceInfo.class);
-                } else {
-                    writeSysDynamicCall(ArrayMemory.class, "add", ReferenceMemory.class, Memory.class);
-                    writePopAll(1);
-                }
-            }
+            //}
 
             if (ret != null)
                 return ret;
@@ -1744,7 +1933,14 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     void writePushTraceInfo(int traceIndex) {
-        writeGetStatic("$TRC", TraceInfo[].class);
+        LocalVariable localVariable = method.getLocalVariable("~traces");
+
+        if (localVariable != null) {
+            writeVarLoad(localVariable);
+        } else {
+            writeGetStatic("$TRC", TraceInfo[].class);
+        }
+
         writePushGetFromArray(traceIndex, TraceInfo.class);
     }
 
@@ -1905,8 +2101,10 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             return tryWritePush(item.getToken(), true, writeOpcode, heavyObjects);
         else if (item.getMemory() != null) {
             return item.getMemory();
-        } else if (toStack)
+        } else if (toStack) {
             stackPush(null, item.type);
+            setStackPeekAsImmutable(item.immutable);
+        }
         return null;
     }
 
@@ -2144,7 +2342,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     }
 
     public void writeTickTrigger(TraceInfo trace) {
-        if (/*compiler.getScope().isDebugMode() &&*/ method.getLocalVariable("~local") != null) {
+        if (compiler.getScope().isDebugMode() && method.getLocalVariable("~local") != null) {
             int line = trace.getStartLine();
 
             if (method.registerTickTrigger(line)) {
@@ -2181,8 +2379,15 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     public void writeVarStore(LocalVariable variable, boolean returned, boolean asImmutable) {
         writePopBoxing();
 
-        if (asImmutable)
+        if (stackPeek().immutable && variable.isHasImmutableValue() == null) {
+            variable.setHasImmutableValue(true);
+        } else {
+            variable.setHasImmutableValue(false);
+        }
+
+        if (asImmutable) {
             writePopImmutable();
+        }
 
         if (returned) {
             writePushDup();
@@ -2228,6 +2433,7 @@ public class ExpressionStmtCompiler extends StmtCompiler {
     public void writeVarLoad(LocalVariable variable) {
         stackPush(Memory.Type.valueOf(variable.getClazz()));
         makeVarLoad(variable);
+        setStackPeekAsImmutable(method.isHasImmutableValue(variable));
     }
 
     public void writeVarLoad(String name) {
@@ -3121,7 +3327,8 @@ public class ExpressionStmtCompiler extends StmtCompiler {
                     writeSysDynamicCall(Memory.class, operator.getCheckerCode(), Memory.class, Environment.class, TraceInfo.class);
                 }
             }
-            setStackPeekAsImmutable();
+
+            setStackPeekAsImmutable(operator.isImmutableResult());
 
             if (operator instanceof AssignOperatorExprToken) {
                 if (variable == null || variable.isReference()) {

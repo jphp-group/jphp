@@ -26,4 +26,9 @@ public class DoubleCastExprToken extends CastExprToken {
     public String getCode() {
         return "toDouble";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

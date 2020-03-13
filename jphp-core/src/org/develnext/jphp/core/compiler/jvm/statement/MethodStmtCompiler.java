@@ -14,6 +14,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.*;
 import php.runtime.Memory;
+import php.runtime.common.HintType;
 import php.runtime.common.Messages;
 import php.runtime.env.Environment;
 import php.runtime.env.TraceInfo;
@@ -32,6 +33,7 @@ import php.runtime.reflection.support.TypeChecker;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.NEW;
@@ -264,8 +266,17 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         return addLocalVariable(variable, label, Memory.class);
     }
 
-    public LocalVariable getLocalVariable(String variable){
+    public LocalVariable getLocalVariable(String variable) {
         return localVariables.get(variable);
+    }
+
+    public boolean hasLocalVariable(String variable) {
+        return localVariables.containsKey(variable);
+    }
+
+    public boolean isHasImmutableValue(LocalVariable variable) {
+        Boolean hasImmutableValue = variable.isHasImmutableValue();
+        return (hasImmutableValue != null && hasImmutableValue) && !variable.isReference() && !statement.isDynamicLocal();
     }
 
     void writeHeader(){
@@ -306,10 +317,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
         if (statement != null){
             LabelNode label = labelStart = writeLabel(node, statement.getMeta().getStartLine());
 
-            if (!statement.isStatic())
-                addLocalVariable("~this", label, Object.class);
-
             ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(this, null);
+
+            if (!statement.isStatic())
+                addLocalVariable(LocalVariable.THIS, label, Object.class);
+
 
             addLocalVariable("~env", label, Environment.class); // Environment env
             LocalVariable args = addLocalVariable("~args", label, Memory[].class);  // Memory[] arguments
@@ -335,10 +347,14 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
             if (statement.getUses() != null && !statement.getUses().isEmpty()){
                 int i = 0;
-                expressionCompiler.writeVarLoad("~this");
+                expressionCompiler.writeVarLoad(LocalVariable.THIS);
                 expressionCompiler.writeGetDynamic("uses", Memory[].class);
 
                 for (ArgumentStmtToken argument : statement.getUses()) {
+                    if (statement.getStaticLocal().contains(argument.getName())) {
+                        continue;
+                    }
+
                     LocalVariable local;
                     VariableStats variableStats = statement.variable(argument.getName());
 
@@ -371,16 +387,21 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
             int i = 0;
 
-            for(ArgumentStmtToken argument : statement.getArguments()){
-                if (argument.isReference()){
+            for(ArgumentStmtToken argument : statement.getArguments()) {
+                if (argument.isReference()) {
                     statement.variable(argument.getName())
                             .setReference(true)
                             .setUnstable(true);
                 }
+            }
 
+            expressionCompiler.writeDefineVariables(
+                    statement.getArguments().stream().map(ArgumentStmtToken::getName).collect(Collectors.toList())
+            );
+
+            for(ArgumentStmtToken argument : statement.getArguments()){
                 LabelNode next = new LabelNode();
 
-                expressionCompiler.writeDefineVariable(argument.getName());
                 LocalVariable local = getLocalVariable(argument.getName().getName());
 
                 if (local != null) {
@@ -398,6 +419,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                         expressionCompiler.writeExpression(argument.getValue(), true, false);
 
                     expressionCompiler.writeVarAssign(local, argument.getName(), false, false);
+                    if (!argument.isReference()) {
+                        local.setHasImmutableValue(true);
+                    }
+
                     node.instructions.add(next);
 
                     local.pushLevel();
@@ -405,6 +430,11 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
                 i++;
             }
+
+            LocalVariable tracesVar = addLocalVariable("~traces", label, TraceInfo[].class); // TracesInfo
+            expressionCompiler.writeGetStatic("$TRC", TraceInfo[].class);
+            expressionCompiler.makeVarStore(tracesVar);
+            expressionCompiler.stackPop();
         } else {
             LabelNode label = labelStart = writeLabel(node, clazz.statement.getMeta().getStartLine());
         }
@@ -417,7 +447,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
 
         for(LocalVariable variable : localVariables.values()){
             String description = Type.getDescriptor(variable.getClazz() == null ? Object.class : variable.getClazz());
-            if (variable.name.equals("~this")) {
+            if (variable.name.equals(LocalVariable.THIS)) {
                 //if (variable.getClazz() != Memory.class && !clazz.statement.isTrait()) {
                     description = "L" + clazz.entity.getCompiledInternalName() + ";";
                 //}
@@ -460,6 +490,10 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 entity.setReturnTypeChecker(TypeChecker.of(statement.getReturnHintTypeClass().getName()));
             } else if (statement.getReturnHintType() != null) {
                 entity.setReturnTypeChecker(TypeChecker.of(statement.getReturnHintType()));
+
+                if (statement.getReturnHintType() == HintType.SELF) {
+                    entity.setUsesStackTrace(true);
+                }
             }
 
             entity.setReturnTypeNullable(statement.isReturnOptional());
@@ -616,7 +650,7 @@ public class MethodStmtCompiler extends StmtCompiler<MethodEntity> {
                 }
 
                 if (generatorEntity != null) {
-                    expr.writeVarLoad("~this");
+                    expr.writeVarLoad(LocalVariable.THIS);
                     expr.writePushConstBoolean(false);
                     expr.writeSysDynamicCall(null, "_setValid", void.class, Boolean.TYPE);
                 }

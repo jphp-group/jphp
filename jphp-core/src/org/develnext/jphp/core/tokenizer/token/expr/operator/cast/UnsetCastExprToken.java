@@ -25,4 +25,9 @@ public class UnsetCastExprToken extends CastExprToken {
     public String getCode() {
         return "toUnset";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

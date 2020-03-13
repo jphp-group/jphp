@@ -17,4 +17,9 @@ public class AssignConcatExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "concat";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

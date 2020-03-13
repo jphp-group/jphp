@@ -25,4 +25,9 @@ public class BooleanCastExprToken extends CastExprToken {
     public String getCode() {
         return "toBoolean";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

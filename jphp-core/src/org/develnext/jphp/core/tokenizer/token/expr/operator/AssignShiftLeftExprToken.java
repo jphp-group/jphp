@@ -17,4 +17,9 @@ public class AssignShiftLeftExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "bitShl";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

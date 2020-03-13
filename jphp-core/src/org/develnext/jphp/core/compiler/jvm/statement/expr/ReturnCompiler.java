@@ -31,7 +31,7 @@ public class ReturnCompiler extends BaseStatementCompiler<ReturnStmtToken> {
         if (token.getValue() != null && method.getGeneratorEntity() != null) {
             isGeneratorReturn = true;
 
-            expr.writeVarLoad("~this");
+            expr.writeVarLoad(LocalVariable.THIS);
             expr.writePushEnv();
             expr.writePushTraceInfo(token);
 

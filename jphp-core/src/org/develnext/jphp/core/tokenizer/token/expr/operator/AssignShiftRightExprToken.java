@@ -14,6 +14,11 @@ public class AssignShiftRightExprToken extends AssignOperatorExprToken {
     }
 
     @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
+
+    @Override
     public String getOperatorCode() {
         return "bitShr";
     }

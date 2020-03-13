@@ -40,7 +40,7 @@ public class StaticDefinitionCompiler extends BaseStatementCompiler<StaticStmtTo
 
 
         if (isClosure)
-            expr.writeVarLoad("~this");
+            expr.writeVarLoad(LocalVariable.THIS);
         else
             expr.writePushEnv();
 
@@ -55,7 +55,7 @@ public class StaticDefinitionCompiler extends BaseStatementCompiler<StaticStmtTo
 
         expr.writePopAll(1);
         if (isClosure)
-            expr.writeVarLoad("~this");
+            expr.writeVarLoad(LocalVariable.THIS);
         else
             expr.writePushEnv();
 

@@ -34,4 +34,14 @@ public class OrExprToken extends OperatorExprToken {
     public Memory calc(Environment env, TraceInfo trace, Memory o1, Memory o2) {
         return o1.bitOr(o2);
     }
+
+    @Override
+    public boolean isMutableArguments() {
+        return true;
+    }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

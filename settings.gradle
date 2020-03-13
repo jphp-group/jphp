@@ -8,8 +8,7 @@ include 'jphp-runtime',
         'jphp-debugger',
         'packager',
 
-        'sandbox',
-        'bench'
+        'sandbox'
 
 
 file("$rootDir.path/exts").listFiles().each { file ->

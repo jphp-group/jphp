@@ -17,4 +17,9 @@ public class AssignDivExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "div";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

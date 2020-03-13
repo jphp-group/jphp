@@ -21,7 +21,7 @@ public class ClassesTest extends ZendJvmTestCase {
         check("zend/classes/__call_004.php");
         check("zend/classes/__call_005.php");
         check("zend/classes/__call_006.php");
-        check("zend/classes/__call_007.php");
+        check("zend/classes/__call_007.php", true);
     }
 
     @Test

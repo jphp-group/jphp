@@ -17,4 +17,9 @@ public class AssignOrExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "bitOr";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

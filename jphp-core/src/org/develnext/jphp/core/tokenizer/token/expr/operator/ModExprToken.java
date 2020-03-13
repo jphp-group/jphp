@@ -31,4 +31,14 @@ public class ModExprToken extends OperatorExprToken {
     public Memory calc(Environment env, TraceInfo trace, Memory o1, Memory o2) {
         return o1.mod(o2).modCheckResult(env, trace);
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
+
+    @Override
+    public boolean isMutableArguments() {
+        return true;
+    }
 }

@@ -35,6 +35,7 @@ import php.runtime.exceptions.support.ErrorType;
 import php.runtime.invoke.cache.*;
 import php.runtime.lang.BaseObject;
 import php.runtime.lang.IObject;
+import php.runtime.memory.ObjectMemory;
 import php.runtime.memory.UninitializedMemory;
 import php.runtime.reflection.*;
 import php.runtime.reflection.helper.ClosureEntity;
@@ -50,9 +51,12 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     protected JPHPClassWriter cw;
     public final ClassNode node;
     public final ClassStmtToken statement;
-    public final List<TraceInfo> traceList = new ArrayList<TraceInfo>();
-    public final List<Memory> memoryConstants = new ArrayList<Memory>();
-    public final List<Collection<Memory>> memoryArrayConstants = new ArrayList<Collection<Memory>>();
+    public final List<TraceInfo> traceList = new ArrayList<>();
+
+    public final List<Memory> memoryConstants = new ArrayList<>();
+    public final Map<Memory, Integer> memoryConstantsMap = new HashMap<>();
+
+    public final List<Collection<Memory>> memoryArrayConstants = new ArrayList<>();
 
     private boolean external = false;
     private boolean isSystem = false;
@@ -182,8 +186,17 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
     }
 
     int addMemoryConstant(Memory memory) {
-        memoryConstants.add(memory);
-        return memoryConstants.size() - 1;
+        Integer oldIndex = memoryConstantsMap.get(memory);
+
+        if (oldIndex == null) {
+            memoryConstants.add(memory);
+            int index = memoryConstants.size() - 1;
+
+            memoryConstantsMap.put(memory, index);
+            return index;
+        } else {
+            return oldIndex;
+        }
     }
 
     int addMemoryArray(Collection<Memory> memories) {
@@ -205,14 +218,14 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
             LabelNode end = new LabelNode();
             LabelNode l0 = writeLabel(destructor, statement.getMeta().getStartLine());
-            methodCompiler.addLocalVariable("~this", l0);
+            methodCompiler.addLocalVariable(LocalVariable.THIS, l0);
 
-            expressionCompiler.writeVarLoad("~this");
+            expressionCompiler.writeVarLoad(LocalVariable.THIS);
             expressionCompiler.writeSysDynamicCall(null, "isFinalized", Boolean.TYPE);
             destructor.instructions.add(new JumpInsnNode(IFEQ, end));
 
             // --- if (!__finalized__) {
-            expressionCompiler.writeVarLoad("~this");
+            expressionCompiler.writeVarLoad(LocalVariable.THIS);
             expressionCompiler.writePushDup();
             expressionCompiler.writeSysDynamicCall(null, "doFinalize", void.class);
 
@@ -264,7 +277,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                 ExpressionStmtCompiler expressionCompiler = new ExpressionStmtCompiler(methodCompiler, null);
 
                 LabelNode l0 = writeLabel(constructor, statement.getMeta().getStartLine());
-                methodCompiler.addLocalVariable("~this", l0);
+                methodCompiler.addLocalVariable(LocalVariable.THIS, l0);
 
                 Type[] argumentTypes = new Type[parameterTypes.length];
 
@@ -281,7 +294,7 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
 
                 methodCompiler.writeHeader();
 
-                expressionCompiler.writeVarLoad("~this");
+                expressionCompiler.writeVarLoad(LocalVariable.THIS);
                 for (i = 0; i < argumentTypes.length; i++) {
                     expressionCompiler.writeVarLoad("arg" + (i + 1));
                 }
@@ -382,13 +395,33 @@ public class ClassStmtCompiler extends StmtCompiler<ClassEntity> {
                     false
             ));
 
-            LabelNode label = expressionCompiler.writeLabel(methodCompiler.node);
-            LocalVariable local = methodCompiler.addLocalVariable("$THIS", label, Memory.class);
-            expressionCompiler.writeDefineThis(local, null);
+            LabelNode endLabel = new LabelNode();
+            LabelNode elseLabel = new LabelNode();
 
-            expressionCompiler.writeVarLoad("~this");
-            expressionCompiler.writeVarLoad("$THIS");
-            expressionCompiler.writePutDynamic("$THIS", Memory.class);
+            if (!entity.isTrait() && !isSystem()) {
+                // if this.isMock() {
+                expressionCompiler.writeVarLoad(LocalVariable.THIS);
+                expressionCompiler.writeSysDynamicCall(IObject.class, "isMock", Boolean.TYPE);
+
+                expressionCompiler.writeJumpIfEqual(elseLabel);
+                expressionCompiler.stackPop();
+
+                    expressionCompiler.writeVarLoad(LocalVariable.THIS);
+                    expressionCompiler.writePushMemory(Memory.UNDEFINED);
+                    expressionCompiler.writePutDynamic("$THIS", Memory.class);
+
+                expressionCompiler.writeJumpGoto(endLabel);
+                //} else {
+                expressionCompiler.writeLabel(elseLabel);
+
+                    expressionCompiler.writeVarLoad(LocalVariable.THIS);
+                    expressionCompiler.writePushDup();
+                    expressionCompiler.writeSysStaticCall(ObjectMemory.class, "valueOf", Memory.class, IObject.class);
+                    expressionCompiler.writePutDynamic("$THIS", Memory.class);
+
+                expressionCompiler.writeLabel(endLabel);
+                // }
+            }
 
             // PROPERTIES
             for (ClassVarStmtToken property : statement.getProperties()) {

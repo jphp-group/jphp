@@ -26,4 +26,9 @@ public class StringCastExprToken extends CastExprToken {
     public String getCode() {
         return "toString";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

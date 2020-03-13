@@ -17,4 +17,9 @@ public class AssignPowExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "pow";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

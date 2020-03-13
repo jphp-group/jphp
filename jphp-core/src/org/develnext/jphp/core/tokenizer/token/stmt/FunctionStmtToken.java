@@ -200,10 +200,12 @@ public class FunctionStmtToken extends StmtToken {
         this.callsExist = callsExist;
     }
 
-    public boolean isReference(VariableExprToken variable){
+    public boolean isReference(VariableExprToken variable) {
+        if (dynamicLocal) return true;
+
         VariableStats stats = variable(variable);
 
-        return dynamicLocal || stats.isArrayAccess() || stats.isPassed() || stats.isReference();
+        return stats.isArrayAccess() || stats.isPassed() || stats.isReference();
     }
 
     public boolean isUnstableVariable(VariableExprToken variable){

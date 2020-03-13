@@ -12,7 +12,7 @@ import php.runtime.annotation.Reflection.Ignore;
 public class TypedPropsTest extends JvmCompilerCase {
     @Test
     public void testBasic(){
-        check("typed_props/typed_properties_001.phpt");
+        check("typed_props/typed_properties_001.phpt", true);
     }
 
     @Test

@@ -96,8 +96,10 @@ class AppPlugin
                     if ($build['bytecode'] === true) {
                         $bytecodeType = 'phb';
                     } else {
-                        Console::error("Unknown bytecode type ('app.build.bytecode' option): {0}", $build['bytecode']);
-                        exit(-1);
+                        if (isset($build['bytecode']) && $build['bytecode'] !== false) {
+                            Console::error("Unknown bytecode type ('app.build.bytecode' option): {0}", $build['bytecode']);
+                            exit(-1);
+                        }
                     }
             }
         }

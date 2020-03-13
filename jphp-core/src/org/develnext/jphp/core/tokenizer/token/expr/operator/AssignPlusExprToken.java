@@ -17,4 +17,9 @@ public class AssignPlusExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "plus";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

@@ -31,4 +31,14 @@ public class MulExprToken extends OperatorExprToken {
     public Memory calc(Environment env, TraceInfo trace, Memory o1, Memory o2) {
         return o1.mul(o2);
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
+
+    @Override
+    public boolean isMutableArguments() {
+        return true;
+    }
 }

@@ -1,0 +1,5 @@
+
+
+app:
+  jvm-args:
+    - '-Djphp.benchServer=true'

@@ -32,7 +32,7 @@ abstract public class BaseWrapper<T> implements IObject, IComparableObject<BaseW
 
     public BaseWrapper(Environment env, ClassEntity clazz) {
         this.__class__ = clazz;
-        this.__dynamicProperties__ = clazz == null ? ArrayMemory.emptyMap() : clazz.getInitProperties(env);
+        this.__dynamicProperties__ = clazz == null ? ArrayMemory.createHashed() : clazz.getInitProperties(env);
         this.__env__ = env;
     }
 

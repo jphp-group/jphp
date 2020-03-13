@@ -6,4 +6,9 @@ public class ArrayGetIssetExprToken extends ArrayGetExprToken {
     public ArrayGetIssetExprToken(TokenMeta meta) {
         super(meta);
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

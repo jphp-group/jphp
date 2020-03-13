@@ -17,4 +17,9 @@ public class AssignModExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "mod";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

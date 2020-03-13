@@ -1,5 +1,6 @@
 package org.develnext.jphp.core.compiler.jvm.statement.expr.value;
 
+import org.develnext.jphp.core.compiler.jvm.misc.LocalVariable;
 import org.develnext.jphp.core.compiler.jvm.statement.ExpressionStmtCompiler;
 import org.develnext.jphp.core.compiler.jvm.statement.expr.BaseExprCompiler;
 import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
@@ -20,7 +21,7 @@ public class YieldValueCompiler extends BaseExprCompiler<YieldExprToken> {
             return;
         }
 
-        expr.writeVarLoad("~this");
+        expr.writeVarLoad(LocalVariable.THIS);
         expr.writePushEnv();
         expr.writePushTraceInfo(token);
 

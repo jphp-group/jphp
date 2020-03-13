@@ -18,4 +18,9 @@ public class BinaryCastExprToken extends CastExprToken {
     public String getCode() {
         return "toBinary";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

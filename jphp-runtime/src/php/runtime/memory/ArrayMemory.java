@@ -32,7 +32,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
     protected volatile transient int copies;
     protected volatile transient ArrayMemory original;
 
-    protected transient ArrayMemoryList<ReferenceMemory> _list;
+    protected transient ReferenceMemoryList _list;
     protected transient ArrayMemoryMap map;
 
     protected transient ForeachIterator foreachIterator;
@@ -54,7 +54,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
         this.lastLongIndex = -1;
     }
 
-    private ArrayMemory(ArrayMemoryList<ReferenceMemory> list) {
+    private ArrayMemory(ReferenceMemoryList list) {
         super(Type.ARRAY);
 
         this.map = null;
@@ -79,7 +79,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
             return new ArrayMemory();
         }
 
-        return new ArrayMemory(new ArrayMemoryList<>(expectedSize));
+        return new ArrayMemory(new ReferenceMemoryList(expectedSize));
     }
 
     public static ArrayMemory createHashed() {
@@ -101,7 +101,7 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
                 return _list;
             }
 
-            _list = new ArrayMemoryList<>(7);
+            _list = new ReferenceMemoryList(7);
         }
 
         return _list;
@@ -392,6 +392,48 @@ public class ArrayMemory extends Memory implements Iterable<ReferenceMemory> {
 
     public void add(boolean value) {
         add(value ? TRUE : FALSE);
+    }
+
+    public void add(Memory arg1, Memory arg2) {
+        if (!isMap()) {
+            _list.ensureCapacity(size + 2);
+        }
+
+        add(arg1); add(arg2);
+    }
+
+    public void add(Memory arg1, Memory arg2, Memory arg3) {
+        if (!isMap()) {
+            _list.ensureCapacity(size + 3);
+        }
+
+        add(arg1); add(arg2); add(arg3);
+    }
+
+    public void add(Memory arg1, Memory arg2, Memory arg3, Memory arg4) {
+        if (!isMap()) {
+            _list.ensureCapacity(size + 4);
+        }
+
+        add(arg1); add(arg2); add(arg3); add(arg4);
+    }
+
+    public void add(Memory arg1, Memory arg2, Memory arg3, Memory arg4, Memory arg5) {
+        if (!isMap()) {
+            _list.ensureCapacity(size + 5);
+        }
+
+        add(arg1); add(arg2); add(arg3); add(arg4); add(arg5);
+    }
+
+    public void addMultiple(Memory... args) {
+        if (!isMap()) {
+            _list.ensureCapacity(size + args.length);
+        }
+
+        for (Memory arg : args) {
+            add(arg);
+        }
     }
 
     public void addNull() {

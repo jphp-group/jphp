@@ -66,4 +66,6 @@ abstract public class OperatorExprToken extends ExprToken {
     }
 
     public boolean isMutableArguments() { return false; }
+
+    public boolean isImmutableResult() { return false; }
 }

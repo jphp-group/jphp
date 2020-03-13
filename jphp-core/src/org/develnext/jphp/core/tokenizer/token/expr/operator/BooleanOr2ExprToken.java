@@ -28,4 +28,14 @@ public class BooleanOr2ExprToken extends LogicOperatorExprToken {
     public boolean isNamedToken() {
         return true;
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
+
+    @Override
+    public boolean isMutableArguments() {
+        return true;
+    }
 }

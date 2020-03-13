@@ -7,13 +7,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LocalVariable {
+    public static final String THIS = "~this";
+
     public final String name;
     public final int index;
     public final LabelNode label;
     private LabelNode endLabel;
     private Class clazz;
 
-    private boolean isImmutable;
+    private Boolean hasImmutableValue;
     private boolean isReference;
     private int level;
     private List<Memory> values;
@@ -25,9 +27,17 @@ public class LocalVariable {
         this.label = label;
         this.clazz = clazz;
         this.level = 0;
-        this.isImmutable = true;
         this.values = new ArrayList<Memory>();
         this.frames = new ArrayList<StackFrame>();
+        this.hasImmutableValue = null;
+    }
+
+    public Boolean isHasImmutableValue() {
+        return hasImmutableValue;
+    }
+
+    public void setHasImmutableValue(Boolean hasImmutableValue) {
+        this.hasImmutableValue = hasImmutableValue;
     }
 
     public void addStackFrame(StackFrame frame){
@@ -46,8 +56,9 @@ public class LocalVariable {
         return isReference;
     }
 
-    public void setReference(boolean reference) {
+    public LocalVariable setReference(boolean reference) {
         isReference = reference;
+        return this;
     }
 
     public void pushLevel(){
@@ -82,13 +93,6 @@ public class LocalVariable {
         return values.isEmpty() ? null : values.get(values.size() - 1);
     }
 
-    public boolean isImmutable() {
-        return isImmutable;
-    }
-
-    public void setImmutable(boolean immutable) {
-        isImmutable = immutable;
-    }
 
     public LabelNode getEndLabel() {
         return endLabel;

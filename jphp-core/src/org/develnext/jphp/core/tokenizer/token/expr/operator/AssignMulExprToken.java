@@ -17,4 +17,9 @@ public class AssignMulExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "mul";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

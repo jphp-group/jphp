@@ -1,5 +1,6 @@
 package php.runtime.reflection.support;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import php.runtime.Memory;
@@ -67,9 +68,9 @@ abstract public class TypeChecker {
     public static class Simple extends TypeChecker {
         protected final HintType type;
 
-        private static final Map<HintType, Simple> cache;
+        private static final EnumMap<HintType, Simple> cache;
         static {
-            cache = new HashMap<>();
+            cache = new EnumMap<>(HintType.class);
             for (HintType hintType : HintType.values()) {
                 cache.put(hintType, new Simple(hintType));
             }

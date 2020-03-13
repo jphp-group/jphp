@@ -41,4 +41,9 @@ public class BooleanXorExprToken extends OperatorExprToken {
     public boolean isNamedToken() {
         return true;
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

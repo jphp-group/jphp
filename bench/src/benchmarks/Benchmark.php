@@ -1,6 +1,7 @@
 <?php
 namespace benchmarks;
 
+use php\http\HttpServer;
 use php\lang\System;
 //use php\webserver\WebRequest;
 //use php\webserver\WebServer;
@@ -27,25 +28,15 @@ abstract class Benchmark {
 	}
 
 	static function startServer() {
-		/*$server = new WebServer(function (WebRequest $request) {
-			self::registerAll();
+        self::registerAll();
 
-			if ($request->servletPath == '/bench') {
-				self::showResult(self::startBench());
-			} else {
-				$t = microtime(1);
-				foreach (self::$benchmarks as $benchmark) {
-					$benchmark->run();
-				}
+		$server = new HttpServer(9999);
+		$server->get('/', function () {
+            self::showResult(self::startBench());
+        });
 
-				echo "----- total: " . (microtime(1) - $t);
-			}
-		});
-
-		$server->hotReload = false;
-		$server->isolated  = false;
-
-		$server->run();*/
+		echo "Bench Server has been started at http://localhost:9999/", "\n", " -> result will be in console output.";
+		$server->run();
 	}
 
 	static function registerAll() {
@@ -95,6 +86,7 @@ abstract class Benchmark {
 			self::startServer();
 			return [];
 		}
+
 		return self::startBench();
 	}
 

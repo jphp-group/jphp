@@ -17,4 +17,9 @@ public class AssignMinusExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "minus";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

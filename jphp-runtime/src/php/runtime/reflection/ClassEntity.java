@@ -1430,9 +1430,9 @@ public class ClassEntity extends Entity implements Cloneable {
             if (entity != null && entity.isTyped()) {
                 if (!memory.isImmutable()) {
                     env.error(
-                            trace, "Unable to assign by ref for typed property %s::$%s, jphp will not support this feature",
+                            trace, Messages.ERR_ASSIGN_BY_REF_FOR_TYPED_PROP.fetch(
                             entity.getClazz().getName(),
-                            entity.getName()
+                            entity.getName())
                     );
                 }
 

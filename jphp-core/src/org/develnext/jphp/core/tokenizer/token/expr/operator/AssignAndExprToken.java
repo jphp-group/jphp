@@ -17,4 +17,9 @@ public class AssignAndExprToken extends AssignOperatorExprToken {
     public String getOperatorCode() {
         return "bitAnd";
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
 }

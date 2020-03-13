@@ -1,9 +1,7 @@
 package org.develnext.jphp.core.compiler.jvm;
 
-import org.develnext.jphp.core.tokenizer.token.expr.value.CallExprToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken;
+import org.develnext.jphp.core.tokenizer.token.expr.value.*;
 import org.develnext.jphp.core.tokenizer.token.expr.value.StringExprToken.Quote;
-import org.develnext.jphp.core.tokenizer.token.expr.value.YieldExprToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.ConstStmtToken.Item;
 import php.runtime.Memory;
 import php.runtime.env.Context;
@@ -21,8 +19,6 @@ import org.develnext.jphp.core.tokenizer.TokenMeta;
 import org.develnext.jphp.core.tokenizer.TokenType;
 import org.develnext.jphp.core.tokenizer.Tokenizer;
 import org.develnext.jphp.core.tokenizer.token.Token;
-import org.develnext.jphp.core.tokenizer.token.expr.value.ClosureStmtToken;
-import org.develnext.jphp.core.tokenizer.token.expr.value.NameToken;
 import org.develnext.jphp.core.tokenizer.token.stmt.*;
 import php.runtime.reflection.helper.GeneratorEntity;
 
@@ -317,6 +313,10 @@ public class JvmCompiler extends AbstractCompiler {
 
     public String getSourceFile() {
         return context.getFileName();
+    }
+
+    public boolean isSuperGlobal(VariableExprToken value) {
+        return getScope().superGlobals.contains(value.getName());
     }
 
     public class ClassInitEnvironment extends StmtToken {

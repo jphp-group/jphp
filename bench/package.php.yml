@@ -7,6 +7,7 @@ deps:
   jphp-core: '*'
   jphp-zend-ext: '*'
   jphp-json-ext: '*'
+  jphp-httpserver-ext: '*'
 
 app:
   encoding: UTF-8

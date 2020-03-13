@@ -20,4 +20,14 @@ public class BooleanAndExprToken extends LogicOperatorExprToken {
     public Memory calc(Environment env, TraceInfo trace, Memory o1, Memory o2) {
         return o1.toBoolean() && o2.toBoolean() ? Memory.TRUE : Memory.FALSE;
     }
+
+    @Override
+    public boolean isImmutableResult() {
+        return true;
+    }
+
+    @Override
+    public boolean isMutableArguments() {
+        return true;
+    }
 }
