@@ -64,11 +64,11 @@ public class DateFormatTest {
                 Pair.of("M d", "December 30"),
                 Pair.of("M d", "dec 30")
         )
-                .map(pair -> create(pair.getA(), pair.getB()))
+                .map(pair -> create(pair.getA(), pair.getB(), now))
                 .forEach(dateTime -> assertThat(dateTime)
                         .isEqualToIgnoringNanos(now.withMonth(12).withDayOfMonth(30)));
 
-        assertThat(create("M d", "April 31"))
+        assertThat(create("M d", "April 31", now))
                 .isEqualToIgnoringNanos(now.withMonth(5).withDayOfMonth(1));
     }
 
