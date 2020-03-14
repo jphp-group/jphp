@@ -110,28 +110,7 @@ abstract public class MemoryOperation<T> {
                 }
 
                 if (Enum.class.isAssignableFrom(type)) {
-                    return new MemoryOperation() {
-                        @Override
-                        public Class<?>[] getOperationClasses() {
-                            return new Class<?>[]{Enum.class};
-                        }
-
-                        @Override
-                        @SuppressWarnings("unchecked")
-                        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                            return arg.isNull() ? null : Enum.valueOf((Class<? extends Enum>) type, arg.toString());
-                        }
-
-                        @Override
-                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
-                            return arg == null ? Memory.NULL : StringMemory.valueOf(((Enum) arg).name());
-                        }
-
-                        @Override
-                        public void applyTypeHinting(ParameterEntity parameter) {
-                            parameter.setTypeEnum((Class<? extends Enum>) type);
-                        }
-                    };
+                    return new EnumMemoryOperation((Class<? extends Enum>) type);
                 }
 
                 final Class<? extends BaseWrapper> wrapperClass = wrappers.get(type);
@@ -197,36 +176,7 @@ abstract public class MemoryOperation<T> {
                         }
                     };
                 } else if (IObject.class.isAssignableFrom(type)) {
-                    return new MemoryOperation() {
-                        @Override
-                        public Class<?>[] getOperationClasses() {
-                            return new Class<?>[]{IObject.class};
-                        }
-
-                        @Override
-                        @SuppressWarnings("unchecked")
-                        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                            if (arg.isNull()) {
-                                return null;
-                            }
-
-                            return arg.toObject((Class<? extends IObject>) type);
-                        }
-
-                        @Override
-                        public Memory unconvert(Environment env, TraceInfo trace, Object arg) throws Throwable {
-                            if (arg == null) {
-                                return Memory.NULL;
-                            }
-
-                            return ObjectMemory.valueOf((IObject) arg);
-                        }
-
-                        @Override
-                        public void applyTypeHinting(ParameterEntity parameter) {
-                            parameter.setType(ReflectionUtils.getClassName(type));
-                        }
-                    };
+                    return new IObjectMemoryOperation((Class<? extends IObject>) type);
                 } else {
                     Class<?> superType = type.getSuperclass();
 
@@ -238,7 +188,7 @@ abstract public class MemoryOperation<T> {
         }
 
         if (operation == null) {
-            return null;
+            return null; //new BeanMemoryOperation(type);
         }
 
         if (genericTypes instanceof ParameterizedType) {

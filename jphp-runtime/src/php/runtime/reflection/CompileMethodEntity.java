@@ -16,6 +16,7 @@ import php.runtime.ext.support.compile.CompileFunction;
 import php.runtime.lang.IObject;
 import php.runtime.memory.support.MemoryOperation;
 import php.runtime.memory.support.MemoryUtils;
+import php.runtime.memory.support.operation.BeanMemoryOperation;
 import php.runtime.reflection.support.ReflectionUtils;
 
 import java.lang.annotation.Annotation;
@@ -350,6 +351,10 @@ public class CompileMethodEntity extends MethodEntity {
                     returnOperation = unknownTypeFetcher.call(resultType, null);
                 }
 
+                if (returnOperation == null && BeanMemoryOperation.isLikeBean(resultType)) {
+                    returnOperation = BeanMemoryOperation.of(resultType);
+                }
+
                 if (returnOperation == null) {
                     throw new CriticalException("Unsupported type for binding - " + resultType + " in " + method.getDeclaringClass().getName() + "." + method.getName());
                 }
@@ -401,7 +406,15 @@ public class CompileMethodEntity extends MethodEntity {
                                     }
                                 }
 
-                                throw new CriticalException("Unsupported type for binding - " + parameterType);
+                                if (BeanMemoryOperation.isLikeBean(parameterType)) {
+                                    op = BeanMemoryOperation.of(parameterType);
+                                    argumentOperations[i] = op;
+                                    if (k <= parameters.length - 1) {
+                                        op.applyTypeHinting(parameters[k]);
+                                    }
+                                } else {
+                                    throw new CriticalException("Unsupported type for binding - " + parameterType);
+                                }
                             }
                         }
                 }
