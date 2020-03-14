@@ -1,6 +1,6 @@
 
 name: jphp-runtime
-version: 1.2.8
+version: 1.3.0
 description: Runtime for JPHP + Standard library.
 
 plugins: [Doc, Hub]
@@ -14,6 +14,10 @@ config:
   ignore: ['/package.hub.yml']
 
 history:
+  1.3.0:
+    - Improve internal api for jphp extensions (add autowrap for unknown bean classes).
+    - Many performance improvements.
+    - Many Bugfixes.
   1.2.8:
     - 'Fix #388: Cannot use the `class` magic constant in traits.'
     - 'Fix #404: Crash when using abstract class extending abstract class.'
