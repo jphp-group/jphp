@@ -624,4 +624,9 @@ public class MethodEntity extends AbstractFunctionEntity {
 
         return methodEntity;
     }
+
+    @Override
+    public boolean isLikeConstant() {
+        return isPublic() && isStatic() && super.isLikeConstant();
+    }
 }

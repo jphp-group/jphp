@@ -13,11 +13,7 @@ import php.runtime.Startup;
 import php.runtime.common.Callback;
 import php.runtime.common.LangMode;
 import php.runtime.common.StringUtils;
-import php.runtime.env.CompileScope;
-import php.runtime.env.ConcurrentEnvironment;
-import php.runtime.env.Context;
-import php.runtime.env.Environment;
-import php.runtime.env.TraceInfo;
+import php.runtime.env.*;
 import php.runtime.env.handler.EntityFetchHandler;
 import php.runtime.exceptions.CriticalException;
 import php.runtime.ext.core.classes.WrapClassLoader;
@@ -158,11 +154,13 @@ public class StandaloneLoader {
                 }
 
                 isDebug = Startup.isDebug();
-                scope.setDebugMode(isDebug);
 
-                scope.setLangMode(
-                        LangMode.valueOf(getConfigValue("env.langMode", LangMode.MODERN.name()).toString().toUpperCase())
-                );
+                CompileScopeOptions options = new CompileScopeOptions.Builder()
+                        .debugMode(isDebug)
+                        .langMode(LangMode.valueOf(getConfigValue("env.langMode", LangMode.MODERN.name()).toString().toUpperCase()))
+                        .build();
+
+                scope.setOptions(options);
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
             }

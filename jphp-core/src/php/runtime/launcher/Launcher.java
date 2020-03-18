@@ -155,11 +155,12 @@ public class Launcher {
 
                 isDebug = Startup.isDebug();
 
-                compileScope.setDebugMode(isDebug);
+                CompileScopeOptions options = new CompileScopeOptions.Builder()
+                        .debugMode(isDebug)
+                        .langMode(LangMode.valueOf(getConfigValue("env.langMode", LangMode.MODERN.name()).toString().toUpperCase()))
+                        .build();
+                compileScope.setOptions(options);
 
-                compileScope.setLangMode(
-                        LangMode.valueOf(getConfigValue("env.langMode", LangMode.MODERN.name()).toString().toUpperCase())
-                );
             } catch (IOException e) {
                 throw new LaunchException(e.getMessage());
             }

@@ -78,14 +78,13 @@ public class CompileScope {
 
     public Map<String, Memory> configuration = new HashMap<>();
 
-    // flags
-    public boolean debugMode = false;
-    protected LangMode langMode = LangMode.MODERN;
+    private CompileScopeOptions options = new CompileScopeOptions.Builder().build();
 
     public CompileScope(CompileScope parent) {
         id = scopeCount.getAndIncrement();
         classLoader = parent.classLoader;
-        langMode = parent.langMode;
+
+        options = parent.options;
 
         moduleMap = new ConcurrentHashMap<>();
         moduleIndexMap = new ConcurrentHashMap<>();
@@ -121,6 +120,8 @@ public class CompileScope {
         moduleMap.putAll(parent.moduleMap);
         moduleIndexMap.putAll(parent.moduleIndexMap);
 
+        configuration.putAll(parent.configuration);
+
         classCount.set(parent.classCount.longValue());
         moduleCount.set(parent.moduleCount.intValue());
         methodCount.set(parent.methodCount.longValue());
@@ -138,10 +139,20 @@ public class CompileScope {
     }
 
     public CompileScope() {
-        this(new RuntimeClassLoader(Thread.currentThread().getContextClassLoader()));
+        this(new CompileScopeOptions.Builder().build());
+    }
+
+    public CompileScope(CompileScopeOptions options) {
+        this(new RuntimeClassLoader(Thread.currentThread().getContextClassLoader()), options);
     }
 
     public CompileScope(RuntimeClassLoader classLoader) {
+        this(classLoader, new CompileScopeOptions.Builder().build());
+    }
+
+    public CompileScope(RuntimeClassLoader classLoader, CompileScopeOptions options) {
+        setOptions(options);
+
         id = scopeCount.getAndIncrement();
         this.classLoader = classLoader;
 
@@ -224,28 +235,36 @@ public class CompileScope {
         }
     }
 
+    public CompileScopeOptions getOptions() {
+        return options;
+    }
+
+    public void setOptions(CompileScopeOptions options) {
+        this.options = options;
+    }
+
+    public LangMode getLangMode() {
+        return options.langMode;
+    }
+
+    public boolean isDebugMode() {
+        return options.debugMode;
+    }
+
+    public void setLangMode(LangMode langMode) {
+        setOptions(options.duplicate().langMode(langMode).build());
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        setOptions(options.duplicate().debugMode(debugMode).build());
+    }
+
     public RuntimeClassLoader getClassLoader() {
         return classLoader;
     }
 
     public void setNativeClassLoader(ClassLoader classLoader) {
         this.classLoader = new RuntimeClassLoader(classLoader);
-    }
-
-    public LangMode getLangMode() {
-        return langMode;
-    }
-
-    public void setLangMode(LangMode langMode) {
-        this.langMode = langMode;
-    }
-
-    public boolean isDebugMode() {
-        return debugMode;
-    }
-
-    public void setDebugMode(boolean debugMode) {
-        this.debugMode = debugMode;
     }
 
     public Map<String, ClassEntity> getClassMap() {

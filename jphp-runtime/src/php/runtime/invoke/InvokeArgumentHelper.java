@@ -164,7 +164,6 @@ public class InvokeArgumentHelper {
                     }
 
                     passed[_i] = variadicArgs;
-
                     break;
                 }
 

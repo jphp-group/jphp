@@ -218,4 +218,9 @@ abstract public class AbstractFunctionEntity extends Entity {
     public void setReturnTypeClass(String returnTypeClass) {
         this.returnTypeChecker = TypeChecker.of(returnTypeClass);
     }
+
+    public boolean isLikeConstant() {
+        return (parameters == null || parameters.length == 0)
+                && isImmutable() && !isUsesStackTrace();
+    }
 }

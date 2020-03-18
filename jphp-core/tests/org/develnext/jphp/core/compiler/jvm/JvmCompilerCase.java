@@ -51,7 +51,7 @@ abstract public class JvmCompilerCase {
 
     protected CompileScope newScope(){
         CompileScope compileScope = new CompileScope();
-        compileScope.setDebugMode(false);
+        //compileScope.setDebugMode(false);
         compileScope.setLangMode(LangMode.DEFAULT);
 
         compileScope.registerExtension(new CoreExtension());

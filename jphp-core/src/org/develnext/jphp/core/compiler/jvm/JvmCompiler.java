@@ -29,9 +29,9 @@ public class JvmCompiler extends AbstractCompiler {
     protected final ModuleEntity module;
     protected NamespaceStmtToken namespace;
     protected List<DeclareStmtToken> declareStmtTokens = new ArrayList<>();
-    private List<ClassStmtCompiler> classes = new ArrayList<ClassStmtCompiler>();
-    private Map<String, ConstantEntity> constants = new LinkedHashMap<String, ConstantEntity>();
-    private Map<String, FunctionEntity> functions = new LinkedHashMap<String, FunctionEntity>();
+    private Map<String, ConstantEntity> constants = new LinkedHashMap<>();
+    private Map<String, FunctionEntity> functions = new LinkedHashMap<>();
+    private Map<String, ClassEntity> classes = new LinkedHashMap<>();
 
     protected List<ConstStmtToken.Item> dynamicConstants = new ArrayList<>();
 
@@ -46,7 +46,6 @@ public class JvmCompiler extends AbstractCompiler {
 
     public JvmCompiler(Environment environment, Context context, SyntaxAnalyzer analyzer) {
         super(environment, context);
-        this.classes = new ArrayList<>();
         this.module = new ModuleEntity(context);
         this.module.setId( scope.nextModuleIndex() );
 
@@ -64,6 +63,10 @@ public class JvmCompiler extends AbstractCompiler {
 
     public FunctionEntity findFunction(String name){
         return functions.get(name.toLowerCase());
+    }
+
+    public ClassEntity findClass(String name){
+        return classes.get(name.toLowerCase());
     }
 
     public NamespaceStmtToken getNamespace() {
@@ -193,6 +196,9 @@ public class JvmCompiler extends AbstractCompiler {
             } if (token instanceof ClassStmtToken){
                 ClassStmtCompiler cmp = new ClassStmtCompiler(this, (ClassStmtToken)token);
                 ClassEntity entity = cmp.compile();
+
+                classes.put(entity.getLowerName(), entity);
+
                 entity.setStatic(true);
                 module.addClass(entity);
 
@@ -234,7 +240,6 @@ public class JvmCompiler extends AbstractCompiler {
 
     @Override
     public ModuleEntity compile(boolean autoRegister) {
-        this.classes = new ArrayList<>();
         module.setInternalName("$php_module_m" + UUID.randomUUID().toString().replace("-", ""));
 
         List<ExprStmtToken> externalCode = process(tokens, NamespaceStmtToken.getDefault());
@@ -305,10 +310,6 @@ public class JvmCompiler extends AbstractCompiler {
 
     public ModuleEntity getModule() {
         return module;
-    }
-
-    public List<ClassStmtCompiler> getClasses() {
-        return classes;
     }
 
     public String getSourceFile() {
