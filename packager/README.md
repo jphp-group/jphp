@@ -54,10 +54,10 @@ Run and select options:
 jppm init
 ```
 
-- If you choose `add AppPlugin (yes)` so you can run the created package as jphp application, use `app:run`:
+- If you choose `add AppPlugin (yes)` so you can run the created package as jphp application, use `start`:
 
 ```
-jppm app:run
+jppm start
 ```
 
 It will println `Hello World` in your console. The php source of the package see in `src/index.php`.
