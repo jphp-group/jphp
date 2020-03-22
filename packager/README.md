@@ -78,7 +78,7 @@ plugins:
 # ...  
 ```
 
-- Now, the command `app:run`, `app:build`, `app:clean` will be availble.
+- Now, the command `start`, `build`, `clean` will be availble.
 - Add jphp compiler dependency to your `package.php.yml`:
 
 ```yaml
@@ -115,9 +115,9 @@ deps:
 sources:
   - 'src' # add 'src' dir as source directory (for class loader too).
   
-app:
-  bootstrap: 'index.php'
+includes:
+  - 'index.php' # include php files at start up from sources directories.
 ```
 
-- Now, you can run `jppm app:run` to run you app.
-- And you can run `jppm app:build` to build your app to one executable jar file!
+- Now, you can run `jppm start` to run you app.
+- And you can run `jppm build` to build your app with launch scripts for windows and linux!
