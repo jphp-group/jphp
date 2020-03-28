@@ -9,7 +9,7 @@ Runtime for JPHP + Standard library.
 
 ### Установка
 ```
-jppm add jphp-runtime@1.3.0
+jppm add jphp-runtime@1.3.1
 ```
 
 ### АПИ

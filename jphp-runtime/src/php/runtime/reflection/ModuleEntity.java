@@ -31,15 +31,15 @@ public class ModuleEntity extends Entity {
 
     protected boolean isLoaded;
 
-    private final static Memory[] argsMock = new Memory[]{};
+    private final static Memory[] argsMock = Memory.CONST_EMPTY_ARRAY;
 
     public ModuleEntity(Context context) {
         super(context);
-        this.classes = new LinkedHashMap<String, ClassEntity>();
-        this.functions = new ArrayList<FunctionEntity>();
-        this.constants = new LinkedHashMap<String, ConstantEntity>();
-        this.closures = new ArrayList<ClosureEntity>();
-        this.generators = new ArrayList<GeneratorEntity>();
+        this.classes = new LinkedHashMap<>();
+        this.functions = new ArrayList<>();
+        this.constants = new LinkedHashMap<>();
+        this.closures = new ArrayList<>();
+        this.generators = new ArrayList<>();
         this.setName(context.getModuleNameNoThrow());
     }
 

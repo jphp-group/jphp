@@ -38,7 +38,7 @@ public class MathFunctions extends FunctionsContainer {
         }
 
         for(int i = -MAX_SIN_NEG; i < MAX_SIN; i++){
-            SIN_CACHE[i + MAX_SIN_NEG] = Math.cos(i);
+            SIN_CACHE[i + MAX_SIN_NEG] = Math.sin(i);
         }
     }
 

@@ -83,18 +83,18 @@ abstract public class Extension {
     }
 
     public void registerClass(CompileScope scope, Class<?> clazz) {
-        registerClass(scope, new Class[] { clazz });
+        if (BaseWrapper.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Reflection.NotWrapper.class)) {
+            throw new CriticalException("Please use registerWrapperClass() method instead of this for wrapper classes");
+        }
+
+        if (this.classes.put(clazz.getName(), clazz) != null) {
+            throw new CriticalException("Class already registered - " + clazz.getName());
+        }
     }
 
     public void registerClass(CompileScope scope, Class<?>... classes) {
         for (Class<?> clazz : classes) {
-            if (BaseWrapper.class.isAssignableFrom(clazz) && !clazz.isAnnotationPresent(Reflection.NotWrapper.class)) {
-                throw new CriticalException("Please use registerWrapperClass() method instead of this for wrapper classes");
-            }
-
-            if (this.classes.put(clazz.getName(), clazz) != null) {
-                throw new CriticalException("Class already registered - " + clazz.getName());
-            }
+            registerClass(scope, clazz);
         }
     }
 
