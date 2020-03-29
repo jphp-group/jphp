@@ -310,8 +310,12 @@ class Repository
             $lockVersion = $lock->findVersion($name);
 
             if ($lockVersion) {
-                if ($lockVersion === $versionPattern || (new SemVersion($lockVersion))->satisfies($versionPattern)) {
-                    $versionPattern = $lockVersion;
+                try {
+                    if ($lockVersion === $versionPattern || (new SemVersion($lockVersion))->satisfies($versionPattern)) {
+                        $versionPattern = $lockVersion;
+                    }
+                } catch (\Throwable $e) {
+                    // nop.
                 }
             }
         }

@@ -25,3 +25,5 @@ app:
 sources:
 - src
 
+includes:
+- index.php
