@@ -10,31 +10,29 @@ import php.runtime.memory.support.MemoryOperation;
 
 import java.io.*;
 
-public class ReaderMemoryStream extends MemoryOperation<Reader> {
+public class WriterMemoryStream extends MemoryOperation<Writer> {
     @Override
     public Class<?>[] getOperationClasses() {
-        return new Class[] { Reader.class };
+        return new Class[] { Writer.class };
     }
 
     @Override
-    public Reader convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
+    public Writer convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
         if (arg.isNull()) return null;
 
         if (arg.instanceOf(Stream.class)) {
-            InputStream inputStream = Stream.getInputStream(env, arg);
-            if (inputStream == null) return null;
+            OutputStream outputStream = Stream.getOutputStream(env, arg);
+            if (outputStream == null) return null;
 
-            return new InputStreamReader(inputStream, env.getDefaultCharset());
-        } else if (arg.instanceOf(FileObject.class)) {
-            Stream stream = Stream.create(env, arg.toString(), "r");
-            return new InputStreamReader(Stream.getInputStream(env, stream), env.getDefaultCharset());
+            return new OutputStreamWriter(outputStream, env.getDefaultCharset());
+        } else {
+            Stream stream = Stream.create(env, arg.toString(), "w+");
+            return new OutputStreamWriter(Stream.getOutputStream(env, stream), env.getDefaultCharset());
         }
-
-        return new StringReader(arg.toString());
     }
 
     @Override
-    public Memory unconvert(Environment env, TraceInfo trace, Reader arg) throws Throwable {
+    public Memory unconvert(Environment env, TraceInfo trace, Writer arg) throws Throwable {
         throw new CriticalException("Unsupported operation");
     }
 }

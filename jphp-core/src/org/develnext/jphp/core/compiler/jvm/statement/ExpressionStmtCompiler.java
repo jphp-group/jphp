@@ -452,8 +452,6 @@ public class ExpressionStmtCompiler extends StmtCompiler {
             code.add(new MethodInsnNode(INVOKESPECIAL, Type.getInternalName(ReferenceMemory.class), Constants.INIT_METHOD, "()V", false));
         } else if (memory instanceof ArrayMemory) {
             ArrayMemory array = (ArrayMemory) memory;
-
-
             if (!array.isList()) {
                 if (array.size() == 0) {
                     writeSysStaticCall(ArrayMemory.class, "emptyMap", ArrayMemory.class);

@@ -9,6 +9,7 @@ import org.develnext.jphp.core.tokenizer.token.expr.value.StringBuilderExprToken
 import org.develnext.jphp.core.tokenizer.token.stmt.ExprStmtToken;
 import php.runtime.Memory;
 import php.runtime.memory.BinaryMemory;
+import php.runtime.memory.StringMemory;
 
 import java.util.List;
 

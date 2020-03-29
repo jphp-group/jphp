@@ -274,6 +274,8 @@ abstract public class MemoryOperation<T> {
         register(new OutputStreamMemoryOperation());
         register(new FileMemoryOperation());
         register(new ByteArrayInputStreamMemoryOperation());
+        register(new ReaderMemoryStream());
+        register(new WriterMemoryStream());
 
         register(new PatternMemoryOperation());
 

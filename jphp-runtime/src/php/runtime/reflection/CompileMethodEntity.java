@@ -24,6 +24,18 @@ import java.lang.reflect.*;
 import java.util.Arrays;
 
 public class CompileMethodEntity extends MethodEntity {
+    public static final InjectMemoryOperation INJECT_ENV_MEMORY_OPERATION = new InjectMemoryOperation() {
+        @Override
+        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
+            return env;
+        }
+    };
+    public static final InjectMemoryOperation INJECT_TRACE_MEMORY_OPERATION = new InjectMemoryOperation() {
+        @Override
+        public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
+            return trace;
+        }
+    };
     protected CompileMethod function;
 
     {
@@ -88,9 +100,9 @@ public class CompileMethodEntity extends MethodEntity {
         Class<?>[] parameterTypes = method.getParameterTypes();
         int paramCount = parameterTypes.length;
 
-        for (int x = 0; x < paramCount; x++) {
-        //for (Parameter el : method.getParameters()) { // FIX for Android!
-            Class<?> elType = parameterTypes[x];
+        //for (int x = 0; x < paramCount; x++) {
+        for (Parameter el : method.getParameters()) {
+            Class<?> elType = el.getType();
 
             if (elType == Environment.class || elType == TraceInfo.class) {
                 k++;
@@ -98,7 +110,7 @@ public class CompileMethodEntity extends MethodEntity {
             }
 
             ParameterEntity param = new ParameterEntity(context);
-            param.setName(/*el.isNamePresent() ? el.getName() : */"arg" + i); // Fix for Android!
+            param.setName(el.isNamePresent() ? el.getName() : "arg" + i);
             param.setTrace(TraceInfo.UNKNOWN);
 
             Annotation[] argAnnotations = annotations[k];
@@ -379,19 +391,9 @@ public class CompileMethodEntity extends MethodEntity {
                             k++;
                         } else {
                             if (parameterType == Environment.class) {
-                                argumentOperations[i] = new InjectMemoryOperation() {
-                                    @Override
-                                    public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                                        return env;
-                                    }
-                                };
+                                argumentOperations[i] = INJECT_ENV_MEMORY_OPERATION;
                             } else if (parameterType == TraceInfo.class) {
-                                argumentOperations[i] = new InjectMemoryOperation() {
-                                    @Override
-                                    public Object convert(Environment env, TraceInfo trace, Memory arg) throws Throwable {
-                                        return trace;
-                                    }
-                                };
+                                argumentOperations[i] = INJECT_TRACE_MEMORY_OPERATION;
                             } else {
                                 if (unknownTypeFetcher != null) {
                                     op = unknownTypeFetcher.call(parameterType, genericTypes);
