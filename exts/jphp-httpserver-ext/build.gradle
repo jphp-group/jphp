@@ -1,5 +1,5 @@
 
-def jettyVersion = '9.4.26.v20200117'
+def jettyVersion = '9.4.28.v20200408'
 
 dependencies {
     provided project(':jphp-runtime')
