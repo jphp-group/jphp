@@ -3,12 +3,12 @@
 ---
 
 ## jphp-httpserver-ext
-> версия 1.1.0, создано с помощью JPPM.
+> версия {0}, создано с помощью JPPM.
 
 
 ### Установка
 ```
-jppm add jphp-httpserver-ext@1.1.0
+jppm add jphp-httpserver-ext@1.1.1
 ```
 
 ### АПИ
@@ -20,6 +20,7 @@ jppm add jphp-httpserver-ext@1.1.0
 - [`HttpCORSFilter`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/api-docs/classes/php/http/HttpCORSFilter.ru.md)
 - [`HttpDownloadFileHandler`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/api-docs/classes/php/http/HttpDownloadFileHandler.ru.md)- _Class HttpDownloadFileHandler_
 - [`HttpGzipFilter`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/api-docs/classes/php/http/HttpGzipFilter.ru.md)
+- [`HttpPart`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/api-docs/classes/php/http/HttpPart.ru.md)
 - [`HttpRedirectHandler`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/api-docs/classes/php/http/HttpRedirectHandler.ru.md)- _Class HttpDownloadFileHandler_
 - [`HttpResourceHandler`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/api-docs/classes/php/http/HttpResourceHandler.ru.md)
 - [`HttpRouteFilter`](https://github.com/jphp-compiler/jphp/blob/master/exts/jphp-httpserver-ext/api-docs/classes/php/http/HttpRouteFilter.ru.md)

@@ -38,6 +38,7 @@ Class HttpServerRequest
 - `->`[`locale()`](#method-locale)
 - `->`[`locales()`](#method-locales)
 - `->`[`bodyStream()`](#method-bodystream)
+- `->`[`getParts()`](#method-getparts)
 
 ---
 # Методы
@@ -274,4 +275,13 @@ locales(): Locale[]
 ### bodyStream()
 ```php
 bodyStream(): php\io\Stream
+```
+
+---
+
+<a name="method-getparts"></a>
+
+### getParts()
+```php
+getParts(): HttpPart[]
 ```
