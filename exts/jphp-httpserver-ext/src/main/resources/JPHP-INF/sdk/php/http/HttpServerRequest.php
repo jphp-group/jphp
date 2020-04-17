@@ -1,7 +1,9 @@
 <?php
 namespace php\http;
+use php\io\IOException;
 use php\io\Stream;
 use php\lang\IllegalStateException;
+use php\lang\JavaException;
 use php\util\Locale;
 
 /**
@@ -196,6 +198,15 @@ class HttpServerRequest
      * @throws IllegalStateException
      */
     function bodyStream(): Stream
+    {
+    }
+
+    /**
+     * @return HttpPart[]
+     * @throws JavaException
+     * @throws IOException
+     */
+    function getParts(): array
     {
     }
 }

@@ -9,6 +9,8 @@ import php.runtime.env.CompileScope;
 import php.runtime.ext.support.Extension;
 import php.runtime.memory.support.MemoryOperation;
 
+import javax.servlet.http.Part;
+
 class NoLogging implements Logger {
     @Override public String getName() { return "no"; }
     @Override public void warn(String msg, Object... args) { }
@@ -50,6 +52,7 @@ public class HttpServerExtension extends Extension {
     @Override
     public void onRegister(CompileScope scope) {
         registerWrapperClass(scope, Session.class, PWebSocketSession.class);
+        registerWrapperClass(scope, Part.class, PHttpPart.class);
         MemoryOperation.registerWrapper(WebSocketSession.class, PWebSocketSession.class);
 
         registerClass(scope, PHttpServer.class);

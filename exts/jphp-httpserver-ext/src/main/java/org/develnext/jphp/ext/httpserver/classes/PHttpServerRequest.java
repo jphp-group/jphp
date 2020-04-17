@@ -16,12 +16,12 @@ import php.runtime.memory.ReferenceMemory;
 import php.runtime.memory.StringMemory;
 import php.runtime.reflection.ClassEntity;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.Part;
 import java.io.IOException;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 @Name("HttpServerRequest")
 @Namespace(HttpServerExtension.NS)
@@ -267,5 +267,11 @@ public class PHttpServerRequest extends BaseObject {
     @Signature
     public void end() {
         request.setHandled(true);
+    }
+
+    @Signature
+    public Collection<Part> getParts() throws IOException, ServletException {
+        request.setAttribute(Request.MULTIPART_CONFIG_ELEMENT, new MultipartConfigElement(""));
+        return request.getParts();
     }
 }
