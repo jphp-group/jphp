@@ -24,7 +24,10 @@ public class PHttpPart extends BaseWrapper<Part> {
     @Reflection.Signature
     public byte[] readAll() throws IOException {
         ByteArrayInputStream inputStream = (ByteArrayInputStream) getWrappedObject().getInputStream();
-        return inputStream.readAllBytes();
+        byte[] array = new byte[inputStream.available()];
+        inputStream.read(array);
+        inputStream.close();
+        return array;
     }
 
     @Reflection.Signature
