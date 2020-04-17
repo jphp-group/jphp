@@ -1,12 +1,8 @@
 package org.develnext.jphp.ext.httpserver.classes;
 
-import org.apache.commons.io.IOUtils;
 import org.develnext.jphp.ext.httpserver.HttpServerExtension;
 import php.runtime.annotation.Reflection;
 import php.runtime.env.Environment;
-import php.runtime.ext.core.classes.stream.DataStream;
-import php.runtime.ext.core.classes.stream.MemoryStream;
-import php.runtime.ext.core.classes.stream.ResourceStream;
 import php.runtime.lang.BaseWrapper;
 import php.runtime.reflection.ClassEntity;
 
