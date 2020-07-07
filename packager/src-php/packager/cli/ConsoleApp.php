@@ -92,18 +92,22 @@ class ConsoleApp
             if ($this->isFlag('without-os')) {
                 // nop.
             } else {
-                if ($this->isFlag('win')) {
-                    $os = 'win';
-                } else if ($this->isFlag('mac') || str::posIgnoreCase($osName, 'mac') > -1) {
-                    $os = 'mac';
-                } else if ($this->isFlag('linux')) {
-                    $os = 'linux';
-                } else if (str::posIgnoreCase($osName, 'win') > -1) {
-                    $os = 'win';
-                } else if (str::posIgnoreCase($osName, 'mac') > -1) {
-                    $os = 'mac';
+                if ($_ENV['JPPM_OS_BUILD']) {
+                    $os = $_ENV['JPPM_OS_BUILD'];
                 } else {
-                    $os = 'linux';
+                    if ($this->isFlag('win')) {
+                        $os = 'win';
+                    } else if ($this->isFlag('mac') || $this->isFlag('darwin')) {
+                        $os = 'mac';
+                    } else if ($this->isFlag('linux')) {
+                        $os = 'linux';
+                    } else if (str::posIgnoreCase($osName, 'win') > -1) {
+                        $os = 'win';
+                    } else if (str::posIgnoreCase($osName, 'mac') > -1) {
+                        $os = 'mac';
+                    } else {
+                        $os = 'linux';
+                    }
                 }
             }
 

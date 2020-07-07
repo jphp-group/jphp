@@ -1,5 +1,5 @@
 name: jppm
-version: 0.6.6
+version: 0.6.7
 
 plugins: [GitHub, Hub, Doc]
 
@@ -17,7 +17,7 @@ github:
     > JPHP Package Manager v%version%
 
     **What's new**
-    + Fix git sources and semver bugs.
+    + Add JPPM_OS_BUILD env option.
 
     **Downloads**
     + For Windows: [JPPM Windows Installer](%github.address%/releases/download/jppm-%version%/jppm-setup-%version%.exe)
