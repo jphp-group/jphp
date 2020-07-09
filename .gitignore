@@ -30,3 +30,4 @@ package.github.yml
 package.hub.yml
 
 *.hprof
+.phpintel/*
