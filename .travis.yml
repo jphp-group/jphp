@@ -1,6 +1,10 @@
 dist: trusty # xenial fail to install oraclejdk8
 language: java
 
+cache:
+  directories:
+    - $HOME/.gradle
+
 jdk:
   - openjdk11
   - openjdk8
