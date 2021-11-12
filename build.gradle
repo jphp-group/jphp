@@ -21,6 +21,10 @@ task genExtension() {
 }
 
 allprojects {
+    tasks.withType(JavaCompile).configureEach {
+        options.fork = true
+    }
+
     apply plugin: 'idea'
     apply plugin: 'signing'
     apply plugin: 'java'
