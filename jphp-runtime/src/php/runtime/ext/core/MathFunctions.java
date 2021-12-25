@@ -336,7 +336,7 @@ public class MathFunctions extends FunctionsContainer {
     }
 
     @Immutable
-    public static int intdiv(int x, int y) {
+    public static long intdiv(long x, long y) {
         return x / y;
     }
 }
